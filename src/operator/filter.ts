@@ -1,5 +1,5 @@
-import { EmitObserver } from "../emiter/emit-observer";
-import { EmitStream } from "../emiter/emit-stream";
+import { EmitObserver } from "@emiter/emit-observer";
+import { EmitStream } from "@emiter/emit-stream";
 
 export function filter<T>(predicate: (value: T) => boolean) {
   return (source: EmitStream<T>) =>
