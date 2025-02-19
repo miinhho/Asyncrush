@@ -1,4 +1,4 @@
-import { StreamListener } from "../listen/stream-listener.interface";
+import { EmitListener } from "../listen/emit-listener";
 import { EmitObserver } from "./emit-observer";
 
 export class EmitStream<T> {
@@ -6,7 +6,7 @@ export class EmitStream<T> {
     private producer: (observer: EmitObserver<T>) => () => void
   ) { }
 
-  listen(observer: Partial<EmitObserver<T>>): StreamListener {
+  listen(observer: Partial<EmitObserver<T>>): EmitListener {
     const eventObserver = new EmitObserver<T>();
 
     if (observer.next) {
