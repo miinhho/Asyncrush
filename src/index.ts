@@ -3,9 +3,16 @@ import { EmitStream } from "@emiter/emit-stream";
 import { useMiddleware } from "@middleware/use-middleware";
 
 const stream = new EmitStream((observer) => {
+  let count = 0;
   const interval = setInterval(() => {
-    observer.next(1);
-  }, 10)
+    observer.next(count);
+    count++;
+
+    if (count > 5) {
+      observer.complete();
+      clearInterval(interval);
+    }
+  }, 10);
 
   return () => {
     clearInterval(interval);

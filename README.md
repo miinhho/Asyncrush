@@ -17,32 +17,38 @@ Currently focused on features, so this is not a library at all
 
 ```typescript
 const stream = new EmitStream((observer) => {
-  observer.next('Hello');
-  observer.next('World');
-  observer.complete();
+  let count = 0;
+  const interval = setInterval(() => {
+    observer.next(count);
+    count++;
+
+    if (count > 5) {
+      observer.complete();
+      clearInterval(interval);
+    }
+  }, 10);
 
   return () => {
-    console.log('Completed');
+    clearInterval(interval);
+    console.log('Cleanup');
   };
 });
 
 const middleware = useMiddleware((value) => {
-  return value + ' Middlewared';
+  return value + 1;
 });
 
 const listenStream: EmitObserveStream = {
-  next: (value) => console.log(value + ' Listened'),
+  next: (value) => console.log(value),
   error: (error) => console.error(error),
   complete: () => console.log('Completed')
 };
 
 stream
   .use(middleware)
-  .then((middleware) => {
-    middleware.listen(listenStream)
-  });
+  .listen(listenStream);
 
 setTimeout(() => {
   stream.unlisten('complete');
-}, 1000);
+}, 100);
 ```
