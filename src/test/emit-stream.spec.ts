@@ -4,16 +4,14 @@ describe('EmitStream', () => {
   test('should emit values and complete', (done) => {
     const values: number[] = [];
 
-    const sourceStream = new EmitStream<number>((observer) => {
+    new EmitStream<number>((observer) => {
       observer.next(1);
       observer.next(2);
       observer.next(3);
       observer.complete();
 
       return () => { };
-    });
-
-    sourceStream.listen({
+    }).listen({
       next: (value) => values.push(value),
       complete: () => {
         expect(values).toEqual([1, 2, 3]);
@@ -25,13 +23,11 @@ describe('EmitStream', () => {
   test('should call error callback when an error occurs', (done) => {
     const errorMessage = 'Error occurred';
 
-    const sourceStream = new EmitStream<number>((observer) => {
+    new EmitStream<number>((observer) => {
       observer.error(new Error(errorMessage));
 
       return () => { };
-    });
-
-    sourceStream.listen({
+    }).listen({
       next: () => { },
       error: (err) => {
         expect(err.message).toBe(errorMessage);

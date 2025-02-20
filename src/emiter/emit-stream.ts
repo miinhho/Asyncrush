@@ -1,4 +1,4 @@
-import { EmitListener } from "../listen/emit-listener";
+import { EmitListener } from "@listen/emit-listener.interface";
 import { EmitObserver } from "./emit-observer";
 
 export class EmitStream<T> {
@@ -20,13 +20,12 @@ export class EmitStream<T> {
     }
 
     const cleanup = this.producer(eventObserver);
-
     return {
       unlisten: () => {
         cleanup();
         eventObserver.removeAllListeners();
       }
-    }
+    };
   }
 
   pipe<R>(...operators: Array<(source: EmitStream<any>) => EmitStream<any>>): EmitStream<any> {

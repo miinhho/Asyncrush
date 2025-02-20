@@ -4,22 +4,18 @@ import { map } from '@operator/map';
 
 describe('Operator', () => {
   test('should apply map operator correctly', (done) => {
-    const sourceStream = new EmitStream<number>((observer) => {
+    const results: number[] = [];
+
+    new EmitStream<number>((observer) => {
       observer.next(1);
       observer.next(2);
       observer.next(3);
       observer.complete();
 
       return () => { };
-    });
-
-    const mappedPipe = sourceStream.pipe(
+    }).pipe(
       map((value) => value * 2)
-    );
-
-    const results: number[] = [];
-
-    mappedPipe.listen({
+    ).listen({
       next: (value) => results.push(value),
       complete: () => {
         expect(results).toEqual([2, 4, 6]);
@@ -29,7 +25,9 @@ describe('Operator', () => {
   });
 
   test('should apply filter operator correctly', (done) => {
-    const sourceStream = new EmitStream<number>((observer) => {
+    const results: number[] = [];
+
+    new EmitStream<number>((observer) => {
       observer.next(1);
       observer.next(2);
       observer.next(3);
@@ -37,15 +35,9 @@ describe('Operator', () => {
       observer.complete();
 
       return () => { };
-    });
-
-    const filteredPipe = sourceStream.pipe(
+    }).pipe(
       filter((value) => value % 2 === 0)
-    );
-
-    const results: number[] = [];
-
-    filteredPipe.listen({
+    ).listen({
       next: (value) => results.push(value),
       complete: () => {
         expect(results).toEqual([2, 4]);

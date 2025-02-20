@@ -1,9 +1,9 @@
-import { EventEmitter } from "node:stream";
+import { captureRejectionSymbol, EventEmitter } from "node:stream";
 import { EmitObserverImpl } from "./emit-observer.interface";
 
 export class EmitObserver<T> extends EventEmitter implements EmitObserverImpl<T> {
   constructor() {
-    super();
+    super({ captureRejections: true });
   }
 
   next(value: T): void {
@@ -16,6 +16,11 @@ export class EmitObserver<T> extends EventEmitter implements EmitObserverImpl<T>
 
   complete(): void {
     this.emit('complete');
+    this.removeAllListeners();
+  }
+
+  [captureRejectionSymbol](err: any, event: string | symbol, ...args: any): void {
+    this.emit('error', err);
     this.removeAllListeners();
   }
 }
