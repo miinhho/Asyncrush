@@ -5,7 +5,7 @@ describe('EmitStream', () => {
   test('should emit values and complete', (done) => {
     const values: number[] = [];
 
-    new EmitStream<number>((observer) => {
+    new EmitStream((observer) => {
       observer.next(1);
       observer.next(2);
       observer.next(3);
@@ -24,7 +24,7 @@ describe('EmitStream', () => {
   test('should call error callback when an error occurs', (done) => {
     const errorMessage = 'Error occurred';
 
-    new EmitStream<number>((observer) => {
+    new EmitStream((observer) => {
       observer.error(new Error(errorMessage));
 
       return () => { };
@@ -40,7 +40,7 @@ describe('EmitStream', () => {
   test('should call error callback in captureRejectionSymbol', (done) => {
     const errorMessage = 'Error occurred';
 
-    new EmitStream<number>((observer) => {
+    new EmitStream((observer) => {
       observer[captureRejectionSymbol](new Error(errorMessage), 'next');
 
       return () => { };

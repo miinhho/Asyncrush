@@ -1,24 +1,31 @@
-import { EmitListener } from "@listen/emit-listener.interface";
+import { EmitListener } from "@listen/emit-listener.types";
+import { EmitMiddleware } from "@middleware/middleware.types";
 import { EmitObserver } from "./emit-observer";
+import { EmitObserveStream } from "./emit-observer.types";
 
 /**
  * Stream that emits values, errors, and completion events
  */
-export class EmitStream<T> {
+export class EmitStream {
+  private emitObserver: EmitObserver;
+  private readonly middlewares: EmitMiddleware[] = [];
+
   /**
    * @param producer - A function that takes an EmitObserver and returns a cleanup function
    */
   constructor(
-    private producer: (observer: EmitObserver<T>) => () => void
-  ) { }
+    private producer: (observer: EmitObserver) => () => void
+  ) {
+    this.emitObserver = new EmitObserver();
+  }
 
   /**
    * Subscribes an observer to the stream
    * @param observer - An object with optional next, error, and complete methods
    * @returns An EmitListener with an unlisten method to unsubscribe
    */
-  listen(observer: Partial<EmitObserver<T>>): EmitListener {
-    const eventObserver = new EmitObserver<T>();
+  listen(observer: EmitObserveStream): EmitListener {
+    const eventObserver = this.emitObserver;
 
     if (observer.next) {
       eventObserver.on('next', observer.next);
@@ -30,6 +37,9 @@ export class EmitStream<T> {
       eventObserver.on('complete', observer.complete);
     }
 
+    /**
+     * Cleanup function called when unlisten is called
+     */
     const cleanup = this.producer(eventObserver);
     return {
       unlisten: () => {
@@ -41,16 +51,49 @@ export class EmitStream<T> {
 
   /**
    * The stream through a series of operators
-   * @param operators - An array of functions that take an EmitStream and return a new EmitStream
+   * @param middlewares - An array of functions that take an EmitStream and return a new EmitStream
    * @returns A new EmitStream with the result of applying the operators
    */
-  async use<T>(
-    ...middlewares: Array<Promise<(source: EmitStream<any>) => EmitStream<any>>>
-  ): Promise<EmitStream<any>> {
-    let stream: EmitStream<any> = this;
-    for (const middleware of middlewares) {
+  async use(
+    ...middlewares: EmitMiddleware[]
+  ): Promise<EmitStream> {
+    let stream: EmitStream = this;
+
+    this.middlewares.push(...middlewares);
+    for (const middleware of this.middlewares) {
       stream = (await middleware)(stream);
     }
-    return stream as EmitStream<T>;
+
+    return stream;
+  }
+
+  /**
+   * Get the EmitObserver instance of the stream
+   * @returns The EmitObserver instance
+   */
+  getObserver() {
+    return this.emitObserver;
+  }
+
+  /**
+   * Unsubscribes from the stream
+   * @param {'error' | 'destroy' | 'complete'} option - An option to unlisten from the stream
+   */
+  unlisten(option?: Exclude<keyof EmitObserveStream, 'next'>) {
+    switch (option) {
+      case 'error': {
+        this.emitObserver.emit('error', 'Unsubscribed');
+        break;
+      }
+      case 'destroy': {
+        this.emitObserver.emit('destroy');
+        break;
+      }
+      case 'complete':
+      default: {
+        this.emitObserver.emit('complete');
+        break;
+      }
+    }
   }
 }

@@ -1,27 +1,27 @@
 import { captureRejectionSymbol, EventEmitter } from "node:stream";
-import { EmitObserverImpl } from "./emit-observer.interface";
+import { EmitObserverImpl } from "./emit-observer.types";
 
 /**
  * An observer that can emit values, errors and completion events
  * @extends EventEmitter
- * @implements {EmitObserverImpl<T>}
+ * @implements {EmitObserverImpl}
  */
-export class EmitObserver<T> extends EventEmitter implements EmitObserverImpl<T> {
+export class EmitObserver extends EventEmitter implements EmitObserverImpl {
   constructor() {
     super({ captureRejections: true });
   }
 
   /**
    * Emits the next value
-   * @param {T} value
+   * @param value
    */
-  next(value: T): void {
+  next(value: any): void {
     this.emit('next', value);
   }
 
   /**
    * Emits an error
-   * @param {any} err
+   * @param err
    */
   error(err: any): void {
     this.emit('error', err);
@@ -36,10 +36,18 @@ export class EmitObserver<T> extends EventEmitter implements EmitObserverImpl<T>
   }
 
   /**
+   * Cleans up listeners
+   */
+  destroy(): void {
+    this.removeAllListeners();
+  }
+
+  /**
    * Handles captured rejections
-   * @param {any} err
-   * @param {string | symbol} event
-   * @param {...any} args
+   * Do not call this method directly
+   * @param err
+   * @param event
+   * @param args
    */
   [captureRejectionSymbol](err: any, event: string | symbol, ...args: any): void {
     this.emit('error', err);

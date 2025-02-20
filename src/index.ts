@@ -1,21 +1,7 @@
-## Stream Emitter
+import { EmitObserveStream } from "@emiter/emit-observer.types";
+import { EmitStream } from "@emiter/emit-stream";
+import { useMiddleware } from "@middleware/use-middleware";
 
-### Reactive programming with Node.js's EventEmitter
-
-#### Event-driven middleware for effective & clear  
-
-<br>
-
-**Inspired from RxJS**    
-This is **NOT FOR PRODUCTION**  
-Currently focused on features, so this is not a library at all  
-
-<br>
-
-
-## Features
-
-```typescript
 const stream = new EmitStream((observer) => {
   observer.next('Hello');
   observer.next('World');
@@ -38,11 +24,8 @@ const listenStream: EmitObserveStream = {
 
 stream
   .use(middleware)
-  .then((middleware) => {
-    middleware.listen(listenStream)
-  });
+  .then((middleware) => middleware.listen(listenStream));
 
 setTimeout(() => {
   stream.unlisten('complete');
 }, 1000);
-```

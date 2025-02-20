@@ -4,7 +4,7 @@ describe('EmitListener', () => {
   test('should allow unsubscribe before complete', (done) => {
     let count = 0;
 
-    const listener = new EmitStream<number>((observer) => {
+    const listener = new EmitStream((observer) => {
       const interval = setInterval(() => {
         observer.next(++count);
       }, 2);

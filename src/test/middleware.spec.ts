@@ -4,7 +4,7 @@ import { useMiddleware } from "../middleware/use-middleware";
 describe('Middleware', () => {
   test('should be chained in the correct order', () => {
     const results: number[] = [];
-    const stream = new EmitStream<number>((observer) => {
+    const stream = new EmitStream((observer) => {
       observer.next(1);
       observer.next(2);
       observer.next(3);
