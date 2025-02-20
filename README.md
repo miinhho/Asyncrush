@@ -1,4 +1,4 @@
-## Stream Emitter
+## RxJS from scratch - with EventEmitter
 
 ### Reactive programming with Node.js's EventEmitter
 

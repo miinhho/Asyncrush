@@ -45,4 +45,27 @@ describe('Operator', () => {
       }
     });
   });
+
+  test('should apply multiple operators correctly', (done) => {
+    const results: number[] = [];
+
+    new EmitStream<number>((observer) => {
+      observer.next(1);
+      observer.next(2);
+      observer.next(3);
+      observer.next(4);
+      observer.complete();
+
+      return () => { };
+    }).pipe(
+      filter((value) => value % 2 === 0),
+      map((value) => value * 2)
+    ).listen({
+      next: (value) => results.push(value),
+      complete: () => {
+        expect(results).toEqual([4, 8]);
+        done();
+      }
+    });
+  });
 });

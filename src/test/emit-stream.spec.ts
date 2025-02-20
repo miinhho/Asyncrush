@@ -1,4 +1,5 @@
 import { EmitStream } from '@emiter/emit-stream';
+import { captureRejectionSymbol } from 'node:stream';
 
 describe('EmitStream', () => {
   test('should emit values and complete', (done) => {
@@ -35,4 +36,20 @@ describe('EmitStream', () => {
       }
     });
   });
+
+  test('should call error callback in captureRejectionSymbol', (done) => {
+    const errorMessage = 'Error occurred';
+
+    new EmitStream<number>((observer) => {
+      observer[captureRejectionSymbol](new Error(errorMessage), 'next');
+
+      return () => { };
+    }).listen({
+      next: () => { },
+      error: (err) => {
+        expect(err.message).toBe(errorMessage);
+        done();
+      }
+    })
+  })
 });
