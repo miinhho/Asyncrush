@@ -8,7 +8,7 @@ const stream = new EmitStream((observer) => {
   observer.complete();
 
   return () => {
-    console.log('Completed');
+    console.log('Cleanup');
   };
 });
 

@@ -36,3 +36,13 @@ export type EmitObserveStream = Partial<EmitObserverImpl>;
  * EmitObserver event list
  */
 export type EmitObserveEvent = keyof EmitObserveStream;
+
+/**
+ * EmitListener interface
+ */
+export interface EmitListener {
+  /**
+   * Unsubscribes from the stream
+   */
+  unlisten: () => void;
+}

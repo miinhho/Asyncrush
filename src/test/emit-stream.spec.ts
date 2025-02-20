@@ -21,6 +21,28 @@ describe('EmitStream', () => {
     });
   });
 
+  test('should allow unsubscribe before complete', (done) => {
+    let count = 0;
+
+    const listener = new EmitStream((observer) => {
+      const interval = setInterval(() => {
+        observer.next(++count);
+      }, 2);
+
+      return () => clearInterval(interval);
+    }).listen({
+      next: (value) => {
+        if (value === 2) {
+          listener.unlisten();
+          setTimeout(() => {
+            expect(count).toBe(2);
+            done();
+          }, 6);
+        }
+      }
+    });
+  });
+
   test('should call error callback when an error occurs', (done) => {
     const errorMessage = 'Error occurred';
 

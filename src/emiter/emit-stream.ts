@@ -1,7 +1,6 @@
-import { EmitListener } from "@listen/emit-listener.types";
 import { EmitMiddleware } from "@middleware/middleware.types";
 import { EmitObserver } from "./emit-observer";
-import { EmitObserveStream } from "./emit-observer.types";
+import { EmitListener, EmitObserveStream } from "./emit-observer.types";
 
 /**
  * Stream that emits values, errors, and completion events
@@ -9,6 +8,11 @@ import { EmitObserveStream } from "./emit-observer.types";
 export class EmitStream {
   private emitObserver: EmitObserver;
   private readonly middlewares: EmitMiddleware[] = [];
+
+  /**
+   * Cleanup function called when unlisten is called
+   */
+  private cleanup: () => void = () => { };
 
   /**
    * @param producer - A function that takes an EmitObserver and returns a cleanup function
@@ -37,14 +41,11 @@ export class EmitStream {
       eventObserver.on('complete', observer.complete);
     }
 
-    /**
-     * Cleanup function called when unlisten is called
-     */
-    const cleanup = this.producer(eventObserver);
+    this.cleanup = this.producer(eventObserver);
+
     return {
       unlisten: () => {
-        cleanup();
-        eventObserver.removeAllListeners();
+        this.unlisten('destroy');
       }
     };
   }
@@ -95,5 +96,6 @@ export class EmitStream {
         break;
       }
     }
+    this.cleanup();
   }
 }
