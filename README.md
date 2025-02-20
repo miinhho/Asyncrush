@@ -12,47 +12,85 @@ To understand reactive programming more deeply
 
 <br>
 
----
 
-### Features
+## Features
 
-- Basic Event Stream
+**- Basic Event Stream**
 ```typescript
-const values: number[] = [];
-
-const sourceStream = new EmitStream<number>((observer) => {
+const stream = new EmitStream<number>((observer) => {
   observer.next(1);
   observer.next(2);
   observer.next(3);
   observer.complete();
 
-  return () => { };
+  return () => console.log('Cleanup');
 });
 
-sourceStream.listen({
-  next: (value) => values.push(value),
-  complete: () => {
-    console.log(value);
-  }
+stream.listen({
+  next: (value) => console.log(value),
+  complete: () => console.log('Complete')
 });
 ```
 
-- Map operator
-```typescript
-const results: number[] = [];
+<br>
 
-new EmitStream<number>((observer) => {
+
+**- `useMiddleware`**
+```typescript
+const stream = new EmitStream<number>((observer) => {
   observer.next(1);
   observer.next(2);
   observer.next(3);
   observer.complete();
 
-  return () => { };
-}).pipe(
-  map((value) => value * 2)
-).listen({
-  next: (value) => results.push(value),
-  complete: () => {
-    console.log(results);
+  return () => console.log('Cleanup');
+});
+
+(async () => {
+  const middlewares = await stream.use(
+    useMiddleware((value: number) => value * 2),
+    useMiddleware((value: number) => value + 1),
+    useMiddleware((value: number) => value * 3)
+  );
+
+  middlewares.listen({
+    next: (value) => console.log(value),
+    error: (err) => console.error(err),
+    complete: () => console.log('Complete')
   });
+})();
+```
+
+<br>
+
+
+**- `unlisten`**
+```typescript
+const stream = new EmitStream<number>((observer) => {
+  observer.next(1);
+  observer.next(2);
+  observer.next(3);
+  observer.complete();
+
+  return () => {
+    console.log('Cleanup');
+  };
+});
+
+const exampleMiddleware = useMiddleware((value: number) => {
+  console.log('Middleware called');
+  return value * 2;
+});
+
+stream.use(exampleMiddleware).then((middleware) => {
+  const listener = middleware.listen({
+    next: (value) => console.log(value),
+    complete: () => console.log('Complete')
+  });
+
+  setTimeout(() => {
+    listener.unlisten();
+    console.log('Unsubscribed');
+  }, 2000);
+});
 ```

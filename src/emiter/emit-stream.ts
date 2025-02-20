@@ -40,13 +40,17 @@ export class EmitStream<T> {
   }
 
   /**
-   * Pipes the stream through a series of operators
+   * The stream through a series of operators
    * @param operators - An array of functions that take an EmitStream and return a new EmitStream
    * @returns A new EmitStream with the result of applying the operators
    */
-  pipe<R>(...operators: Array<(source: EmitStream<any>) => EmitStream<any>>): EmitStream<any> {
-    return operators.reduce(
-      (prev, operator) => operator(prev), this as unknown as EmitStream<any>
-    ) as EmitStream<R>;
+  async use<T>(
+    ...middlewares: Array<Promise<(source: EmitStream<any>) => EmitStream<any>>>
+  ): Promise<EmitStream<any>> {
+    let stream: EmitStream<any> = this;
+    for (const middleware of middlewares) {
+      stream = (await middleware)(stream);
+    }
+    return stream as EmitStream<T>;
   }
 }

@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2022",
+    "module": "Node16",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "declaration": false,
@@ -8,7 +9,7 @@
     "inlineSourceMap": false,
     "listEmittedFiles": false,
     "listFiles": false,
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "noFallthroughCasesInSwitch": true,
     "pretty": true,
     "resolveJsonModule": true,
@@ -21,7 +22,7 @@
     "paths": {
         "@emiter/*": ["./src/emiter/*"],
         "@listen/*": ["./src/listen/*"],
-        "@operator/*": ["./src/operator/*"],
+        "@middleware/*": ["./src/middleware/*"],
     }
   },
   "compileOnSave": false,

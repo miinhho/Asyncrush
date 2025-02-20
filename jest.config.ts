@@ -97,7 +97,7 @@ const config: Config = {
   // ],
 
   moduleNameMapper: {
-    "^@(emiter|listen|operator)/(.+)$": "<rootDir>/src/$1/$2",
+    "^@(emiter|listen|middleware)/(.+)$": "<rootDir>/src/$1/$2",
   },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
