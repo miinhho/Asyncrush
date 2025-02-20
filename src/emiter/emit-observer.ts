@@ -25,7 +25,6 @@ export class EmitObserver<T> extends EventEmitter implements EmitObserverImpl<T>
    */
   error(err: any): void {
     this.emit('error', err);
-    this.removeAllListeners();
   }
 
   /**
