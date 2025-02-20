@@ -1,19 +1,19 @@
 import { EmitObserver } from "@emiter/emit-observer";
 import { EmitStream } from "@emiter/emit-stream";
-import { EmitMiddleware } from "./middleware.types";
+import { EmitAsyncMiddleware, EmitMiddleware } from "./middleware.types";
 
 /**
  * Creates a middleware that transforms the value of a stream
  * @param fn - A function that takes a value and returns a new value to stream
- * @returns
+ * @param isAsync - A flag to determine whether the function is async
  */
-export async function useMiddleware(fn: (value: any) => any): EmitMiddleware {
+function useTransformMiddleware(fn: (value: any) => any, isAsync: boolean): EmitMiddleware {
   return (source: EmitStream) =>
     new EmitStream((observer: EmitObserver) => {
       const listener = source.listen({
-        next: (value: any) => {
+        next: async (value: any) => {
           try {
-            const result = fn(value);
+            const result = isAsync ? await fn(value) : fn(value);
             observer.next(result);
           } catch (err) {
             observer.error(err);
@@ -25,4 +25,20 @@ export async function useMiddleware(fn: (value: any) => any): EmitMiddleware {
 
       return listener.unlisten;
     });
+}
+
+/**
+ * Creates a middleware that transforms the value of a stream
+ * @param fn - A function that takes a value and returns a new value to stream
+ */
+export function useMiddleware(fn: (value: any) => any): EmitMiddleware {
+  return useTransformMiddleware(fn, false);
+}
+
+/**
+ * Creates a async middleware that transforms the value of a stream
+ * @param fn - A function that takes a value and returns a new value to stream
+ */
+export async function useAsyncMiddleware(fn: (value: any) => any): EmitAsyncMiddleware {
+  return useTransformMiddleware(fn, true);
 }

@@ -16,12 +16,14 @@ describe('Middleware', () => {
     stream.use(
       useMiddleware((value: number) => value * 2),
       useMiddleware((value: number) => value + 1),
-      useMiddleware((value: number) => value * 3)
-    ).then((middleware) => middleware.listen({
-      next: (value) => results.push(value),
+      useMiddleware((value: number) => {
+        results.push(value * 3);
+        return value * 3;
+      })
+    ).listen({
       complete: () => {
         expect(results).toEqual([9, 15, 21]);
       }
-    }));
+    });
   });
 });

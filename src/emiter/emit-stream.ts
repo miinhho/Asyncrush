@@ -1,13 +1,12 @@
-import { EmitMiddleware } from "@middleware/middleware.types";
+import { EmitAsyncMiddleware, EmitMiddleware } from "@middleware/middleware.types";
 import { EmitObserver } from "./emit-observer";
-import { EmitListener, EmitObserveStream } from "./emit-observer.types";
+import { EmitObserveStream } from "./emit-observer.types";
 
 /**
  * Stream that emits values, errors, and completion events
  */
 export class EmitStream {
   private emitObserver: EmitObserver;
-  private readonly middlewares: EmitMiddleware[] = [];
 
   /**
    * Cleanup function called when unlisten is called
@@ -26,9 +25,9 @@ export class EmitStream {
   /**
    * Subscribes an observer to the stream
    * @param observer - An object with optional next, error, and complete methods
-   * @returns An EmitListener with an unlisten method to unsubscribe
+   * @returns {this} - The EmitStream instance
    */
-  listen(observer: EmitObserveStream): EmitListener {
+  listen(observer: EmitObserveStream): this {
     const eventObserver = this.emitObserver;
 
     if (observer.next) {
@@ -43,25 +42,37 @@ export class EmitStream {
 
     this.cleanup = this.producer(eventObserver);
 
-    return {
-      unlisten: () => {
-        this.unlisten('destroy');
-      }
-    };
+    return this;
   }
 
   /**
-   * The stream through a series of operators
-   * @param middlewares - An array of functions that take an EmitStream and return a new EmitStream
+   * The stream through a series of async middlewares
+   * @param middlewares - An array of functions that take an middleware
    * @returns A new EmitStream with the result of applying the operators
    */
-  async use(
+  use(
     ...middlewares: EmitMiddleware[]
+  ): EmitStream {
+    let stream: EmitStream = this;
+
+    for (const middleware of middlewares) {
+      stream = middleware(stream);
+    }
+
+    return stream;
+  }
+
+  /**
+   * The async stream through a series of middlewares
+   * @param middlewares - An array of functions that take an async middleware
+   * @returns A new EmitStream with the result of applying the operators
+   */
+  async asyncUse(
+    ...middlewares: EmitAsyncMiddleware[]
   ): Promise<EmitStream> {
     let stream: EmitStream = this;
 
-    this.middlewares.push(...middlewares);
-    for (const middleware of this.middlewares) {
+    for (const middleware of middlewares) {
       stream = (await middleware)(stream);
     }
 
@@ -80,7 +91,7 @@ export class EmitStream {
    * Unsubscribes from the stream
    * @param {'error' | 'destroy' | 'complete'} option - An option to unlisten from the stream
    */
-  unlisten(option?: Exclude<keyof EmitObserveStream, 'next'>) {
+  unlisten(option?: Exclude<keyof EmitObserveStream, 'next'>): this {
     switch (option) {
       case 'error': {
         this.emitObserver.emit('error', 'Unsubscribed');
@@ -97,5 +108,7 @@ export class EmitStream {
       }
     }
     this.cleanup();
+
+    return this;
   }
 }
