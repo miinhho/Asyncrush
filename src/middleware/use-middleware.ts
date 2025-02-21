@@ -23,12 +23,14 @@ function useTransformMiddleware(fn: (value: any) => any, isAsync: boolean): Emit
         complete: () => observer.complete()
       });
 
-      return listener.unlisten;
+      return () => {
+        listener.unlisten('complete');
+      };
     });
 }
 
 /**
- * Creates a middleware that transforms the value of a stream
+ * Creates a middleware for EmitStream
  * @param fn - A function that takes a value and returns a new value to stream
  */
 export function useMiddleware(fn: (value: any) => any): EmitMiddleware {
@@ -36,7 +38,7 @@ export function useMiddleware(fn: (value: any) => any): EmitMiddleware {
 }
 
 /**
- * Creates a async middleware that transforms the value of a stream
+ * Creates a async middleware for EmitStream
  * @param fn - A function that takes a value and returns a new value to stream
  */
 export async function useAsyncMiddleware(fn: (value: any) => any): EmitAsyncMiddleware {
