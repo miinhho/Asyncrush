@@ -6,51 +6,67 @@ import { EmitObserverImpl } from "./emit-observer.types";
  * @extends EventEmitter
  * @implements {EmitObserverImpl}
  */
-export class EmitObserver extends EventEmitter implements EmitObserverImpl {
-  constructor() {
+export class EmitObserver<T = any> extends EventEmitter implements EmitObserverImpl<T> {
+  private isCompleted: boolean = false;
+
+  constructor(private options: { continueOnError?: boolean } = {}) {
     super({ captureRejections: true });
   }
 
   /**
-   * Emits the next value
-   * @param value
+   * Emits the next value if the observer is not completed
+   * @param value - The value to emit
    */
-  next(value: any): void {
+  next(value: T): void {
+    if (this.isCompleted) return;
     this.emit('next', value);
   }
 
   /**
-   * Emits an error
-   * @param err
+   * Emits an error and marks the observer as completed
+   * @param err - The error to emit
    */
-  error(err: any): void {
+  error(err: unknown): void {
+    if (this.isCompleted) return;
     this.emit('error', err);
+    if (!this.options.continueOnError) {
+      this.isCompleted = true;
+      this.removeAllListeners();
+    }
   }
 
   /**
-   * Emits a completion event
+   * Emits a completion event and cleans up listeners
    */
   complete(): void {
+    if (this.isCompleted) return;
+    this.isCompleted = true;
     this.emit('complete');
     this.removeAllListeners();
   }
 
   /**
-   * Cleans up listeners
+   * Destroys the observer, cleaning up listeners without emitting events
    */
   destroy(): void {
+    if (this.isCompleted) return;
+    this.isCompleted = true;
     this.removeAllListeners();
   }
 
   /**
    * Handles captured rejections
-   * Do not call this method directly
-   * @param err
-   * @param event
-   * @param args
+   * @internal Do not call this method directly
+   * @param err - The rejection error
+   * @param event - The event that triggered the rejection
+   * @param args - Additional arguments from the event
    */
-  [captureRejectionSymbol](err: any, event: string | symbol, ...args: any): void {
+  [captureRejectionSymbol](err: unknown, event: string | symbol, ...args: any): void {
+    if (this.isCompleted) return;
     this.emit('error', err);
-    this.removeAllListeners();
+    if (!this.options.continueOnError) {
+      this.isCompleted = true;
+      this.removeAllListeners();
+    }
   }
 }

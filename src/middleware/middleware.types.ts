@@ -1,7 +1,11 @@
 import { EmitStream } from "@emiter/emit-stream";
 
 /**
- * A middleware function that takes an EmitStream and returns a new EmitStream
+ * Middleware function that transforms stream values
+ * @template T - Input value type
+ * @template R - Output value type
+ * @param source - Input stream
+ * @returns Output stream
  */
-export type EmitAsyncMiddleware = Promise<EmitMiddleware>;
-export type EmitMiddleware = (source: EmitStream) => EmitStream;
+export type EmitMiddleware<T, R> = (source: EmitStream<T>) => EmitStream<R>;
+

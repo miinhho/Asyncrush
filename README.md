@@ -16,39 +16,62 @@ Currently focused on features, so this is not a library at all
 ## Features
 
 ```typescript
-const stream = new EmitStream((observer) => {
-  let count = 0;
-  const interval = setInterval(() => {
-    observer.next(count);
-    count++;
+import { EmitStream } from "@emiter/emit-stream";
+import { useAsyncMiddleware, useMiddleware } from "@middleware/use-middleware";
 
-    if (count > 5) {
-      observer.complete();
-      clearInterval(interval);
-    }
-  }, 10);
+const stream = new EmitStream<number>(
+  (observer) => {
+    let count = 0;
+    const id = setInterval(() => observer.next(count++), 100);
 
-  return () => {
-    clearInterval(interval);
-    console.log('Cleanup');
-  };
+    return () => clearInterval(id);
+  },
+  {
+    maxBufferSize: 3,
+    continueOnError: true,
+  }
+);
+
+const dualMw = useMiddleware(
+  (v: number) => (Math.random() > 0.5 ? Promise.resolve(v + 1) : v + 1),
+  {
+    retries: 2,
+    retryDelay: 50,
+    continueOnError: true,
+  }
+);
+
+const asyncMw = useAsyncMiddleware(
+  async (v: number) => {
+    if (Math.random() > 0.7) throw new Error("Async error");
+    return `${v} processed`;
+  },
+  {
+    retries: 2,
+    retryDelay: 50,
+    maxRetryDelay: 500,
+    jitter: 0.2,
+    delayFn: (attempt, delay) => delay * (attempt + 1),
+    continueOnError: true,
+  }
+);
+
+const syncStream = stream.use(dualMw);
+syncStream.listen({
+  next: (v) => console.log(`Sync: ${v}`),
+  error: (e) => console.error(`Sync error: ${e}`),
 });
 
-const middleware = useMiddleware((value) => {
-  return value + 1;
+stream.asyncUse(asyncMw).then((asyncStream) => {
+  asyncStream.listen({
+    next: (v) => console.log(`Async: ${v}`),
+    error: (e) => console.error(`Async error: ${e}`),
+    complete: () => console.log("Async completed"),
+  });
+  setTimeout(() => asyncStream.pause(), 300);
+  setTimeout(() => asyncStream.resume(), 600);
 });
 
-const listenStream: EmitObserveStream = {
-  next: (value) => console.log(value),
-  error: (error) => console.error(error),
-  complete: () => console.log('Completed')
-};
+setTimeout(() => stream.unlisten('complete'), 1000);
 
-stream
-  .use(middleware)
-  .listen(listenStream);
-
-setTimeout(() => {
-  stream.unlisten('complete');
-}, 100);
 ```

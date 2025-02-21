@@ -2,19 +2,19 @@
 /**
  * EmitObserver interface
  */
-export interface EmitObserverImpl {
+export interface EmitObserverImpl<T> {
 
   /**
    * Emits the next value
    * @param value
    */
-  next: (value: any) => void;
+  next: (value: T) => void;
 
   /**
    * Emits an error
    * @param err
    */
-  error: (err: any) => void;
+  error: (err: unknown) => void;
 
   /**
    * Emits the completion event
@@ -30,19 +30,9 @@ export interface EmitObserverImpl {
 /**
  * Partial EmitObserver for stream options
  */
-export type EmitObserveStream = Partial<EmitObserverImpl>;
+export type EmitObserveStream<T> = Partial<EmitObserverImpl<T>>;
 
 /**
  * EmitObserver event list
  */
-export type EmitObserveEvent = keyof EmitObserveStream;
-
-/**
- * EmitListener interface
- */
-export interface EmitListener {
-  /**
-   * Unsubscribes from the stream
-   */
-  unlisten: () => void;
-}
+export type EmitObserveEvent<T> = keyof EmitObserveStream<T>;
