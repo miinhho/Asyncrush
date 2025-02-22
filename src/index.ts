@@ -8,7 +8,14 @@ const stream = new EmitStream<number>((observer) => {
 
 stream.use(
   [(v: number) => v + 1, (v: number) => Promise.resolve(v + 2)],
-  { retries: 2, retryDelay: 50 }
+  {
+    retries: 2,
+    retryDelay: 50,
+    maxRetryDelay: 1000,
+    jitter: 0.1,
+    continueOnError: true,
+    delayFn: (attempt, baseDelay) => baseDelay * Math.pow(2, attempt)
+  }
 ).listen({
   next: (v) => console.log(v),
   error: (e) => console.error(e),
