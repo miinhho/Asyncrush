@@ -20,11 +20,6 @@ export interface EmitObserverImpl<T> {
    * Emits the completion event
    */
   complete: () => void;
-
-  /**
-   * Cleans up listeners
-   */
-  destroy: () => void;
 }
 
 /**

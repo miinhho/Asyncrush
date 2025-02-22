@@ -1,7 +1,5 @@
 ## Stream Emitter
 
-### Reactive programming with Node.js's EventEmitter
-
 #### Event-driven middleware for effective & clear  
 
 <br>
@@ -17,62 +15,21 @@ Currently focused on features, so this is not a library at all
 
 ```typescript
 import { EmitStream } from "@emiter/emit-stream";
-import { useAsyncMiddleware, useMiddleware } from "@middleware/use-middleware";
 
-const stream = new EmitStream<number>(
-  (observer) => {
-    let count = 0;
-    const id = setInterval(() => observer.next(count++), 100);
+const stream = new EmitStream<number>((observer) => {
+  let i = 0;
+  const id = setInterval(() => observer.next(i++), 100);
+  return () => clearInterval(id);
+}, { maxBufferSize: 3 });
 
-    return () => clearInterval(id);
-  },
-  {
-    maxBufferSize: 3,
-    continueOnError: true,
-  }
-);
-
-const dualMw = useMiddleware(
-  (v: number) => (Math.random() > 0.5 ? Promise.resolve(v + 1) : v + 1),
-  {
-    retries: 2,
-    retryDelay: 50,
-    continueOnError: true,
-  }
-);
-
-const asyncMw = useAsyncMiddleware(
-  async (v: number) => {
-    if (Math.random() > 0.7) throw new Error("Async error");
-    return `${v} processed`;
-  },
-  {
-    retries: 2,
-    retryDelay: 50,
-    maxRetryDelay: 500,
-    jitter: 0.2,
-    delayFn: (attempt, delay) => delay * (attempt + 1),
-    continueOnError: true,
-  }
-);
-
-const syncStream = stream.use(dualMw);
-syncStream.listen({
-  next: (v) => console.log(`Sync: ${v}`),
-  error: (e) => console.error(`Sync error: ${e}`),
+stream.use(
+  [(v: number) => v + 1, (v: number) => Promise.resolve(v + 2)],
+  { retries: 2, retryDelay: 50 }
+).listen({
+  next: (v) => console.log(v),
+  error: (e) => console.error(e),
 });
 
-stream.asyncUse(asyncMw).then((asyncStream) => {
-  asyncStream.listen({
-    next: (v) => console.log(`Async: ${v}`),
-    error: (e) => console.error(`Async error: ${e}`),
-    complete: () => console.log("Async completed"),
-  });
-  setTimeout(() => asyncStream.pause(), 300);
-  setTimeout(() => asyncStream.resume(), 600);
-});
-
-setTimeout(() => stream.unlisten('complete'), 1000);
 
 ```
 
@@ -84,7 +41,6 @@ setTimeout(() => stream.unlisten('complete'), 1000);
 
 ### **Middleware**
 1. **Transforms data**: Applies transformations to values as they flow from the source through the pipeline  
-2. **Chains streams**: Creates new `EmitStream` instances that listen to the previous stream, forming a transformation chain
 
 ### **Listener**
 1. **Reacts to data in real-time**: Called **every time a value flows through the stream** it's attached to
@@ -111,3 +67,17 @@ graph TD
     S3 -->|stops| S1
     S3 -->|signals| L1
 ```
+
+<br>
+
+
+## Performance
+
+event amount: 1,000,000,000
+
+EmitStream - Simple Emission: 921,563 ops/sec ±3.54% (88 runs sampled)
+EmitStream - Transformation: 489,946 ops/sec ±2.38% (82 runs sampled)
+RxJS - Simple Emission: 993,289 ops/sec ±3.43% (82 runs sampled)
+RxJS - Transformation: 602,430 ops/sec ±3.13% (84 runs sampled)
+
+

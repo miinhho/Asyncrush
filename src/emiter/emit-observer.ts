@@ -1,4 +1,3 @@
-import { captureRejectionSymbol, EventEmitter } from "node:stream";
 import { EmitObserverImpl } from "./emit-observer.types";
 
 /**
@@ -6,67 +5,45 @@ import { EmitObserverImpl } from "./emit-observer.types";
  * @extends EventEmitter
  * @implements {EmitObserverImpl}
  */
-export class EmitObserver<T = any> extends EventEmitter implements EmitObserverImpl<T> {
+export class EmitObserver<T = any> implements EmitObserverImpl<T> {
+  private nextHandlers: ((value: T) => void)[] = [];
+  private errorHandlers: ((err: unknown) => void)[] = [];
+  private completeHandlers: (() => void)[] = [];
   private isCompleted: boolean = false;
 
-  constructor(private options: { continueOnError?: boolean } = {}) {
-    super({ captureRejections: true });
-  }
+  constructor(private options: { continueOnError?: boolean } = {}) {}
 
-  /**
-   * Emits the next value if the observer is not completed
-   * @param value - The value to emit
-   */
   next(value: T): void {
     if (this.isCompleted) return;
-    this.emit('next', value);
+    for (const handler of this.nextHandlers) handler(value);
   }
 
-  /**
-   * Emits an error and marks the observer as completed
-   * @param err - The error to emit
-   */
   error(err: unknown): void {
     if (this.isCompleted) return;
-    this.emit('error', err);
-    if (!this.options.continueOnError) {
+    for (const handler of this.errorHandlers) handler(err);
+    if (!this.options?.continueOnError) {
       this.isCompleted = true;
-      this.removeAllListeners();
+      this.cleanHandlers();
     }
   }
 
-  /**
-   * Emits a completion event and cleans up listeners
-   */
   complete(): void {
     if (this.isCompleted) return;
     this.isCompleted = true;
-    this.emit('complete');
-    this.removeAllListeners();
+    for (const handler of this.completeHandlers) handler();
+    this.cleanHandlers();
   }
 
-  /**
-   * Destroys the observer, cleaning up listeners without emitting events
-   */
-  destroy(): void {
+  on(event: 'next' | 'error' | 'complete', handler: (...args: any[]) => void): void {
     if (this.isCompleted) return;
-    this.isCompleted = true;
-    this.removeAllListeners();
+    if (event === 'next') this.nextHandlers.push(handler as (value: T) => void);
+    else if (event === 'error') this.errorHandlers.push(handler as (err: unknown) => void);
+    else if (event === 'complete') this.completeHandlers.push(handler as () => void);
   }
 
-  /**
-   * Handles captured rejections
-   * @internal Do not call this method directly
-   * @param err - The rejection error
-   * @param event - The event that triggered the rejection
-   * @param args - Additional arguments from the event
-   */
-  [captureRejectionSymbol](err: unknown, event: string | symbol, ...args: any): void {
-    if (this.isCompleted) return;
-    this.emit('error', err);
-    if (!this.options.continueOnError) {
-      this.isCompleted = true;
-      this.removeAllListeners();
-    }
+  private cleanHandlers(): void {
+    this.nextHandlers = [];
+    this.errorHandlers = [];
+    this.completeHandlers = [];
   }
 }

@@ -21,8 +21,6 @@
     "baseUrl": ".",
     "paths": {
         "@emiter/*": ["./src/emiter/*"],
-        "@listen/*": ["./src/listen/*"],
-        "@middleware/*": ["./src/middleware/*"],
     }
   },
   "compileOnSave": false,
