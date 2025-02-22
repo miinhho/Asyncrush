@@ -73,11 +73,10 @@ graph TD
 
 ## Performance
 
-event amount: 1,000,000,000
+event amount: 1,000,000,000  
 
-EmitStream - Simple Emission: 921,563 ops/sec ±3.54% (88 runs sampled)
-EmitStream - Transformation: 489,946 ops/sec ±2.38% (82 runs sampled)
-RxJS - Simple Emission: 993,289 ops/sec ±3.43% (82 runs sampled)
-RxJS - Transformation: 602,430 ops/sec ±3.13% (84 runs sampled)
-
+EmitStream - Simple Emission: 921,563 ops/sec ±3.54% (88 runs sampled)  
+EmitStream - Transformation: 489,946 ops/sec ±2.38% (82 runs sampled)  
+RxJS - Simple Emission: 993,289 ops/sec ±3.43% (82 runs sampled)  
+RxJS - Transformation: 602,430 ops/sec ±3.13% (84 runs sampled)  
 
