@@ -75,3 +75,39 @@ stream.asyncUse(asyncMw).then((asyncStream) => {
 setTimeout(() => stream.unlisten('complete'), 1000);
 
 ```
+
+## Architecture
+
+### **Source Stream**
+1. **Controls data flow**: Generate data via its producer and emits event to drive the pipeline  
+2. **Manages lifecycle**: Starts / stops the stream
+
+### **Middleware**
+1. **Transforms data**: Applies transformations to values as they flow from the source through the pipeline  
+2. **Chains streams**: Creates new `EmitStream` instances that listen to the previous stream, forming a transformation chain
+
+### **Listener**
+1. **Reacts to data in real-time**: Called **every time a value flows through the stream** it's attached to
+2. **Handles lifecycle events**: Also reacts to `error` or `complete` when the stream terminates
+
+<br>
+
+
+
+```mermaid
+graph TD
+    subgraph Source["Source Stream"]
+        S1["**Producer**<br>Listen to data stream"] -->|emits| S2["**Observer**<br>Emits next, error, complete"]
+        S3["**Lifecycle Control**<br>unlisten()"]
+    end
+    S2 -->|data flow| M1["**Middleware**<br>Transforms data"]
+    M1 -->|transformed data| L1["**Listener**<br>Reacts to each value"]
+    subgraph Middleware["Middleware Pipeline"]
+        M1
+    end
+    subgraph Listeners["Listeners"]
+        L1
+    end
+    S3 -->|stops| S1
+    S3 -->|signals| L1
+```
