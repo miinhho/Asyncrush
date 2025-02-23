@@ -15,27 +15,19 @@ export class EmitObserver<T = any> implements EmitObserverImpl<T> {
 
   next(value: T): void {
     if (this.isCompleted) return;
-    for (let i = 0; i < this.nextHandlers.length; i++) {
-      this.nextHandlers[i](value);
-    }
+    for (const handler of this.nextHandlers) handler(value);
   }
 
   error(err: unknown): void {
     if (this.isCompleted) return;
-    for (let i = 0; i < this.errorHandlers.length; i++) {
-      this.errorHandlers[i](err);
-    }
-    if (!this.options?.continueOnError) {
-      this.destroy();
-    }
+    for (const handler of this.errorHandlers) handler(err);
+    if (!this.options?.continueOnError) this.destroy();
   }
 
   complete(): void {
     if (this.isCompleted) return;
     this.isCompleted = true;
-    for (let i = 0; i < this.completeHandlers.length; i++) {
-      this.completeHandlers[i]();
-    }
+    for (const handler of this.completeHandlers) handler();
     this.cleanHandlers();
   }
 

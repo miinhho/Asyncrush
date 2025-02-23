@@ -9,3 +9,4 @@ dist
 
 ## personal
 src/index.ts
+benchmark.js

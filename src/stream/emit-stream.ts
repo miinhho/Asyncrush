@@ -1,6 +1,6 @@
-import { EmitMiddleware } from "@middleware/emit-middleware.types";
-import { EmitObserver } from "@observer/emit-observer";
-import { EmitObserveStream } from "@observer/emit-observer.types";
+import { EmitMiddleware } from "../middleware/emit-middleware.types";
+import { EmitObserver } from "../observer/emit-observer";
+import { EmitObserveStream } from "../observer/emit-observer.types";
 import { EmitListenOption } from "./emit-stream.types";
 
 /**
@@ -11,20 +11,24 @@ export class EmitStream<T = any> {
   private outputObserver = new EmitObserver<T>();
   private cleanup: () => void = () => { };
   private isPaused: boolean = false;
+  private useBuffer: boolean = false;
   private buffer: T[] = [];
-  private maxBufferSize: number;
+  private maxBufferSize: number = 0;
 
   /**
    * @param producer - A function that takes an EmitObserver and returns a cleanup function
    */
   constructor(
     private producer: (observer: EmitObserver<T>) => () => void | void,
-    options: { maxBufferSize?: number, continueOnError?: boolean } = {}
+    options: { useBuffer?: boolean, maxBufferSize?: number, continueOnError?: boolean } = {}
   ) {
     this.sourceObserver = new EmitObserver<T>({ continueOnError: options.continueOnError });
     this.outputObserver = new EmitObserver<T>({ continueOnError: options.continueOnError });
-    this.maxBufferSize = options.maxBufferSize ?? 1000;
-    this.buffer = new Array<T>(this.maxBufferSize);
+    if (options.useBuffer) {
+      this.useBuffer = true;
+      this.maxBufferSize = options.maxBufferSize ?? 1000;
+      this.buffer = new Array<T>(this.maxBufferSize);
+    }
     const cleanupFn = this.producer(this.sourceObserver);
     this.cleanup = cleanupFn ?? (() => { });
   }
@@ -44,7 +48,7 @@ export class EmitStream<T = any> {
    */
   resume(): this {
     this.isPaused = false;
-    while (this.buffer.length > 0 && !this.isPaused) {
+    while (this.buffer.length > 0 && !this.isPaused && this.useBuffer) {
       this.outputObserver.next(this.buffer.shift()!);
     }
     return this;
@@ -58,7 +62,7 @@ export class EmitStream<T = any> {
   listen(observer: EmitObserveStream<T>): this {
     if (observer.next) {
       this.outputObserver.on('next', (value: T) => {
-        if (this.isPaused && this.maxBufferSize > 0) {
+        if (this.isPaused && this.maxBufferSize > 0 && this.useBuffer) {
           if (this.buffer.length < this.maxBufferSize) {
             this.buffer.push(value);
           }
@@ -79,81 +83,68 @@ export class EmitStream<T = any> {
     let middlewares: EmitMiddleware<T, T>[] = [];
     let options: EmitListenOption = {};
 
-    const {
-      retries = 0,
-      errorHandler,
-      continueOnError = false,
-    } = options;
-
     if (Array.isArray(args[0])) {
       middlewares = args[0];
-      options = (args[1] && typeof args[1] === 'object') ? args[1] as EmitListenOption : {};
+      options = (args[1] && typeof args[1] === 'object') ? (args[1] as EmitListenOption) : {};
     } else {
-      middlewares = args as ((value: T) => T | Promise<T>)[];
+      middlewares = args as EmitMiddleware<T, T>[];
     }
 
-    this.sourceObserver.on('next', async (value: T) => {
-      const result = retries > 0
-        ? this.retry<T>(value, middlewares, options)
-        : this.applyMiddleware<T>(value, middlewares);
-      result.then(
-        (res) => this.outputObserver.next(res),
-        (err) => {
-          if (errorHandler) errorHandler(err);
-          if (!continueOnError) this.outputObserver.error(err);
-        }
-      );
-    });
-
-    return this;
-  }
-
-  private async retry<T>(
-    value: T,
-    middlewares: EmitMiddleware<T, T>[],
-    options: Exclude<EmitListenOption, 'errorHandler' | 'continueOnError'>,
-  ): Promise<T> {
     const {
+      errorHandler,
       retries = 0,
       retryDelay = 0,
       maxRetryDelay = Infinity,
       jitter = 0,
       delayFn = (attempt, baseDelay) => baseDelay * Math.pow(2, attempt),
+      continueOnError = false,
     } = options;
 
-    let lastError: unknown;
-    for (let attempt = 0; attempt <= retries; attempt++) {
-      try {
-        const result = this.applyMiddleware<T>(value, middlewares);
-        return await result;
-      } catch (error) {
-        lastError = error;
-        if (attempt < retries) {
-          let delay = delayFn(attempt, retryDelay);
-          if (jitter > 0) {
-            const jitterFactor = 1 + jitter * (Math.random() * 2 - 1);
-            delay *= jitterFactor;
+    const withRetry = async (value: T): Promise<T> => {
+      let lastError: unknown;
+      for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+          let result = value;
+          for (const middleware of middlewares) {
+            result = await Promise.resolve(middleware(result));
           }
-          delay = Math.min(delay, maxRetryDelay);
-          await new Promise((resolve) => setTimeout(resolve, delay));
-        } else {
-          throw lastError;
+          return result;
+        } catch (error) {
+          lastError = error;
+          if (attempt < retries) {
+            let delay = delayFn(attempt, retryDelay);
+            if (jitter > 0) {
+              const jitterFactor = 1 + jitter * (Math.random() * 2 - 1);
+              delay *= jitterFactor;
+            }
+            delay = Math.min(delay, maxRetryDelay);
+            await new Promise((resolve) => setTimeout(resolve, delay));
+          } else {
+            throw lastError;
+          }
         }
       }
-    }
-    throw lastError;
-  }
+      throw lastError!;
+    };
 
-  private async applyMiddleware<T>(
-    value: T,
-    middlewares: EmitMiddleware<T, T>[]
-  ): Promise<T> {
-    let result = value;
-    for (let i = 0; i < middlewares.length; i++) {
-      const middlewareResult = middlewares[i](result);
-      result = middlewareResult instanceof Promise ? await middlewareResult : middlewareResult;
-    }
-    return result;
+    this.sourceObserver.on('next', async (value: T) => {
+      try {
+        const result = retries > 0
+          ? await withRetry(value)
+          : await Promise.all(middlewares.map(mw => mw(value)))
+            .then(results => results[results.length - 1]);
+        if (result instanceof Promise) {
+          this.outputObserver.next(await result);
+        } else {
+          this.outputObserver.next(result);
+        }
+      } catch (err) {
+        if (errorHandler) errorHandler(err);
+        if (!continueOnError) this.outputObserver.error(err);
+      }
+    });
+
+    return this;
   }
 
   /**
