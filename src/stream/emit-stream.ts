@@ -155,7 +155,7 @@ export class EmitStream<T = any> {
   unlisten(option?: 'destory' | 'complete'): this {
     switch (option) {
       case 'destory': {
-        this.outputObserver.cleanHandlers();
+        this.outputObserver.destroy();
         break;
       }
       case 'complete':

@@ -24,8 +24,7 @@ export class EmitObserver<T = any> implements EmitObserverImpl<T> {
     if (this.isCompleted) return;
     for (const handler of this.errorHandlers) handler(err);
     if (!this.options?.continueOnError) {
-      this.isCompleted = true;
-      this.cleanHandlers();
+      this.destroy();
     }
   }
 
@@ -43,7 +42,12 @@ export class EmitObserver<T = any> implements EmitObserverImpl<T> {
     else if (event === 'complete') this.completeHandlers.push(handler as () => void);
   }
 
-  cleanHandlers(): void {
+  destroy(): void {
+    this.isCompleted = true;
+    this.cleanHandlers();
+  }
+
+  private cleanHandlers(): void {
     this.nextHandlers = [];
     this.errorHandlers = [];
     this.completeHandlers = [];
