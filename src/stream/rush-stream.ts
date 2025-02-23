@@ -1,14 +1,14 @@
-import { EmitMiddleware } from "../middleware/emit-middleware.types";
-import { EmitObserver } from "../observer/emit-observer";
-import { EmitObserveStream } from "../observer/emit-observer.types";
-import { EmitListenOption } from "./emit-stream.types";
+import { RushMiddleware } from "../middleware/rush-middleware.types";
+import { RushObserver } from "../observer/rush-observer";
+import { EmitObserveStream } from "../observer/rush-observer.types";
+import { RushListenOption } from "./rush-stream.types";
 
 /**
  * Stream that emits values, errors, and completion events
  */
-export class EmitStream<T = any> {
-  private sourceObserver = new EmitObserver<T>();
-  private outputObserver = new EmitObserver<T>();
+export class RushStream<T = any> {
+  private sourceObserver = new RushObserver<T>();
+  private outputObserver = new RushObserver<T>();
   private cleanup: () => void = () => { };
   private isPaused: boolean = false;
   private useBuffer: boolean = false;
@@ -16,14 +16,14 @@ export class EmitStream<T = any> {
   private maxBufferSize: number = 0;
 
   /**
-   * @param producer - A function that takes an EmitObserver and returns a cleanup function
+   * @param producer - A function that takes an RushObserver and returns a cleanup function
    */
   constructor(
-    private producer: (observer: EmitObserver<T>) => () => void | void,
+    private producer: (observer: RushObserver<T>) => () => void | void,
     options: { useBuffer?: boolean, maxBufferSize?: number, continueOnError?: boolean } = {}
   ) {
-    this.sourceObserver = new EmitObserver<T>({ continueOnError: options.continueOnError });
-    this.outputObserver = new EmitObserver<T>({ continueOnError: options.continueOnError });
+    this.sourceObserver = new RushObserver<T>({ continueOnError: options.continueOnError });
+    this.outputObserver = new RushObserver<T>({ continueOnError: options.continueOnError });
     if (options.useBuffer) {
       this.useBuffer = true;
       this.maxBufferSize = options.maxBufferSize ?? 1000;
@@ -35,7 +35,7 @@ export class EmitStream<T = any> {
 
   /**
    * Pauses the stream, buffering values if resumed
-   * @returns The EmitStream instance for chaining
+   * @returns The RushStream instance for chaining
    */
   pause(): this {
     this.isPaused = true;
@@ -44,7 +44,7 @@ export class EmitStream<T = any> {
 
   /**
    * Resumes the stream, flushing buffered values
-   * @returns The EmitStream instance for chaining
+   * @returns The RushStream instance for chaining
    */
   resume(): this {
     this.isPaused = false;
@@ -57,7 +57,7 @@ export class EmitStream<T = any> {
   /**
    * Subscribes an observer to the stream
    * @param observer - Partial observer implementation with event handlers
-   * @returns - The EmitStream instance for chaining
+   * @returns - The RushStream instance for chaining
    */
   listen(observer: EmitObserveStream<T>): this {
     if (observer.next) {
@@ -77,17 +77,17 @@ export class EmitStream<T = any> {
   }
 
   use(
-    ...args: EmitMiddleware<T, T>[]
-      | [EmitMiddleware<T, T>[], EmitListenOption]
-  ): EmitStream<T> {
-    let middlewares: EmitMiddleware<T, T>[] = [];
-    let options: EmitListenOption = {};
+    ...args: RushMiddleware<T, T>[]
+      | [RushMiddleware<T, T>[], RushListenOption]
+  ): RushStream<T> {
+    let middlewares: RushMiddleware<T, T>[] = [];
+    let options: RushListenOption = {};
 
     if (Array.isArray(args[0])) {
       middlewares = args[0];
-      options = (args[1] && typeof args[1] === 'object') ? (args[1] as EmitListenOption) : {};
+      options = (args[1] && typeof args[1] === 'object') ? (args[1] as RushListenOption) : {};
     } else {
-      middlewares = args as EmitMiddleware<T, T>[];
+      middlewares = args as RushMiddleware<T, T>[];
     }
 
     const {
@@ -149,16 +149,16 @@ export class EmitStream<T = any> {
 
   /**
    * Get the stream's observer instance
-   * @returns The EmitObserver instance
+   * @returns The RushObserver instance
    */
-  getObserver(): EmitObserver<T> {
+  getObserver(): RushObserver<T> {
     return this.sourceObserver;
   }
 
   /**
    * Unsubscribes from the stream and emits specified event
    * @param option - Specific event to emit when unsubscribing
-   * @returns {this} - The EmitStream instance for chaining
+   * @returns {this} - The RushStream instance for chaining
    */
   unlisten(option?: 'destory' | 'complete'): this {
     switch (option) {

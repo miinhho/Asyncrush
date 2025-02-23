@@ -1,8 +1,8 @@
 
 /**
- * EmitObserver interface
+ * RushObserver interface
  */
-export interface EmitObserverImpl<T> {
+export interface RushObserverImpl<T> {
 
   /**
    * Emits the next value
@@ -23,11 +23,11 @@ export interface EmitObserverImpl<T> {
 }
 
 /**
- * Partial EmitObserver for stream options
+ * Partial RushObserver for stream options
  */
-export type EmitObserveStream<T> = Partial<EmitObserverImpl<T>>;
+export type EmitObserveStream<T> = Partial<RushObserverImpl<T>>;
 
 /**
- * EmitObserver event list
+ * RushObserver event list
  */
 export type EmitObserveEvent<T> = keyof EmitObserveStream<T>;

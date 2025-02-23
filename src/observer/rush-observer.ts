@@ -1,11 +1,10 @@
-import { EmitObserverImpl } from "./emit-observer.types";
+import { RushObserverImpl } from "./rush-observer.types";
 
 /**
  * An observer that can emit values, errors and completion events
- * @extends EventEmitter
- * @implements {EmitObserverImpl}
+ * @implements {RushObserverImpl}
  */
-export class EmitObserver<T = any> implements EmitObserverImpl<T> {
+export class RushObserver<T = any> implements RushObserverImpl<T> {
   private nextHandlers: ((value: T) => void)[] = [];
   private errorHandlers: ((err: unknown) => void)[] = [];
   private completeHandlers: (() => void)[] = [];

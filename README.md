@@ -1,4 +1,4 @@
-## Stream Emitter
+## Asyncrush
 
 A lightweight, flexible TypeScript library for streaming and processing asynchronous events with ease.
 
@@ -17,7 +17,7 @@ Currently focused on features, so this is not a library at all
   Seamlessly handle streams of data from various sources, such as intervals, WebSockets, or DOM events, with a simple producer-based API.
   - Example: Create a stream emitting numbers every 100ms.
     ```typescript
-    const stream = new EmitStream<number>((observer) => {
+    const stream = new RushStream<number>((observer) => {
       let i = 0;
       const id = setInterval(() => observer.next(i++), 100);
       return () => clearInterval(id);
@@ -71,7 +71,7 @@ Currently focused on features, so this is not a library at all
 <br>
 
 ## Strengths
-- **Flexibility in Async Processing**: Built for asynchronous event handling, EmitStream excels in real-world scenarios like WebSocket streams or user interactions, offering built-in retry and buffering out of the box—features that often require additional setup in libraries like RxJS.
+- **Flexibility in Async Processing**: Built for asynchronous event handling, Asyncrush excels in real-world scenarios like WebSocket streams or user interactions, offering built-in retry and buffering out of the box—features that often require additional setup in libraries like RxJS.
 
 - **Type Versatility**: Supports dynamic type transformations within a single stream, making it easy to adapt data from one format to another (e.g., numbers to strings) without creating multiple streams.
 
@@ -92,7 +92,7 @@ npm install (this is not library yet...)
 
 ## Usage Example
 ```typescript
-const stream = new EmitStream<number>((observer) => {
+const stream = new RushStream<number>((observer) => {
   let i = 0;
   const id = setInterval(() => observer.next(i++), 100);
   return () => clearInterval(id);
@@ -111,21 +111,21 @@ stream.use(
 
 ## Strengths Compared to RxJS
 
-stream-emitter stands out as a lightweight, efficient alternative to RxJS, offering unique advantages while maintaining robust asynchronous event streaming capabilities. Here’s how it compares:
+Asyncrush stands out as a lightweight, efficient alternative to RxJS, offering unique advantages while maintaining robust asynchronous event streaming capabilities. Here’s how it compares:
 
-- **Superior Transformation Performance**: stream-emitter outperforms RxJS in transformation tasks, achieving ~482K ops/sec compared to RxJS’s ~442K ops/sec (9% faster) in benchmarks with 1 billion events. This edge comes from optimized synchronous pathways and minimized overhead, making it ideal for real-time data processing.
+- **Superior Transformation Performance**: Asyncrush outperforms RxJS in transformation tasks, achieving ~482K ops/sec compared to RxJS’s ~442K ops/sec (9% faster) in benchmarks with 1 billion events. This edge comes from optimized synchronous pathways and minimized overhead, making it ideal for real-time data processing.
 
-- **Resource Efficiency**: With a minified bundle size of just ~5-10KB (versus RxJS’s ~30KB), stream-emitter reduces memory footprint and eliminates external dependencies. Its design avoids unnecessary object creation, delivering better memory efficiency than RxJS.
+- **Resource Efficiency**: With a minified bundle size of just ~5-10KB (versus RxJS’s ~30KB), Asyncrush reduces memory footprint and eliminates external dependencies. Its design avoids unnecessary object creation, delivering better memory efficiency than RxJS.
 
-- **Lightweight and Focused**: Unlike RxJS, which includes dozens of operators and a steeper learning curve, stream-emitter provides a streamlined API tailored for core streaming needs—such as retries, buffering, and type transformations—without the bloat. This makes it perfect for lightweight applications like IoT or browser-based real-time updates.
+- **Lightweight and Focused**: Unlike RxJS, which includes dozens of operators and a steeper learning curve, Asyncrush provides a streamlined API tailored for core streaming needs—such as retries, buffering, and type transformations—without the bloat. This makes it perfect for lightweight applications like IoT or browser-based real-time updates.
 
-- **Simplicity Meets Power**: Built from scratch, stream-emitter proves that simplicity doesn’t sacrifice capability. It matches or exceeds RxJS in key areas while staying intuitive, offering a practical alternative for developers seeking efficiency without complexity.
+- **Simplicity Meets Power**: Built from scratch, Asyncrush proves that simplicity doesn’t sacrifice capability. It matches or exceeds RxJS in key areas while staying intuitive, offering a practical alternative for developers seeking efficiency without complexity.
 
 ### Benchmark Highlights (1 Billion Events)
-- **Simple Emission**: stream-emitter (~900K ops/sec) vs RxJS (~1,004K ops/sec) – Competitive speed with lower resource use.
-- **Transformation**: stream-emitter (~482K ops/sec) vs RxJS (~442K ops/sec) – Outpaces RxJS, showcasing optimization prowess.
+- **Simple Emission**: Asyncrush (~900K ops/sec) vs RxJS (~1,004K ops/sec) – Competitive speed with lower resource use.
+- **Transformation**: Asyncrush (~482K ops/sec) vs RxJS (~442K ops/sec) – Outpaces RxJS, showcasing optimization prowess.
 
 <br>
 
 ## Why Choose?
-If you need a lightweight, TypeScript-native solution for managing **asynchronous event streams** with built-in retry, buffering, and type flexibility, Stream Emitter is your go-to library. It balances performance and functionality, offering a simpler event-driven use cases.
+If you need a lightweight, TypeScript-native solution for managing **asynchronous event streams** with built-in retry, buffering, and type flexibility, Asyncrush is your go-to library. It balances performance and functionality, offering a simpler event-driven use cases.

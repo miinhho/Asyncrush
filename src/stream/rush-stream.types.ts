@@ -1,4 +1,4 @@
-export interface EmitListenOption {
+export interface RushListenOption {
   readonly errorHandler?: (error: unknown) => void;
   readonly retries?: number;
   readonly retryDelay?: number;
