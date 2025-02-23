@@ -23,7 +23,7 @@ export class EmitStream<T = any> {
   ) {
     this.sourceObserver = new EmitObserver<T>({ continueOnError: options.continueOnError });
     this.outputObserver = new EmitObserver<T>({ continueOnError: options.continueOnError });
-    this.maxBufferSize = options.maxBufferSize ?? Infinity;
+    this.maxBufferSize = options.maxBufferSize ?? 1000;
     this.buffer = new Array<T>(this.maxBufferSize);
     const cleanupFn = this.producer(this.sourceObserver);
     this.cleanup = cleanupFn ?? (() => { });
