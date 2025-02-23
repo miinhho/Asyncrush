@@ -5,36 +5,57 @@ import { RushObserverImpl } from "./rush-observer.types";
  * @implements {RushObserverImpl}
  */
 export class RushObserver<T = any> implements RushObserverImpl<T> {
-  private nextHandlers: ((value: T) => void)[] = [];
-  private errorHandlers: ((err: unknown) => void)[] = [];
-  private completeHandlers: (() => void)[] = [];
+  private nextHandler: ((value: T) => void) | null = null;
+  private errorHandler: ((err: unknown) => void) | null = null;
+  private completeHandler: (() => void) | null = null;
   private isCompleted: boolean = false;
 
   constructor(private options: { continueOnError?: boolean } = {}) {}
 
   next(value: T): void {
-    if (this.isCompleted) return;
-    for (const handler of this.nextHandlers) handler(value);
+    if (!this.isCompleted && this.nextHandler) this.nextHandler(value);
   }
 
   error(err: unknown): void {
-    if (this.isCompleted) return;
-    for (const handler of this.errorHandlers) handler(err);
+    if (!this.isCompleted && this.errorHandler) this.errorHandler(err);
     if (!this.options?.continueOnError) this.destroy();
   }
 
   complete(): void {
-    if (this.isCompleted) return;
-    this.isCompleted = true;
-    for (const handler of this.completeHandlers) handler();
-    this.cleanHandlers();
+    if (!this.isCompleted && this.completeHandler) {
+      this.isCompleted = true;
+      this.completeHandler();
+      this.cleanHandlers();
+    }
   }
 
   on(event: 'next' | 'error' | 'complete', handler: (...args: any[]) => void): void {
     if (this.isCompleted) return;
-    if (event === 'next') this.nextHandlers.push(handler as (value: T) => void);
-    else if (event === 'error') this.errorHandlers.push(handler as (err: unknown) => void);
-    else if (event === 'complete') this.completeHandlers.push(handler as () => void);
+    if (event === 'next') {
+      const prevHandler = this.nextHandler;
+      this.nextHandler = prevHandler
+        ? (value: T) => {
+            prevHandler(value);
+            (handler as (value: T) => void)(value);
+          }
+        : (handler as (value: T) => void);
+    } else if (event === 'error') {
+      const prevHandler = this.errorHandler;
+      this.errorHandler = prevHandler
+        ? (err: unknown) => {
+            prevHandler(err);
+            (handler as (err: unknown) => void)(err);
+          }
+        : (handler as (err: unknown) => void);
+    } else if (event === 'complete') {
+      const prevHandler = this.completeHandler;
+      this.completeHandler = prevHandler
+        ? () => {
+            prevHandler();
+            (handler as () => void)();
+          }
+        : (handler as () => void);
+    }
   }
 
   destroy(): void {
@@ -43,8 +64,8 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
   }
 
   private cleanHandlers(): void {
-    this.nextHandlers = [];
-    this.errorHandlers = [];
-    this.completeHandlers = [];
+    this.nextHandler = null;
+    this.errorHandler = null;
+    this.completeHandler = null;
   }
 }

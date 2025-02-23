@@ -100,47 +100,66 @@ export class RushStream<T = any> {
       continueOnError = false,
     } = options;
 
-    const withRetry = async (value: T): Promise<T> => {
-      let lastError: unknown;
-      for (let attempt = 0; attempt <= retries; attempt++) {
-        try {
-          let result = value;
-          for (const middleware of middlewares) {
-            result = await Promise.resolve(middleware(result));
-          }
-          return result;
-        } catch (error) {
-          lastError = error;
-          if (attempt < retries) {
-            let delay = delayFn(attempt, retryDelay);
-            if (jitter > 0) {
-              const jitterFactor = 1 + jitter * (Math.random() * 2 - 1);
-              delay *= jitterFactor;
-            }
-            delay = Math.min(delay, maxRetryDelay);
-            await new Promise((resolve) => setTimeout(resolve, delay));
-          } else {
-            throw lastError;
-          }
+    const applyMiddleware = (value: T): T | Promise<T> => {
+      let result: T | Promise<T> = value;
+      for (const middleware of middlewares) {
+        if (result instanceof Promise) {
+          result = result.then((value) => middleware(value));
+        } else {
+          result = middleware(result);
         }
       }
-      throw lastError!;
+      return result;
     };
 
-    this.sourceObserver.on('next', async (value: T) => {
+    const scheduleRetry = (attempt: number, value: T): Promise<T> => {
+      let delay = delayFn(attempt, retryDelay);
+      if (jitter > 0) {
+        const jitterFactor = 1 + jitter * (Math.random() * 2 - 1);
+        delay *= jitterFactor;
+      }
+      delay = Math.min(delay, maxRetryDelay);
+      return new Promise((resolve) => setTimeout(() => resolve(withRetry(value, attempt + 1)), delay));
+    };
+
+    const withRetry = (value: T, attempt = 0): T | Promise<T> => {
+      if (retries === 0) return applyMiddleware(value);
+      const result = applyMiddleware(value);
+      if (result instanceof Promise) {
+        return result.catch((error) => {
+          if (attempt < retries) {
+            return scheduleRetry(attempt, value);
+          }
+          throw error;
+        });
+      }
       try {
-        const result = retries > 0
-          ? await withRetry(value)
-          : await Promise.all(middlewares.map(mw => mw(value)))
-            .then(results => results[results.length - 1]);
-        if (result instanceof Promise) {
-          this.outputObserver.next(await result);
-        } else {
-          this.outputObserver.next(result);
+        return result;
+      } catch (error) {
+        if (attempt < retries) {
+          return scheduleRetry(attempt, value);
         }
-      } catch (err) {
-        if (errorHandler) errorHandler(err);
-        if (!continueOnError) this.outputObserver.error(err);
+        throw error;
+      }
+    };
+
+    this.sourceObserver.on('next', (value: T) => {
+      const result = withRetry(value);
+      if (result instanceof Promise) {
+        result.then(
+          (res) => this.outputObserver.next(res),
+          (err) => {
+            if (errorHandler) errorHandler(err);
+            if (!continueOnError) this.outputObserver.error(err);
+          }
+        )
+      } else {
+        try {
+          this.outputObserver.next(result);
+        } catch (err) {
+          if (errorHandler) errorHandler(err);
+          if (!continueOnError) this.outputObserver.error(err);
+        }
       }
     });
 
