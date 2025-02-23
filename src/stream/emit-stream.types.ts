@@ -1,4 +1,4 @@
-export interface EmitMiddlewareOption {
+export interface EmitListenOption {
   errorHandler?: (error: unknown) => void;
   retries?: number;
   retryDelay?: number;

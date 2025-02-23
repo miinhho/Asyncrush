@@ -1,6 +1,7 @@
-import { EmitObserver } from "./emit-observer";
-import { EmitObserveStream } from "./emit-observer.types";
-import { EmitMiddlewareOption } from "./emit-stream.types";
+import { EmitMiddleware } from "@middleware/emit-middleware.types";
+import { EmitObserver } from "@observer/emit-observer";
+import { EmitObserveStream } from "@observer/emit-observer.types";
+import { EmitListenOption } from "./emit-stream.types";
 
 /**
  * Stream that emits values, errors, and completion events
@@ -71,15 +72,15 @@ export class EmitStream<T = any> {
   }
 
   use(
-    ...args: ((value: any) => any | Promise<any>)[]
-      | [((value: any) => any | Promise<any>)[], EmitMiddlewareOption]
+    ...args: EmitMiddleware<any, any>[]
+      | [EmitMiddleware<any, any>[], EmitListenOption]
   ): EmitStream<T> {
-    let middlewares: ((value: any) => any | Promise<any>)[] = [];
-    let options: EmitMiddlewareOption = {};
+    let middlewares: EmitMiddleware<any, any>[] = [];
+    let options: EmitListenOption = {};
 
     if (Array.isArray(args[0])) {
       middlewares = args[0];
-      options = (args[1] && typeof args[1] === 'object') ? args[1] as EmitMiddlewareOption : {};
+      options = (args[1] && typeof args[1] === 'object') ? args[1] as EmitListenOption : {};
     } else {
       middlewares = args as ((value: any) => any | Promise<any>)[];
     }
@@ -121,8 +122,7 @@ export class EmitStream<T = any> {
 
     this.sourceObserver.on('next', async (value: T) => {
       try {
-        const result = retries > 0
-          ? await withRetry(value)
+        const result = retries > 0 ? await withRetry(value)
           : await Promise.all(middlewares.map(mw => mw(value)))
             .then(results => results[results.length - 1]);
         if (result instanceof Promise) {

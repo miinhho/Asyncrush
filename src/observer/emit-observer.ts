@@ -15,7 +15,9 @@ export class EmitObserver<T = any> implements EmitObserverImpl<T> {
 
   next(value: T): void {
     if (this.isCompleted) return;
-    for (const handler of this.nextHandlers) handler(value);
+    for (const handler of this.nextHandlers) {
+      handler(value);
+    }
   }
 
   error(err: unknown): void {

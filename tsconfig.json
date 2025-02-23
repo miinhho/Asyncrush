@@ -20,7 +20,9 @@
     "traceResolution": false,
     "baseUrl": ".",
     "paths": {
-        "@emiter/*": ["./src/emiter/*"],
+        "@observer/*": ["./src/observer/*"],
+        "@stream/*": ["./src/stream/*"],
+        "@middleware/*": ["./src/middleware/*"]
     }
   },
   "compileOnSave": false,
