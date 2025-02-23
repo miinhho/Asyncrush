@@ -22,7 +22,7 @@ export class EmitStream<T = any> {
     options: { maxBufferSize?: number, continueOnError?: boolean } = {}
   ) {
     this.sourceObserver = new EmitObserver<T>({ continueOnError: options.continueOnError });
-    this.outputObserver = new EmitObserver<any>({ continueOnError: options.continueOnError });
+    this.outputObserver = new EmitObserver<T>({ continueOnError: options.continueOnError });
     this.maxBufferSize = options.maxBufferSize ?? Infinity;
     this.buffer = new Array<T>(this.maxBufferSize);
     const cleanupFn = this.producer(this.sourceObserver);
@@ -79,6 +79,12 @@ export class EmitStream<T = any> {
     let middlewares: EmitMiddleware<T, T>[] = [];
     let options: EmitListenOption = {};
 
+    const {
+      retries = 0,
+      errorHandler,
+      continueOnError = false,
+    } = options;
+
     if (Array.isArray(args[0])) {
       middlewares = args[0];
       options = (args[1] && typeof args[1] === 'object') ? args[1] as EmitListenOption : {};
@@ -86,51 +92,8 @@ export class EmitStream<T = any> {
       middlewares = args as ((value: T) => T | Promise<T>)[];
     }
 
-    const {
-      errorHandler,
-      retries = 0,
-      retryDelay = 0,
-      maxRetryDelay = Infinity,
-      jitter = 0,
-      delayFn = (attempt, baseDelay) => baseDelay * Math.pow(2, attempt),
-      continueOnError = false,
-    } = options;
-
-    const applyMiddleware = async (value: T): Promise<T> => {
-      let result = value;
-      for (const mw of middlewares) {
-        const middlewareResult = mw(result);
-        result = middlewareResult instanceof Promise ? await middlewareResult : middlewareResult;
-      }
-      return result;
-    }
-
-    const withRetry = async (value: T): Promise<T> => {
-      let lastError: unknown;
-      for (let attempt = 0; attempt <= retries; attempt++) {
-        try {
-          const result = applyMiddleware(value);
-          return await result;
-        } catch (error) {
-          lastError = error;
-          if (attempt < retries) {
-            let delay = delayFn(attempt, retryDelay);
-            if (jitter > 0) {
-              const jitterFactor = 1 + jitter * (Math.random() * 2 - 1);
-              delay *= jitterFactor;
-            }
-            delay = Math.min(delay, maxRetryDelay);
-            await new Promise((resolve) => setTimeout(resolve, delay));
-          } else {
-            throw lastError;
-          }
-        }
-      }
-      throw lastError;
-    };
-
     this.sourceObserver.on('next', async (value: T) => {
-      const result = retries > 0 ? withRetry(value) : applyMiddleware(value);
+      const result = retries > 0 ? this.retry(value, middlewares, options) : this.applyMiddleware(value, middlewares);
       result.then(
         (res) => this.outputObserver.next(res),
         (err) => {
@@ -141,6 +104,51 @@ export class EmitStream<T = any> {
     });
 
     return this;
+  }
+
+  private async retry<T>(
+    value: T,
+    middlewares: EmitMiddleware<T, T>[],
+    options: Exclude<EmitListenOption, 'errorHandler' | 'continueOnError'>,
+  ): Promise<T> {
+    const {
+      retries = 0,
+      retryDelay = 0,
+      maxRetryDelay = Infinity,
+      jitter = 0,
+      delayFn = (attempt, baseDelay) => baseDelay * Math.pow(2, attempt),
+    } = options;
+
+    let lastError: unknown;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const result = this.applyMiddleware(value, middlewares);
+        return await result;
+      } catch (error) {
+        lastError = error;
+        if (attempt < retries) {
+          let delay = delayFn(attempt, retryDelay);
+          if (jitter > 0) {
+            const jitterFactor = 1 + jitter * (Math.random() * 2 - 1);
+            delay *= jitterFactor;
+          }
+          delay = Math.min(delay, maxRetryDelay);
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        } else {
+          throw lastError;
+        }
+      }
+    }
+    throw lastError;
+  }
+
+  private async applyMiddleware<T>(value: T, middlewares: EmitMiddleware<T, T>[]): Promise<T> {
+    let result = value;
+    for (const mw of middlewares) {
+      const middlewareResult = mw(result);
+      result = middlewareResult instanceof Promise ? await middlewareResult : middlewareResult;
+    }
+    return result;
   }
 
   /**
