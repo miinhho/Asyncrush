@@ -1,9 +1,9 @@
 export interface EmitListenOption {
-  errorHandler?: (error: unknown) => void;
-  retries?: number;
-  retryDelay?: number;
-  maxRetryDelay?: number;
-  jitter?: number;
-  delayFn?: (attempt: number, baseDelay: number) => number;
-  continueOnError?: boolean;
+  readonly errorHandler?: (error: unknown) => void;
+  readonly retries?: number;
+  readonly retryDelay?: number;
+  readonly maxRetryDelay?: number;
+  readonly jitter?: number;
+  readonly delayFn?: (attempt: number, baseDelay: number) => number;
+  readonly continueOnError?: boolean;
 }

@@ -93,7 +93,9 @@ export class EmitStream<T = any> {
     }
 
     this.sourceObserver.on('next', async (value: T) => {
-      const result = retries > 0 ? this.retry(value, middlewares, options) : this.applyMiddleware(value, middlewares);
+      const result = retries > 0
+        ? this.retry<T>(value, middlewares, options)
+        : this.applyMiddleware<T>(value, middlewares);
       result.then(
         (res) => this.outputObserver.next(res),
         (err) => {
@@ -122,7 +124,7 @@ export class EmitStream<T = any> {
     let lastError: unknown;
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
-        const result = this.applyMiddleware(value, middlewares);
+        const result = this.applyMiddleware<T>(value, middlewares);
         return await result;
       } catch (error) {
         lastError = error;
@@ -142,10 +144,13 @@ export class EmitStream<T = any> {
     throw lastError;
   }
 
-  private async applyMiddleware<T>(value: T, middlewares: EmitMiddleware<T, T>[]): Promise<T> {
+  private async applyMiddleware<T>(
+    value: T,
+    middlewares: EmitMiddleware<T, T>[]
+  ): Promise<T> {
     let result = value;
-    for (const mw of middlewares) {
-      const middlewareResult = mw(result);
+    for (let i = 0; i < middlewares.length; i++) {
+      const middlewareResult = middlewares[i](result);
       result = middlewareResult instanceof Promise ? await middlewareResult : middlewareResult;
     }
     return result;

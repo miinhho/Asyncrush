@@ -8,18 +8,18 @@ export interface EmitObserverImpl<T> {
    * Emits the next value
    * @param value
    */
-  next: (value: T) => void;
+  readonly next: (value: T) => void;
 
   /**
    * Emits an error
    * @param err
    */
-  error: (err: unknown) => void;
+  readonly error: (err: unknown) => void;
 
   /**
    * Emits the completion event
    */
-  complete: () => void;
+  readonly complete: () => void;
 }
 
 /**
