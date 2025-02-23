@@ -43,7 +43,7 @@ export class EmitObserver<T = any> implements EmitObserverImpl<T> {
     else if (event === 'complete') this.completeHandlers.push(handler as () => void);
   }
 
-  private cleanHandlers(): void {
+  cleanHandlers(): void {
     this.nextHandlers = [];
     this.errorHandlers = [];
     this.completeHandlers = [];

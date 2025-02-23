@@ -152,10 +152,10 @@ export class EmitStream<T = any> {
    * @param option - Specific event to emit when unsubscribing
    * @returns {this} - The EmitStream instance for chaining
    */
-  unlisten(option?: Exclude<keyof EmitObserveStream<T>, 'next'>): this {
+  unlisten(option?: 'destory' | 'complete'): this {
     switch (option) {
-      case 'error': {
-        this.outputObserver.error(new Error('Stream unlistened'));
+      case 'destory': {
+        this.outputObserver.cleanHandlers();
         break;
       }
       case 'complete':
