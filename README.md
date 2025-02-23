@@ -115,15 +115,15 @@ Asyncrush stands out as a lightweight, efficient alternative to RxJS, offering u
 
 - **Superior Transformation Performance**: Asyncrush outperforms RxJS in transformation tasks, achieving ~482K ops/sec compared to RxJS’s ~442K ops/sec (9% faster) in benchmarks with 1 billion events. This edge comes from optimized synchronous pathways and minimized overhead, making it ideal for real-time data processing.
 
-- **Resource Efficiency**: With a minified bundle size of just ~5-10KB (versus RxJS’s ~30KB), Asyncrush reduces memory footprint and eliminates external dependencies. Its design avoids unnecessary object creation, delivering better memory efficiency than RxJS.
+- **Resource Efficiency**: With a minified bundle size of just 5~10KB (versus RxJS’s ~30KB), Asyncrush reduces memory footprint and eliminates external dependencies. Its design avoids unnecessary object creation, delivering better memory efficiency than RxJS.
 
 - **Lightweight and Focused**: Unlike RxJS, which includes dozens of operators and a steeper learning curve, Asyncrush provides a streamlined API tailored for core streaming needs—such as retries, buffering, and type transformations—without the bloat. This makes it perfect for lightweight applications like IoT or browser-based real-time updates.
 
 - **Simplicity Meets Power**: Built from scratch, Asyncrush proves that simplicity doesn’t sacrifice capability. It matches or exceeds RxJS in key areas while staying intuitive, offering a practical alternative for developers seeking efficiency without complexity.
 
-### Benchmark Highlights (1 Billion Events)
-- **Simple Emission**: Asyncrush (~900K ops/sec) vs RxJS (~1,004K ops/sec) – Competitive speed with lower resource use.
-- **Transformation**: Asyncrush (~482K ops/sec) vs RxJS (~442K ops/sec) – Outpaces RxJS, showcasing optimization prowess.
+### Benchmarks (10 Billion Events)
+- **RushStream - Simple Emission**: 1,082,298 ops/sec – Beats RxJS (~4% faster than 1,040,195 ops/sec).
+- **RushStream - Transformation**: 589,897 ops/sec – Outperforms RxJS (~29% faster than 455,813 ops/sec).
 
 <br>
 
