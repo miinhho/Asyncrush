@@ -102,7 +102,7 @@ stream.use(
   [(v: number) => v + 1, async (v: number) => `${v} processed`],
   { retries: 2, retryDelay: 50 }
 ).listen({
-  next: (v: string) => console.log(v),
+  next: (v: any) => console.log(v),
   error: (e) => console.error(e),
 });
 ```
