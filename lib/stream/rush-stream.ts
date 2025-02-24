@@ -1,6 +1,6 @@
 import { RushMiddleware } from "../middleware/rush-middleware.types";
 import { RushObserver } from "../observer/rush-observer";
-import { EmitObserveStream } from "../observer/rush-observer.types";
+import { RushObserveStream } from "../observer/rush-observer.types";
 import { RushListenOption } from "./rush-stream.types";
 
 /**
@@ -59,7 +59,7 @@ export class RushStream<T = any> {
    * @param observer - Partial observer implementation with event handlers
    * @returns - The RushStream instance for chaining
    */
-  listen(observer: EmitObserveStream<T>): this {
+  listen(observer: RushObserveStream<T>): this {
     if (observer.next) {
       this.outputObserver.on('next', (value: T) => {
         if (this.isPaused && this.maxBufferSize > 0 && this.useBuffer) {

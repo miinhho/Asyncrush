@@ -85,7 +85,7 @@ Currently focused on features, so this is not a library at all
 
 ## Installation
 ```
-npm install (this is not library yet...)
+npm install asyncrush
 ```
 
 <br>

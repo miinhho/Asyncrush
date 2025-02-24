@@ -1,12 +1,7 @@
 ## jest
 coverage
+commands
 
 ## node
 node_modules
 
-## build
-dist
-
-## personal
-src/index.ts
-benchmark.js

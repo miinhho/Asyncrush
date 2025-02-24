@@ -1,19 +1,31 @@
 {
   "name": "asyncrush",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "description": "A lightweight, flexible library for streaming and processing asynchronous events with ease",
   "license": "MIT",
-  "author": "miinhho",
+  "author": "miinhho <mjang6988@gmail.com>",
+  "keywords": [
+    "async",
+    "stream",
+    "event",
+    "processing",
+    "lightweight",
+    "flexible"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/miinhho/Asyncrush.git"
+  },
   "type": "commonjs",
-  "main": "src/index.ts",
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
+  "files": [
+    "/dist"
+  ],
   "scripts": {
-    "test": "jest",
-    "test:cov": "jest --coverage",
-    "posttest:cov": "ts-node commands/open-coverage.command.ts",
-    "start": "ts-node -r tsconfig-paths/register src/index.ts",
-    "build": "tsc -p tsconfig.json",
-    "performance:sync": "npm run build && node dist/src/test/sync.performance.js",
-    "performance:async": "npm run build && node dist/src/test/async.performance.js"
+    "build": "rmdir /s dist && tsc -p tsconfig.json",
+    "prepublish": "npm run build",
+    "publish": "npm publish --access public"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",

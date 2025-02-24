@@ -4,7 +4,8 @@
     "module": "Node16",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "declaration": false,
+    "declaration": true,
+    "sourceMap": true,
     "esModuleInterop": true,
     "inlineSourceMap": false,
     "isolatedModules": true,
@@ -23,5 +24,5 @@
   },
   "compileOnSave": false,
   "exclude": ["node_modules", "dist"],
-  "include": ["src"]
+  "include": ["lib"]
 }

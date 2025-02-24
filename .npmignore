@@ -1,0 +1,20 @@
+# npm
+node_modules/
+
+# dev
+src
+test
+coverage
+commands
+
+# config
+.gitignore
+.editorconfig
+.prettierrc
+babel.config.js
+eslint.config.mjs
+jest.config.ts
+tsconfig.json
+
+# Git
+.git

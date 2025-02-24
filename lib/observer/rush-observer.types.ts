@@ -25,9 +25,4 @@ export interface RushObserverImpl<T> {
 /**
  * Partial RushObserver for stream options
  */
-export type EmitObserveStream<T> = Partial<RushObserverImpl<T>>;
-
-/**
- * RushObserver event list
- */
-export type EmitObserveEvent<T> = keyof EmitObserveStream<T>;
+export type RushObserveStream<T> = Partial<RushObserverImpl<T>>;

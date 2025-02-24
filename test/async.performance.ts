@@ -1,10 +1,10 @@
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
-import { RushStream } from "../stream/rush-stream";
-
+import { RushStream } from "../lib/stream/rush-stream";
 const eventCount = 10_000_000_000;
 
 function measureResources(label: string, fn: () => void): void {
+  console.log(`Starting ${label} with ${eventCount} events...`);
   const startMemory = process.memoryUsage().heapUsed / 1024 / 1024;
   const startCpu = process.cpuUsage();
   const startTime = performance.now();
@@ -27,8 +27,11 @@ function measureResources(label: string, fn: () => void): void {
 
 function testRushStreamSimple() {
   const stream = new RushStream<number>((observer) => {
-    for (let i = 0; i < eventCount; i++) {
-      observer.next(i);
+    const chunkSize = 1_000_000;
+    for (let i = 0; i < eventCount; i += chunkSize) {
+      for (let j = i; j < Math.min(i + chunkSize, eventCount); j++) {
+        observer.next(j);
+      }
     }
     observer.complete();
     return () => {};
@@ -42,8 +45,11 @@ function testRushStreamSimple() {
 
 function testRushStreamTransform() {
   const stream = new RushStream<number>((observer) => {
-    for (let i = 0; i < eventCount; i++) {
-      observer.next(i);
+    const chunkSize = 1_000_000;
+    for (let i = 0; i < eventCount; i += chunkSize) {
+      for (let j = i; j < Math.min(i + chunkSize, eventCount); j++) {
+        observer.next(j);
+      }
     }
     observer.complete();
     return () => {};
@@ -60,8 +66,11 @@ function testRushStreamTransform() {
 
 function testRxJSSimple() {
   const obs = new Observable<number>((subscriber) => {
-    for (let i = 0; i < eventCount; i++) {
-      subscriber.next(i);
+    const chunkSize = 1_000_000;
+    for (let i = 0; i < eventCount; i += chunkSize) {
+      for (let j = i; j < Math.min(i + chunkSize, eventCount); j++) {
+        subscriber.next(j);
+      }
     }
     subscriber.complete();
   });
@@ -74,8 +83,11 @@ function testRxJSSimple() {
 
 function testRxJSTransform() {
   const obs = new Observable<number>((subscriber) => {
-    for (let i = 0; i < eventCount; i++) {
-      subscriber.next(i);
+    const chunkSize = 1_000_000;
+    for (let i = 0; i < eventCount; i += chunkSize) {
+      for (let j = i; j < Math.min(i + chunkSize, eventCount); j++) {
+        subscriber.next(j);
+      }
     }
     subscriber.complete();
   });
@@ -89,7 +101,7 @@ function testRxJSTransform() {
   });
 }
 
-console.log("Starting benchmarks for 10 billion events...\n");
+console.log("Starting benchmarks...\n");
 
 measureResources("RushStream - Simple Emission", testRushStreamSimple);
 measureResources("RushStream - Transformation", testRushStreamTransform);
