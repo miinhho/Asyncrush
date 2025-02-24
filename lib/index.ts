@@ -10,5 +10,3 @@ export { RushObserver, RushStream };
     RushListenOption, RushMiddleware, RushObserverImpl,
     RushObserveStream
   };
-
-

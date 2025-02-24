@@ -5,8 +5,6 @@ A lightweight, flexible TypeScript library for streaming and processing asynchro
 <br>
 
 **Inspired from RxJS**    
-This is **UNDER DEVELOPENT**  
-
 
 <br>
 
@@ -76,6 +74,8 @@ This is **UNDER DEVELOPENT**
 
 - **Pause/Resume with Buffering**: Handles event bursts gracefully with built-in buffering, a feature not natively emphasized in many streaming libraries, enhancing reliability in unpredictable environments.
 
+- **Throttle/Debounce**: Supports Throttle & Debounce system
+
 <br>
 
 ## Installation
@@ -101,6 +101,15 @@ stream.use(
   error: (e) => console.error(e),
 });
 ```
+
+<br>
+
+## Benchmark
+- Asyncrush Outperforms RxJS:   
+  - **Simple Emission**: ~32% faster, 0.66s less CPU time  
+  - **Transformation**: ~26% faster, 6.29s less CPU time  
+
+(Tested for 1 billion events)
 
 <br>
 

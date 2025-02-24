@@ -14,6 +14,9 @@ export class RushStream<T = any> {
   /** Output observer distributing events to listeners and subscribers */
   private outputObserver = new RushObserver<T>();
 
+  /** Handler for connect source & output observer */
+  private useHandler: ((value: T) => void) | null = null;
+
   /** Array of subscribers for multicast broadcasting */
   private subscribers: RushObserver<T>[] = [];
 
@@ -35,17 +38,22 @@ export class RushStream<T = any> {
   /** Maximum size of the buffer */
   private maxBufferSize: number = 0;
 
-  /** Timeout for throttle control */
-  private throttleTimeout: NodeJS.Timeout | null = null;
+  /** Last value for debounce */
+  private lastValue: T | null = null;
+
+  /** Debounce time in milliseconds */
+  private debounceMs: number | null = null;
 
   /** Timeout for debounce control */
   private debounceTimeout: NodeJS.Timeout | null = null;
 
-  /** Last emitted value for throttle */
-  private lastEmitted: T | null = null;
+  /** Throttle time in milliseconds */
+  private throttleMs: number | null = null;
 
-  /** Last value for debounce */
-  private lastValue: T | null = null;
+  /** Timeout for throttle control */
+  private throttleTimeout: NodeJS.Timeout | null = null;
+
+
 
   /**
    * Creates a new RushStream instance
@@ -62,10 +70,45 @@ export class RushStream<T = any> {
     if (options.useBuffer) {
       this.useBuffer = true;
       this.maxBufferSize = options.maxBufferSize ?? 1000;
-      this.buffer = new Array<T>(this.maxBufferSize);
+      this.buffer = [];
     }
-    const cleanupFn = this.producer(this.sourceObserver);
-    this.cleanup = cleanupFn ?? (() => { });
+  }
+
+  /** Processes an event with debounce or throttle control */
+  private processEvent(value: T): void {
+    if (this.debounceMs !== null) {
+      this.lastValue = value;
+      if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
+      this.debounceTimeout = setTimeout(() => {
+        if (this.lastValue !== null) {
+          this.emit(this.lastValue);
+          this.lastValue = null;
+        }
+        this.debounceTimeout = null;
+      }, this.debounceMs);
+    } else if (this.throttleMs !== null) {
+      if (!this.throttleTimeout) {
+        this.emit(value);
+        this.throttleTimeout = setTimeout(() => {
+          this.throttleTimeout = null;
+        }, this.throttleMs);
+      }
+    } else {
+      this.emit(value);
+    }
+  }
+
+  /** Emits an event to the output observer and broadcasts to subscribers */
+  private emit(value: T): void {
+    if (this.isPaused && this.useBuffer) {
+      if (this.buffer.length >= this.maxBufferSize) {
+        this.buffer.shift();
+      }
+      this.buffer.push(value);
+    } else {
+      this.outputObserver.next(value);
+      this.broadcast(value);
+    }
   }
 
   /** Pauses the stream, buffering events if enabled */
@@ -78,7 +121,7 @@ export class RushStream<T = any> {
   resume(): this {
     this.isPaused = false;
     while (this.buffer.length > 0 && !this.isPaused && this.useBuffer) {
-      this.outputObserver.next(this.buffer.shift()!);
+      this.processEvent(this.buffer.shift()!);
     }
     return this;
   }
@@ -90,17 +133,23 @@ export class RushStream<T = any> {
   listen(observer: RushObserveStream<T>): this {
     if (observer.next) {
       this.outputObserver.on('next', (value: T) => {
-        if (!this.isPaused || !this.useBuffer) {
-          observer.next!(value);
-          return;
-        }
-        if (this.buffer.length < this.maxBufferSize) {
-          this.buffer.push(value);
-        }
+        observer.next!(value);
       });
     }
     if (observer.error) this.outputObserver.on('error', observer.error);
     if (observer.complete) this.outputObserver.on('complete', observer.complete);
+
+    if (!this.useHandler) {
+      this.sourceObserver.on('next', (value: T) => {
+        this.processEvent(value);
+      });
+    } else {
+      this.sourceObserver.on('next', this.useHandler);
+    }
+
+    const cleanupFn = this.producer(this.sourceObserver);
+    this.cleanup = cleanupFn ?? (() => {});
+
     return this;
   }
 
@@ -111,6 +160,9 @@ export class RushStream<T = any> {
   subscribe(): RushObserver<T> {
     const sub = new RushObserver<T>({ continueOnError: this.continueOnError });
     this.subscribers.push(sub);
+    if (this.useBuffer && !this.isPaused) {
+      this.buffer.forEach(value => sub.next(value));
+    }
     return sub;
   }
 
@@ -134,13 +186,12 @@ export class RushStream<T = any> {
     const { withRetry, options } = this.retryWrapper(...args);
     const { errorHandler, continueOnError } = options;
 
-    this.sourceObserver.on('next', (value: T) => {
+    this.useHandler = (value: T) => {
       const result = withRetry(value);
       if (result instanceof Promise) {
         result.then(
           (res) => {
-            this.outputObserver.next(res);
-            this.broadcast(res);
+            this.processEvent(res);
           },
           (err) => {
             if (errorHandler) errorHandler(err);
@@ -149,14 +200,14 @@ export class RushStream<T = any> {
         );
       } else {
         try {
-          this.outputObserver.next(result);
-          this.broadcast(result);
+          this.processEvent(result);
         } catch (err) {
           if (errorHandler) errorHandler(err);
           if (!continueOnError) this.outputObserver.error(err);
         }
       }
-    });
+    };
+
     return this;
   }
 
@@ -229,11 +280,6 @@ export class RushStream<T = any> {
     return { withRetry, options };
   }
 
-  /** Gets the source observer for external access */
-  getObserver(): RushObserver<T> {
-    return this.sourceObserver;
-  }
-
   /** Stops the stream and emits an event */
   unlisten(option?: 'destroy' | 'complete'): this {
     switch (option) {
@@ -249,46 +295,15 @@ export class RushStream<T = any> {
     return this;
   }
 
-  /**
-   * Limits event emission rate to once per specified interval
-   * @param ms - Throttle interval in milliseconds
-   */
-  throttle(ms: number): this {
-    const originalNext = this.outputObserver.next.bind(this.outputObserver);
-    this.outputObserver.next = (value: T) => {
-      this.lastEmitted = value;
-      if (!this.throttleTimeout) {
-        originalNext(value);
-        this.broadcast(value);
-        this.throttleTimeout = setTimeout(() => {
-          this.throttleTimeout = null;
-          if (this.lastEmitted !== value) {
-            originalNext(this.lastEmitted!);
-            this.broadcast(this.lastEmitted!);
-          }
-        }, ms);
-      }
-    };
+  /** Set the debounce time in milliseconds  */
+  debounce(ms: number): this {
+    this.debounceMs = ms;
     return this;
   }
 
-  /**
-   * Delays event emission until no new events occur for a specified period
-   * @param ms - Debounce interval in milliseconds
-   */
-  debounce(ms: number): this {
-    const originalNext = this.outputObserver.next.bind(this.outputObserver);
-    this.outputObserver.next = (value: T) => {
-      this.lastValue = value;
-      if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
-      this.debounceTimeout = setTimeout(() => {
-        if (this.lastValue !== null) {
-          originalNext(this.lastValue);
-          this.broadcast(this.lastValue);
-          this.lastValue = null;
-        }
-      }, ms);
-    };
+  /** Set the throttle time in milliseconds  */
+  throttle(ms: number): this {
+    this.throttleMs = ms;
     return this;
   }
 }

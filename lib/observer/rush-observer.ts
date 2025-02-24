@@ -18,13 +18,11 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
   /** Flag indicating if the observer has completed */
   private isCompleted: boolean = false;
 
-  private eventQueue: T[] = [];
-
   /**
    * Creates a new RushObserver instance
    * @param options - Configuration options, including error continuation
    */
-  constructor(private options: { continueOnError?: boolean } = {}) {}
+  constructor(private options: { continueOnError?: boolean } = {}) { }
 
   /**
    * Emits a value to all chained 'next' handlers
@@ -34,8 +32,6 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
     if (this.isCompleted) return;
     if (this.nextHandler) {
       this.nextHandler(value);
-    } else {
-      this.eventQueue.push(value);
     }
   }
 
@@ -69,8 +65,6 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
    * @param handler - Callback function to handle the event
    */
   on(event: 'next' | 'error' | 'complete', handler: (...args: any[]) => void): void {
-    if (this.isCompleted) return;
-
     switch (event) {
       case 'next':
         const prevNext = this.nextHandler;
@@ -80,9 +74,6 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
               (handler as (value: T) => void)(value);
             }
           : (handler as (value: T) => void);
-        while (this.eventQueue.length > 0) {
-          this.nextHandler(this.eventQueue.shift()!);
-        }
         break;
 
       case 'error':

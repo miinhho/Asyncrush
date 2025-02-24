@@ -1,6 +1,6 @@
 {
   "name": "asyncrush",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "A lightweight, flexible library for streaming and processing asynchronous events with ease",
   "license": "MIT",
   "author": "miinhho <mjang6988@gmail.com>",
@@ -23,6 +23,7 @@
     "/dist"
   ],
   "scripts": {
+    "test": "jest --coverage",
     "build": "rmdir /s dist && tsc -p tsconfig.json",
     "prepublish": "npm run build",
     "publish": "npm publish --access public"
