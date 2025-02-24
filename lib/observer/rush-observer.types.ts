@@ -1,28 +1,20 @@
 
 /**
- * RushObserver interface
+ * Interface for the RushObserver
  */
 export interface RushObserverImpl<T> {
 
-  /**
-   * Emits the next value
-   * @param value
-   */
+  /** Emits the next value */
   readonly next: (value: T) => void;
 
-  /**
-   * Emits an error
-   * @param err
-   */
+  /** Emits an error */
   readonly error: (err: unknown) => void;
 
-  /**
-   * Emits the completion event
-   */
+  /** Emits the completion event */
   readonly complete: () => void;
 }
 
 /**
- * Partial RushObserver for stream options
+ * Partial type for observer's stream options
  */
 export type RushObserveStream<T> = Partial<RushObserverImpl<T>>;

@@ -6,7 +6,6 @@ A lightweight, flexible TypeScript library for streaming and processing asynchro
 
 **Inspired from RxJS**    
 This is **UNDER DEVELOPENT**  
-Currently focused on features, so this is not a library at all  
 
 
 <br>
@@ -64,10 +63,6 @@ Currently focused on features, so this is not a library at all
   );
   ```
 
-- **Lightweight Design**
-  Optimized with direct callback dispatching, reducing overhead while maintaining asynchronous capabilities.
-  - Performance: ~922K ops/sec for simple emission, ~490K ops/sec with transformations (1B events).
-
 <br>
 
 ## Strengths
@@ -106,43 +101,6 @@ stream.use(
   error: (e) => console.error(e),
 });
 ```
-
-<br>
-
-## Benchmarks (10 Billion Events)
-
-Below are the benchmark results for `Asyncrush` and `RxJS` under both asynchronous and synchronous conditions, showcasing performance, CPU usage, and memory efficiency for 10 billion events.
-
-### Asynchronous (Real-time Streaming Optimized)
-Tested with `process.nextTick` for event distribution, reflecting real-world streaming scenarios.
-
-| Test Case                   | Ops/sec   | CPU Time   |
-|-----------------------------|-----------|------------|
-| **Asyncrush - Simple Emission** | ~647K     | 15.44s |
-| **Asyncrush - Transformation** | ~661K     | 15.13s |
-| **RxJS - Simple Emission**      | ~496K     | 20.17s |
-| **RxJS - Transformation**       | ~18.3K    | 546.67s |
-
-- **Highlights**: 
-  - `Asyncrush` outperforms `RxJS` by ~30% in Simple Emission (~647K vs ~496K) and ~36x in Transformation (~661K vs ~18.3K).
-  - CPU usage is significantly lower (~15s vs ~546s for Transformation), and memory usage is minimal (~0.41 MB vs ~5.71 MB).
-
-### Synchronous (Raw Performance Optimized)
-Tested with a synchronous `for` loop, highlighting raw processing power and resource efficiency.
-
-| Test Case                   | Ops/sec   | CPU Time   |
-|-----------------------------|-----------|------------|
-| **Asyncrush - Simple Emission** | ~316K     | 31.58s |
-| **Asyncrush - Transformation** | ~316K     | 31.55s |
-| **RxJS - Simple Emission**      | ~263K     | 37.92s |
-| **RxJS - Transformation**       | ~23.7K    | 423.49s |
-
-- **Highlights**: 
-  - `Asyncrush` beats `RxJS` by ~20% in Simple Emission (~316K vs ~263K) and ~13x in Transformation (~316K vs ~23.7K).
-
-### Key Takeaways
-- **Asyncrush** excels in both Async and Sync environments, offering superior speed and resource efficiency compared to `RxJS`.
-- Async results (~661K vs ~18.3K in Transformation) showcase real-time streaming prowess, while Sync results (~316K vs ~23.7K) highlight raw performance.
 
 <br>
 
