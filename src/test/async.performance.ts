@@ -1,7 +1,7 @@
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
-import { RushStream } from "../stream/rush-stream"; // 실제 경로로 변경 필요
-const eventCount = 10_000_000_000; // 100억 이벤트
+import { RushStream } from "../stream/rush-stream";
+const eventCount = 10_000_000_000;
 
 function measureResources(label: string, fn: () => void): void {
   console.log(`Starting ${label} with ${eventCount} events...`);
@@ -27,7 +27,7 @@ function measureResources(label: string, fn: () => void): void {
 
 function testRushStreamSimple() {
   const stream = new RushStream<number>((observer) => {
-    const chunkSize = 1_000_000; // 100만 단위로 분할
+    const chunkSize = 1_000_000;
     for (let i = 0; i < eventCount; i += chunkSize) {
       for (let j = i; j < Math.min(i + chunkSize, eventCount); j++) {
         observer.next(j);

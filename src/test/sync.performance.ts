@@ -1,14 +1,12 @@
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
-import { RushStream } from "../stream/rush-stream"; // 실제 경로로 변경 필요
+import { RushStream } from "../stream/rush-stream";
 
-// 이벤트 수
-const eventCount = 10_000_000_000; // 100억 이벤트
+const eventCount = 10_000_000_000;
 
-// 자원 사용량 측정 함수 (동기)
 function measureResources(label: string, fn: () => void): void {
-  const startMemory = process.memoryUsage().heapUsed / 1024 / 1024; // MB 단위
-  const startCpu = process.cpuUsage(); // 마이크로초 단위
+  const startMemory = process.memoryUsage().heapUsed / 1024 / 1024;
+  const startCpu = process.cpuUsage();
   const startTime = performance.now();
 
   fn();
@@ -18,8 +16,8 @@ function measureResources(label: string, fn: () => void): void {
   const endTime = performance.now();
 
   const memoryUsed = endMemory - startMemory;
-  const cpuUsed = (endCpu.user + endCpu.system) / 1000 / 1000; // 초 단위
-  const duration = (endTime - startTime) / 1000; // 초 단위
+  const cpuUsed = (endCpu.user + endCpu.system) / 1000 / 1000;
+  const duration = (endTime - startTime) / 1000;
 
   console.log(`${label}:`);
   console.log(`  Memory Used: ${memoryUsed.toFixed(2)} MB`);
@@ -27,7 +25,6 @@ function measureResources(label: string, fn: () => void): void {
   console.log(`  Ops/sec: ${(eventCount / duration).toFixed(0)} ops/sec`);
 }
 
-// RushStream - Simple Emission (동기)
 function testRushStreamSimple() {
   const stream = new RushStream<number>((observer) => {
     for (let i = 0; i < eventCount; i++) {
@@ -43,7 +40,6 @@ function testRushStreamSimple() {
   });
 }
 
-// RushStream - Transformation (동기)
 function testRushStreamTransform() {
   const stream = new RushStream<number>((observer) => {
     for (let i = 0; i < eventCount; i++) {
@@ -62,7 +58,6 @@ function testRushStreamTransform() {
   });
 }
 
-// RxJS - Simple Emission (동기)
 function testRxJSSimple() {
   const obs = new Observable<number>((subscriber) => {
     for (let i = 0; i < eventCount; i++) {
@@ -77,7 +72,6 @@ function testRxJSSimple() {
   });
 }
 
-// RxJS - Transformation (동기)
 function testRxJSTransform() {
   const obs = new Observable<number>((subscriber) => {
     for (let i = 0; i < eventCount; i++) {
@@ -95,7 +89,6 @@ function testRxJSTransform() {
   });
 }
 
-// 테스트 실행 (동기)
 console.log("Starting benchmarks for 10 billion events...\n");
 
 measureResources("RushStream - Simple Emission", testRushStreamSimple);
