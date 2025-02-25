@@ -1,4 +1,18 @@
-import { RushObserverImpl } from "./rush-observer.types";
+/**
+ * Interface for the RushObserver
+ */
+export interface RushObserverImpl<T> {
+    /** Emits the next value */
+    readonly next: (value: T) => void;
+    /** Emits an error */
+    readonly error: (err: unknown) => void;
+    /** Emits the completion event */
+    readonly complete: () => void;
+}
+/**
+ * Partial type for observer's stream options
+ */
+export type RushObserveStream<T> = Partial<RushObserverImpl<T>>;
 /**
  * Observer that emits values, errors, and completion events with chained handler support
  * @template T - Type of values emitted by the observer
@@ -12,8 +26,6 @@ export declare class RushObserver<T = any> implements RushObserverImpl<T> {
     private errorHandler;
     /** Handler for 'complete' events, chained for multiple completion listeners */
     private completeHandler;
-    /** Flag indicating if the observer has completed */
-    private isCompleted;
     /**
      * Creates a new RushObserver instance
      * @param options - Configuration options, including error continuation

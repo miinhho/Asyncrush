@@ -105,11 +105,19 @@ stream.use(
 <br>
 
 ## Benchmark
-- Asyncrush Outperforms RxJS:   
-  - **Simple Emission**: ~32% faster, 0.66s less CPU time  
-  - **Transformation**: ~26% faster, 6.29s less CPU time  
+- Asyncrush:
+  - **Transformation**: 327.42 seconds, 121,980,213 ops/sec
+- RxJS:
+  - **Transformation**: 439.36 seconds, 91,543,573 ops/sec
 
-(Tested for 1 billion events)
+(Tested for 10,000,000,000 events)
+
+- Asyncrush:
+  - **Transformation**: 28.78 seconds, 140,262,103 ops/sec
+- RxJS:
+  - **Transformation**: 30.39 seconds, 131,429,866 ops/sec
+
+(Tested for 1,000,000,000 events)
 
 <br>
 

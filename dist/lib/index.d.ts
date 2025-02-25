@@ -1,6 +1,6 @@
-import { RushObserver, RushObserverImpl, RushObserveStream } from "./observer";
-import { RushMiddleware } from "./processor/rush-middleware.types";
+import type { RushObserverImpl, RushObserveStream } from "./observer/rush-observer";
+import { RushObserver } from "./observer/rush-observer";
+import type { RushListenOption, RushMiddleware } from "./stream/rush-stream";
 import { RushStream } from "./stream/rush-stream";
-import { RushListenOption } from "./stream/rush-stream.types";
 export { RushObserver, RushStream };
 export type { RushListenOption, RushMiddleware, RushObserverImpl, RushObserveStream };

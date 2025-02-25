@@ -19,19 +19,14 @@ class RushObserver {
         this.errorHandler = null;
         /** Handler for 'complete' events, chained for multiple completion listeners */
         this.completeHandler = null;
-        /** Flag indicating if the observer has completed */
-        this.isCompleted = false;
     }
     /**
      * Emits a value to all chained 'next' handlers
      * @param value - The value to emit
      */
     next(value) {
-        if (this.isCompleted)
-            return;
-        if (this.nextHandler) {
+        if (this.nextHandler)
             this.nextHandler(value);
-        }
     }
     /**
      * Emits an error to all chained 'error' handlers
@@ -39,19 +34,17 @@ class RushObserver {
      */
     error(err) {
         var _a;
-        if (!this.isCompleted && this.errorHandler) {
+        if (this.errorHandler) {
             this.errorHandler(err);
-            if (!((_a = this.options) === null || _a === void 0 ? void 0 : _a.continueOnError)) {
+            if (!((_a = this.options) === null || _a === void 0 ? void 0 : _a.continueOnError))
                 this.destroy();
-            }
         }
     }
     /**
      * Signals completion to all chained 'complete' handlers
      */
     complete() {
-        if (!this.isCompleted && this.completeHandler) {
-            this.isCompleted = true;
+        if (this.completeHandler) {
             this.completeHandler();
             this.cleanHandlers();
         }
@@ -96,7 +89,6 @@ class RushObserver {
      * Destroys the observer, marking it as completed and clearing handlers
      */
     destroy() {
-        this.isCompleted = true;
         this.cleanHandlers();
     }
     /**

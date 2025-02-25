@@ -1,7 +1,7 @@
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { RushStream } from "../dist/lib";
-const eventCount = 1_000_000_000;
+const eventCount = 10_000_000_000;
 
 function measureResources(label: string, fn: () => void): void {
   console.log(`Starting ${label} with ${eventCount} events...`);
@@ -103,8 +103,8 @@ function testRxJSTransform() {
 
 console.log("Starting async benchmarks...\n");
 
-measureResources("RushStream - Simple Emission", testRushStreamSimple);
-measureResources("RushStream - Transformation", testRushStreamTransform);
+measureResources("Asyncrush - Simple Emission", testRushStreamSimple);
+measureResources("Asyncrush - Transformation", testRushStreamTransform);
 measureResources("RxJS - Simple Emission", testRxJSSimple);
 measureResources("RxJS - Transformation", testRxJSTransform);
 

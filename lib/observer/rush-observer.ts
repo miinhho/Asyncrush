@@ -1,4 +1,23 @@
-import { RushObserverImpl } from "./rush-observer.types";
+/**
+ * Interface for the RushObserver
+ */
+export interface RushObserverImpl<T> {
+
+  /** Emits the next value */
+  readonly next: (value: T) => void;
+
+  /** Emits an error */
+  readonly error: (err: unknown) => void;
+
+  /** Emits the completion event */
+  readonly complete: () => void;
+}
+
+/**
+ * Partial type for observer's stream options
+ */
+export type RushObserveStream<T> = Partial<RushObserverImpl<T>>;
+
 
 /**
  * Observer that emits values, errors, and completion events with chained handler support
@@ -15,9 +34,6 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
   /** Handler for 'complete' events, chained for multiple completion listeners */
   private completeHandler: (() => void) | null = null;
 
-  /** Flag indicating if the observer has completed */
-  private isCompleted: boolean = false;
-
   /**
    * Creates a new RushObserver instance
    * @param options - Configuration options, including error continuation
@@ -29,10 +45,7 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
    * @param value - The value to emit
    */
   next(value: T): void {
-    if (this.isCompleted) return;
-    if (this.nextHandler) {
-      this.nextHandler(value);
-    }
+    if (this.nextHandler) this.nextHandler(value);
   }
 
   /**
@@ -40,11 +53,9 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
    * @param err - The error to emit
    */
   error(err: unknown): void {
-    if (!this.isCompleted && this.errorHandler) {
+    if (this.errorHandler) {
       this.errorHandler(err);
-      if (!this.options?.continueOnError) {
-        this.destroy();
-      }
+      if (!this.options?.continueOnError) this.destroy();
     }
   }
 
@@ -52,8 +63,7 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
    * Signals completion to all chained 'complete' handlers
    */
   complete(): void {
-    if (!this.isCompleted && this.completeHandler) {
-      this.isCompleted = true;
+    if (this.completeHandler) {
       this.completeHandler();
       this.cleanHandlers();
     }
@@ -102,7 +112,6 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
    * Destroys the observer, marking it as completed and clearing handlers
    */
   destroy(): void {
-    this.isCompleted = true;
     this.cleanHandlers();
   }
 
