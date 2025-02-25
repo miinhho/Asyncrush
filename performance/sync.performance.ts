@@ -32,7 +32,7 @@ function testRushStreamSimple() {
     }
     observer.complete();
     return () => {};
-  }, { maxBufferSize: 1000 });
+  });
 
   stream.listen({
     next: () => {},
@@ -47,7 +47,7 @@ function testRushStreamTransform() {
     }
     observer.complete();
     return () => {};
-  }, { maxBufferSize: 1000 });
+  });
 
   stream.use(
     (v: number) => v + 1,
@@ -89,11 +89,11 @@ function testRxJSTransform() {
   });
 }
 
-console.log("Starting benchmarks for 10 billion events...\n");
+console.log("Starting sync benchmarks for 10 billion events...\n");
 
 measureResources("RushStream - Simple Emission", testRushStreamSimple);
 measureResources("RushStream - Transformation", testRushStreamTransform);
 measureResources("RxJS - Simple Emission", testRxJSSimple);
 measureResources("RxJS - Transformation", testRxJSTransform);
 
-console.log("\nBenchmarks completed!");
+console.log("\nSync benchmarks completed!");

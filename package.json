@@ -24,7 +24,7 @@
   ],
   "scripts": {
     "test": "jest --coverage",
-    "build": "rmdir /s dist && tsc -p tsconfig.json",
+    "build": "rmdir /s /q dist && tsc -p tsconfig.json",
     "prepublish": "npm run build",
     "publish": "npm publish --access public"
   },

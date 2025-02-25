@@ -1,6 +1,5 @@
-import { RushMiddleware } from "../middleware/rush-middleware.types";
-import { RushObserver } from "../observer/rush-observer";
-import { RushObserveStream } from "../observer/rush-observer.types";
+import { RushObserver, type RushObserveStream } from "../observer";
+import { RushMiddleware } from "../processor";
 import { RushListenOption } from "./rush-stream.types";
 /**
  * Stream that emits values, errors, and completion events with multicast and backpressure support
@@ -20,24 +19,12 @@ export declare class RushStream<T = any> {
     private cleanup;
     /** Flag to enable error continuation */
     private continueOnError;
-    /** Flag to pause the stream */
-    private isPaused;
-    /** Flag to enable buffering when paused */
-    private useBuffer;
     /** Buffer to store events when paused */
     private buffer;
-    /** Maximum size of the buffer */
-    private maxBufferSize;
-    /** Last value for debounce */
-    private lastValue;
-    /** Debounce time in milliseconds */
-    private debounceMs;
-    /** Timeout for debounce control */
-    private debounceTimeout;
-    /** Throttle time in milliseconds */
-    private throttleMs;
-    /** Timeout for throttle control */
-    private throttleTimeout;
+    /** Event processor to apply debouncing and throttling */
+    private eventProcessor;
+    /** Middleware processor to apply transformations and retry logic */
+    private middlewareProcessor;
     /**
      * Creates a new RushStream instance
      * @param producer - Function that emits events to the source observer and returns a cleanup function
@@ -48,14 +35,8 @@ export declare class RushStream<T = any> {
         maxBufferSize?: number;
         continueOnError?: boolean;
     });
-    /** Processes an event with debounce or throttle control */
-    private processEvent;
     /** Emits an event to the output observer and broadcasts to subscribers */
     private emit;
-    /** Pauses the stream, buffering events if enabled */
-    pause(): this;
-    /** Resumes the stream, flushing buffered events */
-    resume(): this;
     /**
      * Adds a listener to the stream with traditional observer pattern
      * @param observer - Observer with optional event handlers
@@ -75,10 +56,14 @@ export declare class RushStream<T = any> {
      * @param args - Middleware functions or array with options
      */
     use(...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushListenOption]): RushStream<T>;
-    /** Helper method to wrap middleware with retry logic */
-    private retryWrapper;
     /** Stops the stream and emits an event */
     unlisten(option?: 'destroy' | 'complete'): this;
+    /** Get the stream is paused or not */
+    isPaused(): boolean;
+    /** Pauses the stream, buffering events if enabled */
+    pause(): this;
+    /** Resumes the stream, flushing buffered events */
+    resume(): this;
     /** Set the debounce time in milliseconds  */
     debounce(ms: number): this;
     /** Set the throttle time in milliseconds  */

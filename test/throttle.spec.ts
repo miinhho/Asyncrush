@@ -12,10 +12,10 @@ describe("RushStream Throttle", () => {
         setTimeout(() => observer.next(2), 80);
         setTimeout(() => observer.next(3), 200);
       },
-      { useBuffer: true, maxBufferSize: 3 }
+      { useBuffer: false }
     );
 
-    stream.throttle(100).use(v => v).listen({
+    stream.throttle(100).listen({
       next: (value) => {
         mockNext(value);
       },

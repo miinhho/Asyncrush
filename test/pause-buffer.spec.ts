@@ -16,7 +16,9 @@ describe('RushStream `pause` method', () => {
     );
 
     stream.pause().listen({
-      next: mockNext,
+      next: (value) => {
+        mockNext(value);
+      },
       complete: mockComplete,
     });
 

@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RushStream = void 0;
-const rush_observer_1 = require("../observer/rush-observer");
+const observer_1 = require("../observer");
+const processor_1 = require("../processor");
 /**
  * Stream that emits values, errors, and completion events with multicast and backpressure support
  * @template T - The type of values emitted by the stream
@@ -16,9 +17,9 @@ class RushStream {
         var _a, _b;
         this.producer = producer;
         /** Source observer receiving events from the producer */
-        this.sourceObserver = new rush_observer_1.RushObserver();
+        this.sourceObserver = new observer_1.RushObserver();
         /** Output observer distributing events to listeners and subscribers */
-        this.outputObserver = new rush_observer_1.RushObserver();
+        this.outputObserver = new observer_1.RushObserver();
         /** Handler for connect source & output observer */
         this.useHandler = null;
         /** Array of subscribers for multicast broadcasting */
@@ -27,84 +28,27 @@ class RushStream {
         this.cleanup = () => { };
         /** Flag to enable error continuation */
         this.continueOnError = false;
-        /** Flag to pause the stream */
-        this.isPaused = false;
-        /** Flag to enable buffering when paused */
-        this.useBuffer = false;
         /** Buffer to store events when paused */
-        this.buffer = [];
-        /** Maximum size of the buffer */
-        this.maxBufferSize = 0;
-        /** Last value for debounce */
-        this.lastValue = null;
-        /** Debounce time in milliseconds */
-        this.debounceMs = null;
-        /** Timeout for debounce control */
-        this.debounceTimeout = null;
-        /** Throttle time in milliseconds */
-        this.throttleMs = null;
-        /** Timeout for throttle control */
-        this.throttleTimeout = null;
+        this.buffer = new processor_1.RushBuffer();
+        /** Middleware processor to apply transformations and retry logic */
+        this.middlewareProcessor = null;
         this.continueOnError = (_a = options.continueOnError) !== null && _a !== void 0 ? _a : false;
-        this.sourceObserver = new rush_observer_1.RushObserver({ continueOnError: options.continueOnError });
-        this.outputObserver = new rush_observer_1.RushObserver({ continueOnError: options.continueOnError });
+        this.sourceObserver = new observer_1.RushObserver({ continueOnError: options.continueOnError });
+        this.outputObserver = new observer_1.RushObserver({ continueOnError: options.continueOnError });
         if (options.useBuffer) {
-            this.useBuffer = true;
-            this.maxBufferSize = (_b = options.maxBufferSize) !== null && _b !== void 0 ? _b : 1000;
-            this.buffer = [];
+            this.buffer = new processor_1.RushBuffer((_b = options.maxBufferSize) !== null && _b !== void 0 ? _b : 1000);
         }
-    }
-    /** Processes an event with debounce or throttle control */
-    processEvent(value) {
-        if (this.debounceMs !== null) {
-            this.lastValue = value;
-            if (this.debounceTimeout)
-                clearTimeout(this.debounceTimeout);
-            this.debounceTimeout = setTimeout(() => {
-                if (this.lastValue !== null) {
-                    this.emit(this.lastValue);
-                    this.lastValue = null;
-                }
-                this.debounceTimeout = null;
-            }, this.debounceMs);
-        }
-        else if (this.throttleMs !== null) {
-            if (!this.throttleTimeout) {
-                this.emit(value);
-                this.throttleTimeout = setTimeout(() => {
-                    this.throttleTimeout = null;
-                }, this.throttleMs);
-            }
-        }
-        else {
-            this.emit(value);
-        }
+        this.eventProcessor = new processor_1.RushEventProcessor((value) => this.emit(value));
     }
     /** Emits an event to the output observer and broadcasts to subscribers */
     emit(value) {
-        if (this.isPaused && this.useBuffer) {
-            if (this.buffer.length >= this.maxBufferSize) {
-                this.buffer.shift();
-            }
-            this.buffer.push(value);
+        if (this.buffer.paused) {
+            this.buffer.add(value);
         }
         else {
             this.outputObserver.next(value);
             this.broadcast(value);
         }
-    }
-    /** Pauses the stream, buffering events if enabled */
-    pause() {
-        this.isPaused = true;
-        return this;
-    }
-    /** Resumes the stream, flushing buffered events */
-    resume() {
-        this.isPaused = false;
-        while (this.buffer.length > 0 && !this.isPaused && this.useBuffer) {
-            this.processEvent(this.buffer.shift());
-        }
-        return this;
     }
     /**
      * Adds a listener to the stream with traditional observer pattern
@@ -122,7 +66,7 @@ class RushStream {
             this.outputObserver.on('complete', observer.complete);
         if (!this.useHandler) {
             this.sourceObserver.on('next', (value) => {
-                this.processEvent(value);
+                this.eventProcessor.process(value);
             });
         }
         else {
@@ -137,10 +81,10 @@ class RushStream {
      * @returns New RushObserver instance for the subscriber
      */
     subscribe() {
-        const sub = new rush_observer_1.RushObserver({ continueOnError: this.continueOnError });
+        const sub = new observer_1.RushObserver({ continueOnError: this.continueOnError });
         this.subscribers.push(sub);
-        if (this.useBuffer && !this.isPaused) {
-            this.buffer.forEach(value => sub.next(value));
+        if (!this.isPaused()) {
+            this.buffer.resume((value) => sub.next(value));
         }
         return sub;
     }
@@ -157,13 +101,24 @@ class RushStream {
      * @param args - Middleware functions or array with options
      */
     use(...args) {
-        const { withRetry, options } = this.retryWrapper(...args);
+        let middlewares = [];
+        let middlewareOptions = {};
+        if (Array.isArray(args[0])) {
+            middlewares = args[0];
+            middlewareOptions = args[1] && typeof args[1] === 'object' ? args[1] : {};
+        }
+        else {
+            middlewares = args;
+        }
+        const { retry, options } = (this.middlewareProcessor)
+            ? this.middlewareProcessor.add(...middlewares).withRetry()
+            : new processor_1.RushMiddlewareProcessor(middlewares, middlewareOptions).withRetry();
         const { errorHandler, continueOnError } = options;
         this.useHandler = (value) => {
-            const result = withRetry(value);
+            const result = retry(value);
             if (result instanceof Promise) {
                 result.then((res) => {
-                    this.processEvent(res);
+                    this.emit(res);
                 }, (err) => {
                     if (errorHandler)
                         errorHandler(err);
@@ -173,7 +128,7 @@ class RushStream {
             }
             else {
                 try {
-                    this.processEvent(result);
+                    this.emit(result);
                 }
                 catch (err) {
                     if (errorHandler)
@@ -185,85 +140,37 @@ class RushStream {
         };
         return this;
     }
-    /** Helper method to wrap middleware with retry logic */
-    retryWrapper(...args) {
-        let middlewares = [];
-        let options = {};
-        if (Array.isArray(args[0])) {
-            middlewares = args[0];
-            options = args[1] && typeof args[1] === 'object' ? args[1] : {};
-        }
-        else {
-            middlewares = args;
-        }
-        const { errorHandler, retries = 0, retryDelay = 0, maxRetryDelay = Infinity, jitter = 0, delayFn = (attempt, baseDelay) => baseDelay * Math.pow(2, attempt), continueOnError = false } = options;
-        const applyMiddleware = (value) => {
-            let result = value;
-            for (const middleware of middlewares) {
-                if (result instanceof Promise) {
-                    result = result.then((value) => middleware(value));
-                }
-                else {
-                    result = middleware(result);
-                }
-            }
-            return result;
-        };
-        const scheduleRetry = (attempt, value) => {
-            let delay = delayFn(attempt, retryDelay);
-            if (jitter > 0) {
-                const jitterFactor = 1 + jitter * (Math.random() * 2 - 1);
-                delay *= jitterFactor;
-            }
-            delay = Math.min(delay, maxRetryDelay);
-            return new Promise((resolve) => setTimeout(() => resolve(withRetry(value, attempt + 1)), delay));
-        };
-        const withRetry = (value, attempt = 0) => {
-            if (retries === 0)
-                return applyMiddleware(value);
-            const result = applyMiddleware(value);
-            if (result instanceof Promise) {
-                return result.catch((error) => {
-                    if (attempt < retries) {
-                        return scheduleRetry(attempt, value);
-                    }
-                    throw error;
-                });
-            }
-            try {
-                return result;
-            }
-            catch (error) {
-                if (attempt < retries) {
-                    return scheduleRetry(attempt, value);
-                }
-                throw error;
-            }
-        };
-        return { withRetry, options };
-    }
     /** Stops the stream and emits an event */
     unlisten(option) {
-        switch (option) {
-            case 'destroy':
-                this.outputObserver.destroy();
-                break;
-            case 'complete':
-            default:
-                this.outputObserver.complete();
-                break;
-        }
+        if (option === 'destroy')
+            this.outputObserver.destroy();
+        else
+            this.outputObserver.complete();
         this.cleanup();
+        return this;
+    }
+    /** Get the stream is paused or not */
+    isPaused() {
+        return this.buffer.paused;
+    }
+    /** Pauses the stream, buffering events if enabled */
+    pause() {
+        this.buffer.pause();
+        return this;
+    }
+    /** Resumes the stream, flushing buffered events */
+    resume() {
+        this.buffer.resume((value) => this.emit(value));
         return this;
     }
     /** Set the debounce time in milliseconds  */
     debounce(ms) {
-        this.debounceMs = ms;
+        this.eventProcessor.setDebounce(ms);
         return this;
     }
     /** Set the throttle time in milliseconds  */
     throttle(ms) {
-        this.throttleMs = ms;
+        this.eventProcessor.setThrottle(ms);
         return this;
     }
 }

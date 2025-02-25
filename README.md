@@ -4,7 +4,7 @@ A lightweight, flexible TypeScript library for streaming and processing asynchro
 
 <br>
 
-**Inspired from RxJS**    
+**Inspired by RxJS**    
 
 <br>
 
