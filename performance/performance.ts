@@ -1,7 +1,7 @@
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { RushStream } from "../dist/lib";
-const eventCount = 10_000_000_000;
+const eventCount = 1_000_000_000;
 
 function measureResources(label: string, fn: () => void): void {
   console.log(`Starting ${label} with ${eventCount} events...`);
@@ -25,24 +25,6 @@ function measureResources(label: string, fn: () => void): void {
   console.log(`  Ops/sec: ${((eventCount / duration) * 4).toFixed(0)} ops/sec`);
 }
 
-function testRushStreamSimple() {
-  const stream = new RushStream<number>((observer) => {
-    const chunkSize = 1_000_000;
-    for (let i = 0; i < eventCount; i += chunkSize) {
-      for (let j = i; j < Math.min(i + chunkSize, eventCount); j++) {
-        observer.next(j);
-      }
-    }
-    observer.complete();
-    return () => {};
-  });
-
-  stream.listen({
-    next: () => {},
-    complete: () => {},
-  });
-}
-
 function testRushStreamTransform() {
   const stream = new RushStream<number>((observer) => {
     const chunkSize = 1_000_000;
@@ -57,25 +39,36 @@ function testRushStreamTransform() {
 
   stream.use(
     (v: number) => v + 1,
-    (v: number) => v * 2
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
   ).listen({
-    next: () => {},
-    complete: () => {},
-  });
-}
-
-function testRxJSSimple() {
-  const obs = new Observable<number>((subscriber) => {
-    const chunkSize = 1_000_000;
-    for (let i = 0; i < eventCount; i += chunkSize) {
-      for (let j = i; j < Math.min(i + chunkSize, eventCount); j++) {
-        subscriber.next(j);
-      }
-    }
-    subscriber.complete();
-  });
-
-  obs.subscribe({
     next: () => {},
     complete: () => {},
   });
@@ -94,7 +87,35 @@ function testRxJSTransform() {
 
   obs.pipe(
     map((v: number) => v + 1),
-    map((v: number) => v * 2)
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
   ).subscribe({
     next: () => {},
     complete: () => {},
@@ -103,9 +124,7 @@ function testRxJSTransform() {
 
 console.log("Starting async benchmarks...\n");
 
-measureResources("Asyncrush - Simple Emission", testRushStreamSimple);
 measureResources("Asyncrush - Transformation", testRushStreamTransform);
-measureResources("RxJS - Simple Emission", testRxJSSimple);
 measureResources("RxJS - Transformation", testRxJSTransform);
 
 console.log("\nAsync Benchmarks completed!");

@@ -105,19 +105,22 @@ stream.use(
 <br>
 
 ## Benchmark
-- Asyncrush:
-  - **Transformation**: 327.42 seconds, 121,980,213 ops/sec
-- RxJS:
-  - **Transformation**: 439.36 seconds, 91,543,573 ops/sec
 
-(Tested for 10,000,000,000 events)
-
-- Asyncrush:
-  - **Transformation**: 28.78 seconds, 140,262,103 ops/sec
-- RxJS:
-  - **Transformation**: 30.39 seconds, 131,429,866 ops/sec
+![benchmark](https://github.com/user-attachments/assets/39b8a7a4-5406-4c01-90a3-57c90a24d475)
 
 (Tested for 1,000,000,000 events)
+| Transforms | Library   | CPU Time  | ops/sec              |
+|------------|------------|-----------|----------------------|
+| 30         | Asyncrush  | 234.33    | 17,078,180           |
+| 30         | RxJS       | 413.61    | 9,664,657            |
+| 20         | Asyncrush  | 130.77    | 30,587,295           |
+| 20         | RxJS       | 247.41    | 16,148,560           |
+| 10         | Asyncrush  | 69.48     | 57,581,176           |
+| 10         | RxJS       | 116.23    | 34,362,595           |
+| 6          | Asyncrush  | 44.75     | 90,102,085           |
+| 6          | RxJS       | 70.67     | 56,685,668           |
+| 2          | Asyncrush  | 28.78     | 140,262,103          |
+| 2          | RxJS       | 30.39     | 131,429,866          |
 
 <br>
 
