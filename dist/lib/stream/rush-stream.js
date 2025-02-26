@@ -111,23 +111,15 @@ class RushStream {
      * @param observer - Observer with optional event handlers
      */
     listen(observer) {
-        if (observer.next) {
-            this.outputObserver.on('next', (value) => {
-                observer.next(value);
-            });
-        }
+        if (observer.next)
+            this.outputObserver.on('next', observer.next);
         if (observer.error)
             this.outputObserver.on('error', observer.error);
         if (observer.complete)
             this.outputObserver.on('complete', observer.complete);
-        if (!this.useHandler) {
-            this.sourceObserver.on('next', (value) => {
-                this.processEvent(value);
-            });
-        }
-        else {
-            this.sourceObserver.on('next', this.useHandler);
-        }
+        this.sourceObserver.on('next', (value) => {
+            this.useHandler ? this.useHandler(value) : this.processEvent(value);
+        });
         const cleanupFn = this.producer(this.sourceObserver);
         this.cleanup = cleanupFn !== null && cleanupFn !== void 0 ? cleanupFn : (() => { });
         return this;
@@ -163,7 +155,7 @@ class RushStream {
             const result = withRetry(value);
             if (result instanceof Promise) {
                 result.then((res) => {
-                    this.processEvent(res);
+                    queueMicrotask(() => this.processEvent(res));
                 }, (err) => {
                     if (errorHandler)
                         errorHandler(err);
@@ -245,9 +237,11 @@ class RushStream {
     /** Stops the stream and emits an event */
     unlisten(option) {
         switch (option) {
-            case 'destroy':
+            case 'destroy': {
+                this.sourceObserver.destroy();
                 this.outputObserver.destroy();
                 break;
+            }
             case 'complete':
             default:
                 this.outputObserver.complete();

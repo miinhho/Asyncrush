@@ -7,9 +7,7 @@ import { RushObserver, RushObserveStream } from "../observer/rush-observer";
  */
 export type RushMiddleware<I, O> = (value: I) => O | Promise<O>;
 
-/**
- * Options for RushStream listen method
- */
+/** Options for RushStream listen method */
 export interface RushListenOption {
   /** Error handler for middlewares in use method */
   readonly errorHandler?: (error: unknown) => void;
@@ -161,21 +159,13 @@ export class RushStream<T = any> {
    * @param observer - Observer with optional event handlers
    */
   listen(observer: RushObserveStream<T>): this {
-    if (observer.next) {
-      this.outputObserver.on('next', (value: T) => {
-        observer.next!(value);
-      });
-    }
+    if (observer.next) this.outputObserver.on('next', observer.next);
     if (observer.error) this.outputObserver.on('error', observer.error);
     if (observer.complete) this.outputObserver.on('complete', observer.complete);
 
-    if (!this.useHandler) {
-      this.sourceObserver.on('next', (value: T) => {
-        this.processEvent(value);
-      });
-    } else {
-      this.sourceObserver.on('next', this.useHandler);
-    }
+    this.sourceObserver.on('next', (value: T) => {
+      this.useHandler ? this.useHandler(value) : this.processEvent(value);
+    });
 
     const cleanupFn = this.producer(this.sourceObserver);
     this.cleanup = cleanupFn ?? (() => {});
@@ -221,7 +211,7 @@ export class RushStream<T = any> {
       if (result instanceof Promise) {
         result.then(
           (res) => {
-            this.processEvent(res);
+            queueMicrotask(() => this.processEvent(res));
           },
           (err) => {
             if (errorHandler) errorHandler(err);
@@ -313,9 +303,11 @@ export class RushStream<T = any> {
   /** Stops the stream and emits an event */
   unlisten(option?: 'destroy' | 'complete'): this {
     switch (option) {
-      case 'destroy':
+      case 'destroy': {
+        this.sourceObserver.destroy();
         this.outputObserver.destroy();
         break;
+      }
       case 'complete':
       default:
         this.outputObserver.complete();

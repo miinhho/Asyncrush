@@ -40,9 +40,7 @@ class RushObserver {
                 this.destroy();
         }
     }
-    /**
-     * Signals completion to all chained 'complete' handlers
-     */
+    /** Signals completion to all chained 'complete' handlers */
     complete() {
         if (this.completeHandler) {
             this.completeHandler();
@@ -85,15 +83,11 @@ class RushObserver {
                 break;
         }
     }
-    /**
-     * Destroys the observer, marking it as completed and clearing handlers
-     */
+    /** Destroys the observer, marking it as completed and clearing handlers */
     destroy() {
         this.cleanHandlers();
     }
-    /**
-     * Clears all event handlers to free resources
-     */
+    /** Clears all event handlers to free resources */
     cleanHandlers() {
         this.nextHandler = null;
         this.errorHandler = null;

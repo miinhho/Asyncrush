@@ -5,9 +5,7 @@ import { RushObserver, RushObserveStream } from "../observer/rush-observer";
  * @returns The output value or a promise that resolves to the output value
  */
 export type RushMiddleware<I, O> = (value: I) => O | Promise<O>;
-/**
- * Options for RushStream listen method
- */
+/** Options for RushStream listen method */
 export interface RushListenOption {
     /** Error handler for middlewares in use method */
     readonly errorHandler?: (error: unknown) => void;

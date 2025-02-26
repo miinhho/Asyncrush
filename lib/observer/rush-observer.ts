@@ -1,6 +1,4 @@
-/**
- * Interface for the RushObserver
- */
+/** Interface for the RushObserver */
 export interface RushObserverImpl<T> {
 
   /** Emits the next value */
@@ -13,9 +11,7 @@ export interface RushObserverImpl<T> {
   readonly complete: () => void;
 }
 
-/**
- * Partial type for observer's stream options
- */
+/** Partial type for observer's stream options */
 export type RushObserveStream<T> = Partial<RushObserverImpl<T>>;
 
 
@@ -59,9 +55,7 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
     }
   }
 
-  /**
-   * Signals completion to all chained 'complete' handlers
-   */
+  /** Signals completion to all chained 'complete' handlers */
   complete(): void {
     if (this.completeHandler) {
       this.completeHandler();
@@ -108,16 +102,12 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
     }
   }
 
-  /**
-   * Destroys the observer, marking it as completed and clearing handlers
-   */
+  /** Destroys the observer, marking it as completed and clearing handlers */
   destroy(): void {
     this.cleanHandlers();
   }
 
-  /**
-   * Clears all event handlers to free resources
-   */
+  /** Clears all event handlers to free resources */
   private cleanHandlers(): void {
     this.nextHandler = null;
     this.errorHandler = null;

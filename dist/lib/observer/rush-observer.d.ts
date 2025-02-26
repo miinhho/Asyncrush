@@ -1,6 +1,4 @@
-/**
- * Interface for the RushObserver
- */
+/** Interface for the RushObserver */
 export interface RushObserverImpl<T> {
     /** Emits the next value */
     readonly next: (value: T) => void;
@@ -9,9 +7,7 @@ export interface RushObserverImpl<T> {
     /** Emits the completion event */
     readonly complete: () => void;
 }
-/**
- * Partial type for observer's stream options
- */
+/** Partial type for observer's stream options */
 export type RushObserveStream<T> = Partial<RushObserverImpl<T>>;
 /**
  * Observer that emits values, errors, and completion events with chained handler support
@@ -43,9 +39,7 @@ export declare class RushObserver<T = any> implements RushObserverImpl<T> {
      * @param err - The error to emit
      */
     error(err: unknown): void;
-    /**
-     * Signals completion to all chained 'complete' handlers
-     */
+    /** Signals completion to all chained 'complete' handlers */
     complete(): void;
     /**
      * Registers a handler for a specific event type, chaining with existing handlers
@@ -53,12 +47,8 @@ export declare class RushObserver<T = any> implements RushObserverImpl<T> {
      * @param handler - Callback function to handle the event
      */
     on(event: 'next' | 'error' | 'complete', handler: (...args: any[]) => void): void;
-    /**
-     * Destroys the observer, marking it as completed and clearing handlers
-     */
+    /** Destroys the observer, marking it as completed and clearing handlers */
     destroy(): void;
-    /**
-     * Clears all event handlers to free resources
-     */
+    /** Clears all event handlers to free resources */
     private cleanHandlers;
 }
