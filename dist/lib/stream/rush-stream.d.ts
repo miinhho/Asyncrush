@@ -42,8 +42,6 @@ export declare class RushStream<T = any> {
     private continueOnError;
     /** Flag to pause the stream */
     private isPaused;
-    /** Flag to enable buffering when paused */
-    private useBuffer;
     /** Buffer to store events when paused */
     private buffer;
     /** Maximum size of the buffer */
@@ -64,7 +62,6 @@ export declare class RushStream<T = any> {
      * @param options - Configuration options for buffering and error handling
      */
     constructor(producer: ((observer: RushObserver<T>) => void) | ((observer: RushObserver<T>) => () => void), options?: {
-        useBuffer?: boolean;
         maxBufferSize?: number;
         continueOnError?: boolean;
     });

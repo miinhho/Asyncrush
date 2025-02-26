@@ -29,12 +29,10 @@ class RushStream {
         this.continueOnError = false;
         /** Flag to pause the stream */
         this.isPaused = false;
-        /** Flag to enable buffering when paused */
-        this.useBuffer = false;
         /** Buffer to store events when paused */
         this.buffer = [];
         /** Maximum size of the buffer */
-        this.maxBufferSize = 0;
+        this.maxBufferSize = null;
         /** Last value for debounce */
         this.lastValue = null;
         /** Debounce time in milliseconds */
@@ -48,8 +46,7 @@ class RushStream {
         this.continueOnError = (_a = options.continueOnError) !== null && _a !== void 0 ? _a : false;
         this.sourceObserver = new rush_observer_1.RushObserver({ continueOnError: options.continueOnError });
         this.outputObserver = new rush_observer_1.RushObserver({ continueOnError: options.continueOnError });
-        if (options.useBuffer) {
-            this.useBuffer = true;
+        if (options.maxBufferSize) {
             this.maxBufferSize = (_b = options.maxBufferSize) !== null && _b !== void 0 ? _b : 1000;
             this.buffer = [];
         }
@@ -82,7 +79,7 @@ class RushStream {
     }
     /** Emits an event to the output observer and broadcasts to subscribers */
     emit(value) {
-        if (this.isPaused && this.useBuffer) {
+        if (this.isPaused && this.maxBufferSize) {
             if (this.buffer.length >= this.maxBufferSize) {
                 this.buffer.shift();
             }
@@ -101,7 +98,7 @@ class RushStream {
     /** Resumes the stream, flushing buffered events */
     resume() {
         this.isPaused = false;
-        while (this.buffer.length > 0 && !this.isPaused && this.useBuffer) {
+        while (this.buffer.length > 0 && !this.isPaused && this.maxBufferSize) {
             this.processEvent(this.buffer.shift());
         }
         return this;
@@ -131,7 +128,7 @@ class RushStream {
     subscribe() {
         const sub = new rush_observer_1.RushObserver({ continueOnError: this.continueOnError });
         this.subscribers.push(sub);
-        if (this.useBuffer && !this.isPaused) {
+        if (this.maxBufferSize && !this.isPaused) {
             this.buffer.forEach(value => sub.next(value));
         }
         return sub;
@@ -240,12 +237,21 @@ class RushStream {
             case 'destroy': {
                 this.sourceObserver.destroy();
                 this.outputObserver.destroy();
+                this.subscribers = [];
+                this.buffer = [];
+                this.useHandler = null;
+                this.debounceMs = null;
+                this.throttleMs = null;
+                this.debounceTimeout && clearTimeout(this.debounceTimeout);
+                this.throttleTimeout && clearTimeout(this.throttleTimeout);
                 break;
             }
             case 'complete':
-            default:
+            default: {
+                this.sourceObserver.complete();
                 this.outputObserver.complete();
                 break;
+            }
         }
         this.cleanup();
         return this;

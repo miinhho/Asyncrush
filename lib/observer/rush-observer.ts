@@ -59,8 +59,11 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
   complete(): void {
     if (this.completeHandler) {
       this.completeHandler();
-      this.cleanHandlers();
     }
+    this.on('complete', () => { });
+    this.on('error', () => { });
+    this.on('next', () => { });
+    this.cleanHandlers();
   }
 
   /**

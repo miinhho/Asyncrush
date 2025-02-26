@@ -44,8 +44,11 @@ class RushObserver {
     complete() {
         if (this.completeHandler) {
             this.completeHandler();
-            this.cleanHandlers();
         }
+        this.on('complete', () => { });
+        this.on('error', () => { });
+        this.on('next', () => { });
+        this.cleanHandlers();
     }
     /**
      * Registers a handler for a specific event type, chaining with existing handlers

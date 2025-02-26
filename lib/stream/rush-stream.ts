@@ -57,14 +57,11 @@ export class RushStream<T = any> {
   /** Flag to pause the stream */
   private isPaused: boolean = false;
 
-  /** Flag to enable buffering when paused */
-  private useBuffer: boolean = false;
-
   /** Buffer to store events when paused */
   private buffer: T[] = [];
 
   /** Maximum size of the buffer */
-  private maxBufferSize: number = 0;
+  private maxBufferSize: number | null = null;
 
   /** Last value for debounce */
   private lastValue: T | null = null;
@@ -90,13 +87,12 @@ export class RushStream<T = any> {
    */
   constructor(
     private producer: ((observer: RushObserver<T>) => void) | ((observer: RushObserver<T>) => () => void),
-    options: { useBuffer?: boolean; maxBufferSize?: number; continueOnError?: boolean } = {}
+    options: { maxBufferSize?: number; continueOnError?: boolean } = {}
   ) {
     this.continueOnError = options.continueOnError ?? false;
     this.sourceObserver = new RushObserver<T>({ continueOnError: options.continueOnError });
     this.outputObserver = new RushObserver<T>({ continueOnError: options.continueOnError });
-    if (options.useBuffer) {
-      this.useBuffer = true;
+    if (options.maxBufferSize) {
       this.maxBufferSize = options.maxBufferSize ?? 1000;
       this.buffer = [];
     }
@@ -128,7 +124,7 @@ export class RushStream<T = any> {
 
   /** Emits an event to the output observer and broadcasts to subscribers */
   private emit(value: T): void {
-    if (this.isPaused && this.useBuffer) {
+    if (this.isPaused && this.maxBufferSize) {
       if (this.buffer.length >= this.maxBufferSize) {
         this.buffer.shift();
       }
@@ -148,7 +144,7 @@ export class RushStream<T = any> {
   /** Resumes the stream, flushing buffered events */
   resume(): this {
     this.isPaused = false;
-    while (this.buffer.length > 0 && !this.isPaused && this.useBuffer) {
+    while (this.buffer.length > 0 && !this.isPaused && this.maxBufferSize) {
       this.processEvent(this.buffer.shift()!);
     }
     return this;
@@ -180,7 +176,7 @@ export class RushStream<T = any> {
   subscribe(): RushObserver<T> {
     const sub = new RushObserver<T>({ continueOnError: this.continueOnError });
     this.subscribers.push(sub);
-    if (this.useBuffer && !this.isPaused) {
+    if (this.maxBufferSize && !this.isPaused) {
       this.buffer.forEach(value => sub.next(value));
     }
     return sub;
@@ -306,12 +302,21 @@ export class RushStream<T = any> {
       case 'destroy': {
         this.sourceObserver.destroy();
         this.outputObserver.destroy();
+        this.subscribers = [];
+        this.buffer = [];
+        this.useHandler = null;
+        this.debounceMs = null;
+        this.throttleMs = null;
+        this.debounceTimeout && clearTimeout(this.debounceTimeout);
+        this.throttleTimeout && clearTimeout(this.throttleTimeout);
         break;
       }
       case 'complete':
-      default:
+      default: {
+        this.sourceObserver.complete();
         this.outputObserver.complete();
         break;
+      }
     }
     this.cleanup();
     return this;

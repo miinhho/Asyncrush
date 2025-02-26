@@ -12,7 +12,7 @@ describe('RushStream `pause` method', () => {
         observer.next(1);
         observer.next(2);
       },
-      { useBuffer: true, maxBufferSize: 2 }
+      { maxBufferSize: 2 }
     );
 
     stream.pause().listen({
