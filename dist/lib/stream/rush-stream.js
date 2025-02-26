@@ -155,7 +155,7 @@ class RushStream {
             const result = withRetry(value);
             if (result instanceof Promise) {
                 result.then((res) => {
-                    queueMicrotask(() => this.processEvent(res));
+                    this.processEvent(res);
                 }, (err) => {
                     if (errorHandler)
                         errorHandler(err);
