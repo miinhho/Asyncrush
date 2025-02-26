@@ -22,7 +22,7 @@ class RushStream {
         /** Handler for connect source & output observer */
         this.useHandler = null;
         /** Array of subscribers for multicast broadcasting */
-        this.subscribers = [];
+        this.subscribers = new Set();
         /** Cleanup function returned by the producer */
         this.cleanup = () => { };
         /** Flag to enable error continuation */
@@ -127,15 +127,12 @@ class RushStream {
      */
     subscribe() {
         const sub = new rush_observer_1.RushObserver({ continueOnError: this.continueOnError });
-        this.subscribers.push(sub);
-        if (this.maxBufferSize && !this.isPaused) {
-            this.buffer.forEach(value => sub.next(value));
-        }
+        this.subscribers.add(sub);
         return sub;
     }
     /** Unsubscribes a multicast subscriber */
     unsubscribe(subscriber) {
-        this.subscribers = this.subscribers.filter(sub => sub !== subscriber);
+        this.subscribers.delete(subscriber);
     }
     /** Broadcasts an event to all multicast subscribers */
     broadcast(value) {
@@ -237,7 +234,7 @@ class RushStream {
             case 'destroy': {
                 this.sourceObserver.destroy();
                 this.outputObserver.destroy();
-                this.subscribers = [];
+                this.subscribers.clear();
                 this.buffer = [];
                 this.useHandler = null;
                 this.debounceMs = null;

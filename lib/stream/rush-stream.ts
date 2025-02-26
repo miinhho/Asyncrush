@@ -46,7 +46,7 @@ export class RushStream<T = any> {
   private useHandler: ((value: T) => void) | null = null;
 
   /** Array of subscribers for multicast broadcasting */
-  private subscribers: RushObserver<T>[] = [];
+  private subscribers: Set<RushObserver<T>> = new Set();
 
   /** Cleanup function returned by the producer */
   private cleanup: () => void = () => {};
@@ -175,16 +175,13 @@ export class RushStream<T = any> {
    */
   subscribe(): RushObserver<T> {
     const sub = new RushObserver<T>({ continueOnError: this.continueOnError });
-    this.subscribers.push(sub);
-    if (this.maxBufferSize && !this.isPaused) {
-      this.buffer.forEach(value => sub.next(value));
-    }
+    this.subscribers.add(sub);
     return sub;
   }
 
   /** Unsubscribes a multicast subscriber */
   unsubscribe(subscriber: RushObserver<T>): void {
-    this.subscribers = this.subscribers.filter(sub => sub !== subscriber);
+    this.subscribers.delete(subscriber);
   }
 
   /** Broadcasts an event to all multicast subscribers */
@@ -302,7 +299,7 @@ export class RushStream<T = any> {
       case 'destroy': {
         this.sourceObserver.destroy();
         this.outputObserver.destroy();
-        this.subscribers = [];
+        this.subscribers.clear();
         this.buffer = [];
         this.useHandler = null;
         this.debounceMs = null;
