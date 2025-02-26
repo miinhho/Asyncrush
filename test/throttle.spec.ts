@@ -11,9 +11,7 @@ describe("RushStream Throttle", () => {
         setTimeout(() => observer.next(1), 0);
         setTimeout(() => observer.next(2), 80);
         setTimeout(() => observer.next(3), 200);
-      },
-      { useBuffer: false }
-    );
+      });
 
     stream.throttle(100).listen({
       next: (value) => {

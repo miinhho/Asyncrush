@@ -12,7 +12,7 @@ describe("RushStream Debounce", () => {
         setTimeout(() => observer.next(2), 80);
         setTimeout(() => observer.next(3), 200);
       },
-      { useBuffer: true, maxBufferSize: 3 }
+      { maxBufferSize: 3 }
     );
 
     stream.debounce(100).listen({
