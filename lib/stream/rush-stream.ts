@@ -93,7 +93,7 @@ export class RushStream<T = any> {
     this.sourceObserver = new RushObserver<T>({ continueOnError: options.continueOnError });
     this.outputObserver = new RushObserver<T>({ continueOnError: options.continueOnError });
     if (options.maxBufferSize) {
-      this.maxBufferSize = options.maxBufferSize ?? 1000;
+      this.maxBufferSize = options.maxBufferSize;
       this.buffer = [];
     }
   }
