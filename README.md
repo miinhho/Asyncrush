@@ -15,14 +15,14 @@ Asyncrush is a **high-performance stream processing library** that leverages the
 
 <br>
 
-## Installation
-```
+## 💾 Installation
+```bash
 npm install asyncrush
 ```
 
 <br>
 
-## Usage Example
+## ⌨️ Usage Example
 ```typescript
 const stream = new RushStream<number>((observer) => {
   observer.next(1);
@@ -42,7 +42,7 @@ stream.use(
 <br>
 
 
-## Benchmark
+## ⏱️ Benchmark
 
 ![benchmark](https://github.com/user-attachments/assets/39b8a7a4-5406-4c01-90a3-57c90a24d475)
 

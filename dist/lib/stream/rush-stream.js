@@ -13,7 +13,7 @@ class RushStream {
      * @param options - Configuration options for buffering and error handling
      */
     constructor(producer, options = {}) {
-        var _a, _b;
+        var _a;
         this.producer = producer;
         /** Source observer receiving events from the producer */
         this.sourceObserver = new rush_observer_1.RushObserver();
@@ -47,7 +47,7 @@ class RushStream {
         this.sourceObserver = new rush_observer_1.RushObserver({ continueOnError: options.continueOnError });
         this.outputObserver = new rush_observer_1.RushObserver({ continueOnError: options.continueOnError });
         if (options.maxBufferSize) {
-            this.maxBufferSize = (_b = options.maxBufferSize) !== null && _b !== void 0 ? _b : 1000;
+            this.maxBufferSize = options.maxBufferSize;
             this.buffer = [];
         }
     }
@@ -265,4 +265,3 @@ class RushStream {
     }
 }
 exports.RushStream = RushStream;
-//# sourceMappingURL=rush-stream.js.map
