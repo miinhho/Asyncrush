@@ -1,30 +1,21 @@
-/** Interface for the RushObserver */
-export interface RushObserverImpl<T> {
-    /** Emits the next value */
-    readonly next: (value: T) => void;
-    /** Emits an error */
-    readonly error: (err: unknown) => void;
-    /** Emits the completion event */
-    readonly complete: () => void;
-}
-/** Partial type for observer's stream options */
-export type RushObserveStream<T> = Partial<RushObserverImpl<T>>;
+import { RushObserverImpl } from "../types";
 /**
- * Observer that emits values, errors, and completion events with chained handler support
+ * Observer that emits values, errors, and completion events with handler support
  * @template T - Type of values emitted by the observer
  * @implements {RushObserverImpl}
  */
 export declare class RushObserver<T = any> implements RushObserverImpl<T> {
-    private options;
     /** Handler for 'next' events, chained for multiple listeners */
     private nextHandler;
-    /** Handler for 'error' events, chained for multiple error listeners */
+    /** Handler for 'error' events */
     private errorHandler;
-    /** Handler for 'complete' events, chained for multiple completion listeners */
+    /** Handler for 'complete' events */
     private completeHandler;
+    /** Flag to enable error continuation */
+    protected continueOnError: boolean;
     /**
      * Creates a new RushObserver instance
-     * @param options - Configuration options, including error continuation
+     * @param options - Whether to continue on error
      */
     constructor(options?: {
         continueOnError?: boolean;
@@ -35,19 +26,28 @@ export declare class RushObserver<T = any> implements RushObserverImpl<T> {
      */
     next(value: T): void;
     /**
-     * Emits an error to all chained 'error' handlers
+     * Emits an error to 'error' handlers
      * @param err - The error to emit
      */
     error(err: unknown): void;
     /** Signals completion to all chained 'complete' handlers */
     complete(): void;
     /**
-     * Registers a handler for a specific event type, chaining with existing handlers
-     * @param event - Event type ('next', 'error', 'complete')
-     * @param handler - Callback function to handle the event
+     * Adds a handlers for 'next' events
+     * @param handlers - The handlers to add
      */
-    on(event: 'next' | 'error' | 'complete', handler: (...args: any[]) => void): void;
-    /** Destroys the observer, marking it as completed and clearing handlers */
+    onNext(handler: (...args: any[]) => void): void;
+    /**
+     * Adds a handler for 'error' events
+     * @param handler - The handler to add
+     */
+    onError(handler: (err: unknown) => void): void;
+    /**
+     * Adds a handler for 'complete' events
+     * @param handler - The handler to add
+     */
+    onComplete(handler: () => void): void;
+    /** Destroys the observer, and clearing handlers */
     destroy(): void;
     /** Clears all event handlers to free resources */
     private cleanHandlers;

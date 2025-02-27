@@ -34,7 +34,6 @@ function testRushStreamTransform() {
       }
     }
     observer.complete();
-    return () => {};
   });
 
   stream.use(
@@ -44,30 +43,30 @@ function testRushStreamTransform() {
     (v: number) => v * 2,
     (v: number) => v + 1,
     (v: number) => v * 2,  // 6
-    // (v: number) => v + 1,
-    // (v: number) => v * 2,
-    // (v: number) => v + 1,
-    // (v: number) => v * 2,  // 10
-    // (v: number) => v + 1,
-    // (v: number) => v * 2,
-    // (v: number) => v + 1,
-    // (v: number) => v * 2,
-    // (v: number) => v + 1,
-    // (v: number) => v * 2,
-    // (v: number) => v + 1,
-    // (v: number) => v * 2,
-    // (v: number) => v + 1,
-    // (v: number) => v * 2,  // 20
-    // (v: number) => v * 2,
-    // (v: number) => v + 1,
-    // (v: number) => v * 2,
-    // (v: number) => v + 1,
-    // (v: number) => v * 2,
-    // (v: number) => v * 2,
-    // (v: number) => v + 1,
-    // (v: number) => v * 2,
-    // (v: number) => v + 1,
-    // (v: number) => v * 2,  // 30
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,  // 10
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,  // 20
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,
+    (v: number) => v + 1,
+    (v: number) => v * 2,  // 30
   ).listen({
     next: () => {},
     complete: () => {},
@@ -92,30 +91,30 @@ function testRxJSTransform() {
     map((v: number) => v * 2),
     map((v: number) => v + 1),
     map((v: number) => v * 2),  // 6
-    // map((v: number) => v + 1),
-    // map((v: number) => v * 2),
-    // map((v: number) => v + 1),
-    // map((v: number) => v * 2),  // 10
-    // map((v: number) => v + 1),
-    // map((v: number) => v * 2),
-    // map((v: number) => v + 1),
-    // map((v: number) => v * 2),
-    // map((v: number) => v + 1),
-    // map((v: number) => v * 2),
-    // map((v: number) => v + 1),
-    // map((v: number) => v * 2),
-    // map((v: number) => v + 1),
-    // map((v: number) => v * 2),  // 20
-    // map((v: number) => v * 2),
-    // map((v: number) => v + 1),
-    // map((v: number) => v * 2),
-    // map((v: number) => v + 1),
-    // map((v: number) => v * 2),
-    // map((v: number) => v * 2),
-    // map((v: number) => v + 1),
-    // map((v: number) => v * 2),
-    // map((v: number) => v + 1),
-    // map((v: number) => v * 2),  // 30
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),  // 10
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),  // 20
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),
+    map((v: number) => v + 1),
+    map((v: number) => v * 2),  // 30
   ).subscribe({
     next: () => {},
     complete: () => {},

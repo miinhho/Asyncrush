@@ -1,4 +1,5 @@
 import { RushStream } from "../lib/stream/rush-stream";
+import { RushSubscriber } from "../lib/stream/rush-subscriber";
 
 jest.useFakeTimers();
 
@@ -10,13 +11,15 @@ describe('RushStream `subscribe` method', () => {
 
     const mockSub1 = jest.fn();
     const mockSub2 = jest.fn();
-    const sub1 = stream.subscribe();
-    const sub2 = stream.subscribe();
+    const sub1 = new RushSubscriber<any>({ continueOnError: true });
+    const sub2 = new RushSubscriber<number>({ continueOnError: true });
 
-    sub1.on('next', (value) => mockSub1(value));
-    sub2.on('next', (value) => mockSub2(value));
+    sub1.use((value) => mockSub1(value));
+    sub2.use((value) => mockSub2(value));
+
+    stream.subscribe(sub1, sub2);
     stream.listen({
-      next: () => { },
+      next: () => {},
       complete: () => { },
     });
 

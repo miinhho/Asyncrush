@@ -13,7 +13,6 @@ class RushStream {
      * @param options - Configuration options for buffering and error handling
      */
     constructor(producer, options = {}) {
-        var _a;
         this.producer = producer;
         /** Source observer receiving events from the producer */
         this.sourceObserver = new rush_observer_1.RushObserver();
@@ -21,17 +20,17 @@ class RushStream {
         this.outputObserver = new rush_observer_1.RushObserver();
         /** Handler for connect source & output observer */
         this.useHandler = null;
+        /** Error handler for middleware */
+        this.errorHandler = null;
         /** Array of subscribers for multicast broadcasting */
         this.subscribers = new Set();
         /** Cleanup function returned by the producer */
         this.cleanup = () => { };
-        /** Flag to enable error continuation */
-        this.continueOnError = false;
         /** Flag to pause the stream */
         this.isPaused = false;
         /** Buffer to store events when paused */
         this.buffer = [];
-        /** Maximum size of the buffer */
+        /** Maximum size of the buffer, null disables buffering */
         this.maxBufferSize = null;
         /** Last value for debounce */
         this.lastValue = null;
@@ -43,7 +42,6 @@ class RushStream {
         this.throttleMs = null;
         /** Timeout for throttle control */
         this.throttleTimeout = null;
-        this.continueOnError = (_a = options.continueOnError) !== null && _a !== void 0 ? _a : false;
         this.sourceObserver = new rush_observer_1.RushObserver({ continueOnError: options.continueOnError });
         this.outputObserver = new rush_observer_1.RushObserver({ continueOnError: options.continueOnError });
         if (options.maxBufferSize) {
@@ -99,7 +97,14 @@ class RushStream {
     resume() {
         this.isPaused = false;
         while (this.buffer.length > 0 && !this.isPaused && this.maxBufferSize) {
-            this.processEvent(this.buffer.shift());
+            try {
+                this.processEvent(this.buffer.shift());
+            }
+            catch (err) {
+                if (this.errorHandler)
+                    this.errorHandler(err);
+                this.outputObserver.error(err);
+            }
         }
         return this;
     }
@@ -109,12 +114,12 @@ class RushStream {
      */
     listen(observer) {
         if (observer.next)
-            this.outputObserver.on('next', observer.next);
+            this.outputObserver.onNext(observer.next);
         if (observer.error)
-            this.outputObserver.on('error', observer.error);
+            this.outputObserver.onError(observer.error);
         if (observer.complete)
-            this.outputObserver.on('complete', observer.complete);
-        this.sourceObserver.on('next', (value) => {
+            this.outputObserver.onComplete(observer.complete);
+        this.sourceObserver.onNext((value) => {
             this.useHandler ? this.useHandler(value) : this.processEvent(value);
         });
         const cleanupFn = this.producer(this.sourceObserver);
@@ -122,17 +127,23 @@ class RushStream {
         return this;
     }
     /**
-     * Subscribes a new observer for multicast events
-     * @returns New RushObserver instance for the subscriber
+     * Subscribes a multicast subscriber to the stream
+     * @param subscribers - Subscribers to add
      */
-    subscribe() {
-        const sub = new rush_observer_1.RushObserver({ continueOnError: this.continueOnError });
-        this.subscribers.add(sub);
-        return sub;
+    subscribe(...subscribers) {
+        subscribers.forEach(sub => {
+            this.subscribers.add(sub);
+            sub.subscribe(this);
+        });
+        return this;
     }
-    /** Unsubscribes a multicast subscriber */
+    /**
+     * Unsubscribes a multicast subscriber
+     * @param subscriber - The subscriber to remove
+    */
     unsubscribe(subscriber) {
         this.subscribers.delete(subscriber);
+        return this;
     }
     /** Broadcasts an event to all multicast subscribers */
     broadcast(value) {
@@ -144,7 +155,8 @@ class RushStream {
      */
     use(...args) {
         const { withRetry, options } = this.retryWrapper(...args);
-        const { errorHandler, continueOnError } = options;
+        const { errorHandler } = options;
+        this.errorHandler = errorHandler !== null && errorHandler !== void 0 ? errorHandler : (() => { });
         this.useHandler = (value) => {
             const result = withRetry(value);
             if (result instanceof Promise) {
@@ -153,8 +165,7 @@ class RushStream {
                 }, (err) => {
                     if (errorHandler)
                         errorHandler(err);
-                    if (!continueOnError)
-                        this.outputObserver.error(err);
+                    this.outputObserver.error(err);
                 });
             }
             else {
@@ -164,14 +175,41 @@ class RushStream {
                 catch (err) {
                     if (errorHandler)
                         errorHandler(err);
-                    if (!continueOnError)
-                        this.outputObserver.error(err);
+                    this.outputObserver.error(err);
                 }
             }
         };
         return this;
     }
-    /** Helper method to wrap middleware with retry logic */
+    /** Stops the stream and emits an event */
+    unlisten(option) {
+        switch (option) {
+            case 'destroy': {
+                this.sourceObserver.destroy();
+                this.outputObserver.destroy();
+                this.subscribers.clear();
+                this.buffer = [];
+                this.useHandler = null;
+                this.debounceMs = null;
+                this.throttleMs = null;
+                this.debounceTimeout && clearTimeout(this.debounceTimeout);
+                this.throttleTimeout && clearTimeout(this.throttleTimeout);
+                break;
+            }
+            case 'complete':
+            default: {
+                this.sourceObserver.complete();
+                this.outputObserver.complete();
+                break;
+            }
+        }
+        this.cleanup();
+        return this;
+    }
+    /**
+     * Helper method to wrap middleware with retry logic
+     * @param args - Middleware functions or array with options
+    */
     retryWrapper(...args) {
         let middlewares = [];
         let options = {};
@@ -182,7 +220,7 @@ class RushStream {
         else {
             middlewares = args;
         }
-        const { errorHandler, retries = 0, retryDelay = 0, maxRetryDelay = Infinity, jitter = 0, delayFn = (attempt, baseDelay) => baseDelay * Math.pow(2, attempt), continueOnError = false } = options;
+        const { errorHandler, retries = 0, retryDelay = 0, maxRetryDelay = Infinity, jitter = 0, delayFn = (attempt, baseDelay) => baseDelay * Math.pow(2, attempt), } = options;
         const applyMiddleware = (value) => {
             let result = value;
             for (const middleware of middlewares) {
@@ -228,38 +266,23 @@ class RushStream {
         };
         return { withRetry, options };
     }
-    /** Stops the stream and emits an event */
-    unlisten(option) {
-        switch (option) {
-            case 'destroy': {
-                this.sourceObserver.destroy();
-                this.outputObserver.destroy();
-                this.subscribers.clear();
-                this.buffer = [];
-                this.useHandler = null;
-                this.debounceMs = null;
-                this.throttleMs = null;
-                this.debounceTimeout && clearTimeout(this.debounceTimeout);
-                this.throttleTimeout && clearTimeout(this.throttleTimeout);
-                break;
-            }
-            case 'complete':
-            default: {
-                this.sourceObserver.complete();
-                this.outputObserver.complete();
-                break;
-            }
-        }
-        this.cleanup();
-        return this;
-    }
     /** Set the debounce time in milliseconds  */
     debounce(ms) {
+        if (this.throttleMs !== null) {
+            console.warn('Debounce overrides existing throttle setting');
+            this.throttleMs = null;
+            this.throttleTimeout && clearTimeout(this.throttleTimeout);
+        }
         this.debounceMs = ms;
         return this;
     }
     /** Set the throttle time in milliseconds  */
     throttle(ms) {
+        if (this.debounceMs !== null) {
+            console.warn('Throttle overrides existing debounce setting');
+            this.debounceMs = null;
+            this.debounceTimeout && clearTimeout(this.debounceTimeout);
+        }
         this.throttleMs = ms;
         return this;
     }

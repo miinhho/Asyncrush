@@ -32,7 +32,7 @@ describe('RushStream `pause` method', () => {
       stream.unlisten("complete");
     }, 300);
 
-    jest.advanceTimersByTime(10);
+    jest.advanceTimersByTime(11);
     expect(mockNext).toHaveBeenCalledTimes(2);
     expect(mockNext).toHaveBeenCalledWith(1);
     expect(mockNext).toHaveBeenCalledWith(2);

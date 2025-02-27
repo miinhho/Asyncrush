@@ -1,27 +1,6 @@
-import { RushObserver, RushObserveStream } from "../observer/rush-observer";
-/**
- * Middleware function type
- * @param value - The input value
- * @returns The output value or a promise that resolves to the output value
- */
-export type RushMiddleware<I, O> = (value: I) => O | Promise<O>;
-/** Options for RushStream listen method */
-export interface RushListenOption {
-    /** Error handler for middlewares in use method */
-    readonly errorHandler?: (error: unknown) => void;
-    /** Retries while error resolved */
-    readonly retries?: number;
-    /** Retry delay */
-    readonly retryDelay?: number;
-    /** Max retry delay */
-    readonly maxRetryDelay?: number;
-    /** Jitter for randomizing retry delay time */
-    readonly jitter?: number;
-    /** Function for setting delay time by attempt */
-    readonly delayFn?: (attempt: number, baseDelay: number) => number;
-    /** Flag to middlewares in use method will continue in error */
-    readonly continueOnError?: boolean;
-}
+import { RushObserver } from "../observer/rush-observer";
+import { RushListenOption, RushMiddleware, RushObserveStream } from "../types";
+import { RushSubscriber } from "./rush-subscriber";
 /**
  * Stream that emits values, errors, and completion events with multicast and backpressure support
  * @template T - The type of values emitted by the stream
@@ -34,17 +13,17 @@ export declare class RushStream<T = any> {
     private outputObserver;
     /** Handler for connect source & output observer */
     private useHandler;
+    /** Error handler for middleware */
+    private errorHandler;
     /** Array of subscribers for multicast broadcasting */
-    private subscribers;
+    subscribers: Set<RushSubscriber<T>>;
     /** Cleanup function returned by the producer */
     private cleanup;
-    /** Flag to enable error continuation */
-    private continueOnError;
     /** Flag to pause the stream */
     private isPaused;
     /** Buffer to store events when paused */
     private buffer;
-    /** Maximum size of the buffer */
+    /** Maximum size of the buffer, null disables buffering */
     private maxBufferSize;
     /** Last value for debounce */
     private lastValue;
@@ -79,23 +58,29 @@ export declare class RushStream<T = any> {
      */
     listen(observer: RushObserveStream<T>): this;
     /**
-     * Subscribes a new observer for multicast events
-     * @returns New RushObserver instance for the subscriber
+     * Subscribes a multicast subscriber to the stream
+     * @param subscribers - Subscribers to add
      */
-    subscribe(): RushObserver<T>;
-    /** Unsubscribes a multicast subscriber */
-    unsubscribe(subscriber: RushObserver<T>): void;
+    subscribe(...subscribers: RushSubscriber<T>[]): this;
+    /**
+     * Unsubscribes a multicast subscriber
+     * @param subscriber - The subscriber to remove
+    */
+    unsubscribe(subscriber: RushSubscriber<T>): this;
     /** Broadcasts an event to all multicast subscribers */
     private broadcast;
     /**
      * Applies middleware to transform events with retry logic
      * @param args - Middleware functions or array with options
      */
-    use(...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushListenOption]): RushStream<T>;
-    /** Helper method to wrap middleware with retry logic */
-    private retryWrapper;
+    use(...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushListenOption]): this;
     /** Stops the stream and emits an event */
     unlisten(option?: 'destroy' | 'complete'): this;
+    /**
+     * Helper method to wrap middleware with retry logic
+     * @param args - Middleware functions or array with options
+    */
+    private retryWrapper;
     /** Set the debounce time in milliseconds  */
     debounce(ms: number): this;
     /** Set the throttle time in milliseconds  */
