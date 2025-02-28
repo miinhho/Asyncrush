@@ -29,7 +29,7 @@ export class RushStream<T = any> {
   private isPaused: boolean = false;
 
   /** Buffer to store events when paused */
-  private buffer: T[] = [];
+  private buffer: T[] | null = null;
 
   /** Maximum size of the buffer, null disables buffering */
   private maxBufferSize: number | null = null;
@@ -95,10 +95,10 @@ export class RushStream<T = any> {
   /** Emits an event to the output observer and broadcasts to subscribers */
   private emit(value: T): void {
     if (this.isPaused && this.maxBufferSize) {
-      if (this.buffer.length >= this.maxBufferSize) {
-        this.buffer.shift();
+      if (this.buffer!.length >= this.maxBufferSize) {
+        this.buffer!.shift();
       }
-      this.buffer.push(value);
+      this.buffer!.push(value);
     } else {
       this.outputObserver.next(value);
       this.broadcast(value);
@@ -114,9 +114,9 @@ export class RushStream<T = any> {
   /** Resumes the stream, flushing buffered events */
   resume(): this {
     this.isPaused = false;
-    while (this.buffer.length > 0 && !this.isPaused && this.maxBufferSize) {
+    while (this.buffer!.length > 0 && !this.isPaused && this.maxBufferSize) {
       try {
-        this.processEvent(this.buffer.shift()!);
+        this.processEvent(this.buffer!.shift()!);
       } catch (err) {
         if (this.errorHandler) this.errorHandler(err);
         this.outputObserver.error(err);

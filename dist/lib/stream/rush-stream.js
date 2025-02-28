@@ -29,7 +29,7 @@ class RushStream {
         /** Flag to pause the stream */
         this.isPaused = false;
         /** Buffer to store events when paused */
-        this.buffer = [];
+        this.buffer = null;
         /** Maximum size of the buffer, null disables buffering */
         this.maxBufferSize = null;
         /** Last value for debounce */

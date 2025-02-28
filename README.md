@@ -44,19 +44,23 @@ stream.use(
 
 ## ⏱️ Benchmark
 
-![benchmark](https://github.com/user-attachments/assets/39b8a7a4-5406-4c01-90a3-57c90a24d475)
+![benchmark](https://github.com/user-attachments/assets/e23d597d-f0d3-4946-9263-a37148fe5fb6)
 
 (Tested for 1,000,000,000 events)
-| Transforms | Library   | CPU Time  | ops/sec              |
+| Transforms | Library    | CPU Time  | ops/sec              |
 |------------|------------|-----------|----------------------|
-| 30         | Asyncrush  | 234.33    | 17,078,180           |
-| 30         | RxJS       | 413.61    | 9,664,657            |
-| 20         | Asyncrush  | 130.77    | 30,587,295           |
-| 20         | RxJS       | 247.41    | 16,148,560           |
-| 10         | Asyncrush  | 69.48     | 57,581,176           |
-| 10         | RxJS       | 116.23    | 34,362,595           |
-| 6          | Asyncrush  | 44.75     | 90,102,085           |
-| 6          | RxJS       | 70.67     | 56,685,668           |
-| 2          | Asyncrush  | 28.78     | 140,262,103          |
-| 2          | RxJS       | 30.39     | 131,429,866          |
+| 100        | Asyncrush  | 164.34    | 24,303,961           |
+| 100        | RxJS       | 1382.41   | 2,888,290            |
+| 50         | Asyncrush  | 95.83     | 41,697,872           |
+| 50         | RxJS       | 570.45    | 6,994,585            |
+| 30         | Asyncrush  | 62.23     | 64,330,462           |
+| 30         | RxJS       | 323.44    | 12,326,413           |
+| 20         | Asyncrush  | 48.53     | 82,466,609           |
+| 20         | RxJS       | 209.23    | 19,084,753           |
+| 10         | Asyncrush  | 34.88     | 114,760,479          |
+| 10         | RxJS       | 108.23    | 36,885,747           |
+| 6          | Asyncrush  | 29.36     | 135,840,204          |
+| 6          | RxJS       | 66.03     | 60,424,832           |
+| 2          | Asyncrush  | 24.36     | 164,219,864          |
+| 2          | RxJS       | 27.05     | 147,904,265          |
 

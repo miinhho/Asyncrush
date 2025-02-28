@@ -1,7 +1,8 @@
-import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
+import { map, Observable, pipe } from "rxjs";
 import { RushStream } from "../dist/lib";
+
 const eventCount = 1_000_000_000;
+const transformsCount = 100;
 
 function measureResources(label: string, fn: () => void): void {
   console.log(`Starting ${label} with ${eventCount} events...`);
@@ -25,7 +26,7 @@ function measureResources(label: string, fn: () => void): void {
   console.log(`  Ops/sec: ${((eventCount / duration) * 4).toFixed(0)} ops/sec`);
 }
 
-function testRushStreamTransform() {
+function testRushStreamTransform(transformCount: number) {
   const stream = new RushStream<number>((observer) => {
     const chunkSize = 1_000_000;
     for (let i = 0; i < eventCount; i += chunkSize) {
@@ -36,44 +37,18 @@ function testRushStreamTransform() {
     observer.complete();
   });
 
+  const transform = (v: number) => v + 1;
+  const transforms = Array.from({ length: transformCount }, () => transform);
+
   stream.use(
-    (v: number) => v + 1,
-    (v: number) => v * 2,  // 2
-    (v: number) => v + 1,
-    (v: number) => v * 2,
-    (v: number) => v + 1,
-    (v: number) => v * 2,  // 6
-    (v: number) => v + 1,
-    (v: number) => v * 2,
-    (v: number) => v + 1,
-    (v: number) => v * 2,  // 10
-    (v: number) => v + 1,
-    (v: number) => v * 2,
-    (v: number) => v + 1,
-    (v: number) => v * 2,
-    (v: number) => v + 1,
-    (v: number) => v * 2,
-    (v: number) => v + 1,
-    (v: number) => v * 2,
-    (v: number) => v + 1,
-    (v: number) => v * 2,  // 20
-    (v: number) => v * 2,
-    (v: number) => v + 1,
-    (v: number) => v * 2,
-    (v: number) => v + 1,
-    (v: number) => v * 2,
-    (v: number) => v * 2,
-    (v: number) => v + 1,
-    (v: number) => v * 2,
-    (v: number) => v + 1,
-    (v: number) => v * 2,  // 30
+    ...transforms,
   ).listen({
     next: () => {},
     complete: () => {},
   });
 }
 
-function testRxJSTransform() {
+function testRxJSTransform(transformCount: number) {
   const obs = new Observable<number>((subscriber) => {
     const chunkSize = 1_000_000;
     for (let i = 0; i < eventCount; i += chunkSize) {
@@ -84,46 +59,27 @@ function testRxJSTransform() {
     subscriber.complete();
   });
 
-  obs.pipe(
-    map((v: number) => v + 1),
-    map((v: number) => v * 2),  // 2
-    map((v: number) => v + 1),
-    map((v: number) => v * 2),
-    map((v: number) => v + 1),
-    map((v: number) => v * 2),  // 6
-    map((v: number) => v + 1),
-    map((v: number) => v * 2),
-    map((v: number) => v + 1),
-    map((v: number) => v * 2),  // 10
-    map((v: number) => v + 1),
-    map((v: number) => v * 2),
-    map((v: number) => v + 1),
-    map((v: number) => v * 2),
-    map((v: number) => v + 1),
-    map((v: number) => v * 2),
-    map((v: number) => v + 1),
-    map((v: number) => v * 2),
-    map((v: number) => v + 1),
-    map((v: number) => v * 2),  // 20
-    map((v: number) => v * 2),
-    map((v: number) => v + 1),
-    map((v: number) => v * 2),
-    map((v: number) => v + 1),
-    map((v: number) => v * 2),
-    map((v: number) => v * 2),
-    map((v: number) => v + 1),
-    map((v: number) => v * 2),
-    map((v: number) => v + 1),
-    map((v: number) => v * 2),  // 30
-  ).subscribe({
-    next: () => {},
-    complete: () => {},
+  const transform = map((v: number) => v + 1);
+  const transforms = Array.from({ length: transformCount }, () => transform);
+
+  const piped = transforms.reduce(
+    (acc, curr) => pipe(acc, curr),
+    (x: Observable<number>) => x
+  );
+
+  piped(obs).subscribe({
+    next: (value) => { },
+    complete: () => { },
   });
 }
 
-console.log("Starting async benchmarks...\n");
+console.log(`Starting benchmarks with ${transformsCount} transformations...\n`);
 
-measureResources("Asyncrush - Transformation", testRushStreamTransform);
-measureResources("RxJS - Transformation", testRxJSTransform);
+measureResources("Asyncrush - Transformation", () => {
+  testRushStreamTransform(transformsCount);
+});
+measureResources("RxJS - Transformation", () => {
+  testRxJSTransform(transformsCount);
+});
 
-console.log("\nAsync Benchmarks completed!");
+console.log("\nBenchmarks completed!");

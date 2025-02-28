@@ -4,13 +4,22 @@ import { RushStream } from "./rush-stream";
 export declare class RushSubscriber<T = any> extends RushObserver<T> {
     /** Reference to the stream */
     stream?: RushStream<T>;
+    /** Flag to pause the subscriber */
+    private isPaused;
+    /** Maximum buffer size */
+    private maxBufferSize;
+    /** Buffer for paused events */
+    private buffer;
     /**
      * Creates a new RushSubscriber instance
      * @param options - Whether to continue on error
      */
     constructor(options?: {
         continueOnError?: boolean;
+        maxBufferSize?: number;
     });
+    /** Emits a value to all chained 'next' handlers */
+    next(value: T): void;
     /**
      * Subscribes to a stream
      * @param stream - Stream to subscribe
@@ -23,6 +32,10 @@ export declare class RushSubscriber<T = any> extends RushObserver<T> {
     use(...middlewares: RushMiddleware<T, T>[]): RushSubscriber<T>;
     /** Unsubscribes from the stream and clear buffer */
     unsubscribe(): this;
+    /** Pauses the subscriber, buffering events if enabled */
+    pause(): this;
+    /** Resumes the stream, flushing buffered events */
+    resume(): this;
     /** Destroy the subscriber */
     destroy(): void;
 }

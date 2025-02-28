@@ -7,13 +7,13 @@ import { RushObserverImpl } from "../types";
  */
 export class RushObserver<T = any> implements RushObserverImpl<T> {
   /** Handler for 'next' events, chained for multiple listeners */
-  private nextHandler: ((value: T) => void) | null = null;
+  protected nextHandler: ((value: T) => void) | null = null;
 
   /** Handler for 'error' events */
-  private errorHandler: ((err: unknown) => void) | null = null;
+  protected errorHandler: ((err: unknown) => void) | null = null;
 
   /** Handler for 'complete' events */
-  private completeHandler: (() => void) | null = null;
+  protected completeHandler: (() => void) | null = null;
 
   /** Flag to enable error continuation */
   protected continueOnError: boolean = false;
@@ -26,33 +26,20 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
     if (options.continueOnError) this.continueOnError = options.continueOnError;
   }
 
-  /**
-   * Emits a value to all chained 'next' handlers
-   * @param value - The value to emit
-   */
+  /** Emits a value to all chained 'next' handlers */
   next(value: T): void {
     if (this.nextHandler) this.nextHandler(value);
   }
 
-  /**
-   * Emits an error to 'error' handlers
-   * @param err - The error to emit
-   */
+  /** Emits an error to 'error' handlers */
   error(err: unknown): void {
-    if (this.errorHandler) {
-      this.errorHandler(err);
-      if (!this.continueOnError) this.destroy();
-    }
+    if (this.errorHandler) this.errorHandler(err);
+    if (!this.continueOnError) this.destroy();
   }
 
   /** Signals completion to all chained 'complete' handlers */
   complete(): void {
-    if (this.completeHandler) {
-      this.completeHandler();
-    }
-    this.onComplete(() => { });
-    this.onError(() => { });
-    this.onNext(() => { });
+    if (this.completeHandler) this.completeHandler();
     this.cleanHandlers();
   }
 
