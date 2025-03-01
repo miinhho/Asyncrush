@@ -47,12 +47,15 @@ class RushObserver {
      */
     onNext(handler) {
         const prevNext = this.nextHandler;
-        this.nextHandler = prevNext
-            ? (value) => {
-                prevNext(value);
+        this.nextHandler = (value) => {
+            try {
+                prevNext === null || prevNext === void 0 ? void 0 : prevNext(value);
                 handler(value);
             }
-            : handler;
+            catch (err) {
+                this.error(err);
+            }
+        };
     }
     /**
      * Adds a handler for 'error' events

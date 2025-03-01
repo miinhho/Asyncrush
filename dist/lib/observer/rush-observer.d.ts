@@ -30,7 +30,7 @@ export declare class RushObserver<T = any> implements RushObserverImpl<T> {
      * Adds a handlers for 'next' events
      * @param handlers - The handlers to add
      */
-    onNext(handler: (...args: any[]) => void): void;
+    onNext(handler: (value: T) => void): void;
     /**
      * Adds a handler for 'error' events
      * @param handler - The handler to add

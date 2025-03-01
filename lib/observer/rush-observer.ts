@@ -47,14 +47,16 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
    * Adds a handlers for 'next' events
    * @param handlers - The handlers to add
    */
-  onNext(handler: (...args: any[]) => void): void {
+  onNext(handler: (value: T) => void): void {
     const prevNext = this.nextHandler;
-    this.nextHandler = prevNext
-      ? (value: T) => {
-          prevNext(value);
-          (handler as (value: T) => void)(value);
-        }
-      : (handler as (value: T) => void);
+    this.nextHandler = (value: T) => {
+      try {
+        prevNext?.(value);
+        handler(value);
+      } catch (err) {
+        this.error(err);
+      }
+    };
   }
 
   /**

@@ -177,29 +177,18 @@ export class RushStream<T = any> {
   use(
     ...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushListenOption]
   ): this {
-    const { withRetry, options } = this.retryWrapper(...args);
-    const { errorHandler } = options;
-    this.errorHandler = errorHandler ?? (() => {});
+    const { applyMiddleware, errorHandler } = this.retryWrapper(...args);
+    this.errorHandler = errorHandler;
 
     this.useHandler = (value: T) => {
-      const result = withRetry(value);
+      const result = applyMiddleware(value);
       if (result instanceof Promise) {
         result.then(
           (res) => {
             this.processEvent(res);
-          },
-          (err) => {
-            if (errorHandler) errorHandler(err);
-            this.outputObserver.error(err);
-          }
-        );
+          });
       } else {
-        try {
-          this.processEvent(result);
-        } catch (err) {
-          if (errorHandler) errorHandler(err);
-          this.outputObserver.error(err);
-        }
+        this.processEvent(result);
       }
     };
 
@@ -238,7 +227,7 @@ export class RushStream<T = any> {
   */
   private retryWrapper(
     ...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushListenOption]
-  ): { withRetry: (value: T, attempt?: number) => T | Promise<T>; options: RushListenOption } {
+  ): { applyMiddleware: (value: T, attempt?: number) => T | Promise<T>; errorHandler: ((err: unknown) => void) | null } {
     let middlewares: RushMiddleware<T, T>[] = [];
     let options: RushListenOption = {};
 
@@ -249,25 +238,13 @@ export class RushStream<T = any> {
       middlewares = args as RushMiddleware<T, T>[];
     }
 
-    const { errorHandler,
+    const { errorHandler = null,
       retries = 0,
       retryDelay = 0,
       maxRetryDelay = Infinity,
       jitter = 0,
       delayFn = (attempt, baseDelay) => baseDelay * Math.pow(2, attempt),
     } = options;
-
-    const applyMiddleware = (value: T): T | Promise<T> => {
-      let result: T | Promise<T> = value;
-      for (const middleware of middlewares) {
-        if (result instanceof Promise) {
-          result = result.then((value) => middleware(value));
-        } else {
-          result = middleware(result);
-        }
-      }
-      return result;
-    };
 
     const scheduleRetry = (attempt: number, value: T): Promise<T> => {
       let delay = delayFn(attempt, retryDelay);
@@ -276,31 +253,45 @@ export class RushStream<T = any> {
         delay *= jitterFactor;
       }
       delay = Math.min(delay, maxRetryDelay);
-      return new Promise((resolve) => setTimeout(() => resolve(withRetry(value, attempt + 1)), delay));
+      return new Promise((resolve) => setTimeout(() => resolve(applyMiddleware(value, attempt + 1)), delay));
     };
 
-    const withRetry = (value: T, attempt = 0): T | Promise<T> => {
-      if (retries === 0) return applyMiddleware(value);
-      const result = applyMiddleware(value);
-      if (result instanceof Promise) {
-        return result.catch((error) => {
-          if (attempt < retries) {
-            return scheduleRetry(attempt, value);
+    const applyMiddleware = (value: T, attempt: number = 0): T | Promise<T> => {
+      let result: T | Promise<T> = value;
+      for (const middleware of middlewares) {
+        if (result instanceof Promise) {
+          result = result.then((value) => {
+            try {
+              return middleware(value);
+            }
+            catch (error) {
+              if (attempt < retries) {
+                return scheduleRetry(attempt, value);
+              }
+
+              if (errorHandler) errorHandler(error);
+              this.outputObserver.error(error);
+              return value;
+            }
+          });
+        } else {
+          try {
+            result = middleware(result);
+          } catch (error) {
+            if (attempt < retries) {
+              return scheduleRetry(attempt, value);
+            }
+
+            if (errorHandler) errorHandler(error);
+            this.outputObserver.error(error);
+            return value;
           }
-          throw error;
-        });
-      }
-      try {
-        return result;
-      } catch (error) {
-        if (attempt < retries) {
-          return scheduleRetry(attempt, value);
         }
-        throw error;
       }
+      return result;
     };
 
-    return { withRetry, options };
+    return { applyMiddleware, errorHandler };
   }
 
   /** Set the debounce time in milliseconds  */

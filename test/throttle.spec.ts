@@ -2,7 +2,7 @@ import { RushStream } from "../lib/stream/rush-stream";
 
 jest.useFakeTimers();
 
-describe("RushStream Throttle", () => {
+describe("RushStream `Throttle` method", () => {
   test("should throttle events correctly", done => {
     const mockNext = jest.fn();
 

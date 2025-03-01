@@ -1,5 +1,5 @@
 import { RushObserver } from "../observer/rush-observer";
-import { RushMiddleware } from "../types";
+import { RushListenOption, RushMiddleware } from "../types";
 import { RushStream } from "./rush-stream";
 export declare class RushSubscriber<T = any> extends RushObserver<T> {
     /** Reference to the stream */
@@ -29,7 +29,12 @@ export declare class RushSubscriber<T = any> extends RushObserver<T> {
      * Applies middleware to transform events with retry logic
      * @param args - Middleware functions
      */
-    use(...middlewares: RushMiddleware<T, T>[]): RushSubscriber<T>;
+    use(...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushListenOption]): RushSubscriber<T>;
+    /**
+     * Helper method to wrap middleware with retry logic
+     * @param args - Middleware functions or array with options
+    */
+    private retryWrapper;
     /** Unsubscribes from the stream and clear buffer */
     unsubscribe(): this;
     /** Pauses the subscriber, buffering events if enabled */

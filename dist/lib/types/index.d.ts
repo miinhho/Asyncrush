@@ -15,7 +15,7 @@ export type RushObserveStream<T> = Partial<RushObserverImpl<T>>;
  * @returns The output value or a promise that resolves to the output value
  */
 export type RushMiddleware<I, O> = (value: I) => O | Promise<O>;
-/** Options for RushStream listen method */
+/** Options for RushStream use method */
 export interface RushListenOption {
     /** Error handler for middlewares in use method */
     readonly errorHandler?: (error: unknown) => void;
@@ -30,3 +30,5 @@ export interface RushListenOption {
     /** Function for setting delay time by attempt */
     readonly delayFn?: (attempt: number, baseDelay: number) => number;
 }
+/** Options for RushSubscriber use method */
+export type RushSubscriberOption = Omit<RushListenOption, 'errorHandler'>;

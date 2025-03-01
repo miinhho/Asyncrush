@@ -1,5 +1,5 @@
 import { RushObserver } from "../observer/rush-observer";
-import { RushMiddleware } from "../types";
+import { RushListenOption, RushMiddleware, RushSubscriberOption } from "../types";
 import { RushStream } from "./rush-stream";
 
 export class RushSubscriber<T = any> extends RushObserver<T> {
@@ -55,19 +55,9 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
    * @param args - Middleware functions
    */
   use(
-    ...middlewares: RushMiddleware<T, T>[]
+    ...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushListenOption]
   ): RushSubscriber<T> {
-    const applyMiddleware = (value: T): T | Promise<T> => {
-      let result: T | Promise<T> = value;
-      for (const middleware of middlewares) {
-        if (result instanceof Promise) {
-          result = result.then((value) => middleware(value));
-        } else {
-          result = middleware(result);
-        }
-      }
-      return result;
-    };
+    const applyMiddleware = this.retryWrapper(...args);
 
     this.onNext((value) => {
       applyMiddleware(value);
@@ -75,6 +65,74 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
 
     return this;
   }
+
+    /**
+     * Helper method to wrap middleware with retry logic
+     * @param args - Middleware functions or array with options
+    */
+    private retryWrapper(
+      ...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushSubscriberOption]
+    ): (value: T, attempt?: number) => T | Promise<T> {
+      let middlewares: RushMiddleware<T, T>[] = [];
+      let options: RushSubscriberOption = {};
+
+      if (Array.isArray(args[0])) {
+        middlewares = args[0];
+        options = args[1] && typeof args[1] === 'object' ? args[1] as RushSubscriberOption : {};
+      } else {
+        middlewares = args as RushMiddleware<T, T>[];
+      }
+
+      const {
+        retries = 0,
+        retryDelay = 0,
+        maxRetryDelay = Infinity,
+        jitter = 0,
+        delayFn = (attempt, baseDelay) => baseDelay * Math.pow(2, attempt),
+      } = options;
+
+      const scheduleRetry = (attempt: number, value: T): Promise<T> => {
+        let delay = delayFn(attempt, retryDelay);
+        if (jitter > 0) {
+          const jitterFactor = 1 + jitter * (Math.random() * 2 - 1);
+          delay *= jitterFactor;
+        }
+        delay = Math.min(delay, maxRetryDelay);
+        return new Promise((resolve) => setTimeout(() => resolve(applyMiddleware(value, attempt + 1)), delay));
+      };
+
+      const applyMiddleware = (value: T, attempt: number = 0): T | Promise<T> => {
+        let result: T | Promise<T> = value;
+        for (const middleware of middlewares) {
+          if (result instanceof Promise) {
+            result = result.then((value) => {
+              try {
+                return middleware(value);
+              } catch (err) {
+                if (attempt < retries) {
+                  return scheduleRetry(attempt, value);
+                }
+                this.error(err);
+                return value;
+              }
+            });
+          } else {
+            try {
+              result = middleware(result);
+            } catch (err) {
+              if (attempt < retries) {
+                return scheduleRetry(attempt, value);
+              }
+              this.error(err);
+              return value;
+            }
+          }
+        }
+        return result;
+      };
+
+      return applyMiddleware;
+    }
 
   /** Unsubscribes from the stream and clear buffer */
   unsubscribe() {

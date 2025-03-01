@@ -1,7 +1,7 @@
 import { RushStream } from "../lib/stream/rush-stream";
 
 describe('RushStream `unlisten` method', () => {
-  test("unlisten should call clean up function", (done) => {
+  test("should call clean up function", (done) => {
     const message = 'unlisten';
     const stream = new RushStream<number>((observer) => {
       observer.next(1);

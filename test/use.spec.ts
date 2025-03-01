@@ -1,7 +1,7 @@
 import { RushStream } from "../lib/stream/rush-stream";
 
 describe('RushStream `use` method', () => {
-  test("use should apply middleware transformations", (done) => {
+  test("should apply middleware transformations", (done) => {
     const stream = new RushStream<number>((observer) => {
       observer.next(1);
     });
