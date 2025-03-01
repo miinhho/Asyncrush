@@ -57,3 +57,12 @@ stream.use(
 | 5          | 85,472,016   | **+25%**       |
 | 2          | 167,830,565  | **+15%**       |
 
+Tested with randomly selected operators/middleware processes,
+processing 1,000,000 batches from a total of 1 billion events,
+with operator selection based on Math.random values.
+
+For reference, running the same operators/middleware repeatedly
+can achieve up to 8x better performance due to JIT optimizations.
+However, this benchmark intentionally minimizes JIT optimizations
+to provide a more realistic, production-like performance measurement.
+
