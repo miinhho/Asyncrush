@@ -1,6 +1,26 @@
 # Change Log
 
-## [1.2.0] (2025-03-01)
+## [1.2.2] (2025-03-01)
+
+### 🛠️ Fix:
+- `RushSubscriber.use` using `RushListenOption` -> `RushSubscriberOption`
+
+### ✨ New feature:
+- `RushSubscriber` now catch completion in `RushStream`.
+- Unsubscribe multiple subscribers at once by `RushStream.unsubscribe`.
+
+### 🔧 Improvements:
+- Test case added. 91% test coverage achieved.
+
+### Contributors
+- [miinhho](https://github.com/miinhho)
+
+<br>
+
+
+###
+
+## [1.2.1] (2025-03-01)
 
 ### 🛠️ Fix:
 - Error handling in middleware has been improved.
