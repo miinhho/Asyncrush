@@ -1,5 +1,5 @@
 import { RushObserver } from "../observer/rush-observer";
-import { RushMiddleware, RushSubscriberOption } from "../types";
+import { RushMiddleware, RushUseOption } from "../types";
 import { RushStream } from "./rush-stream";
 export declare class RushSubscriber<T = any> extends RushObserver<T> {
     /** Reference to the stream */
@@ -20,7 +20,9 @@ export declare class RushSubscriber<T = any> extends RushObserver<T> {
     });
     /** Emits a value to all chained 'next' handlers */
     next(value: T): void;
+    /** Signals an completion to 'complete' handlers */
     onComplete(handler: () => void): this;
+    /** Emits an error to 'error' handlers */
     onError(handler: (err: unknown) => void): this;
     /**
      * Subscribes to a stream
@@ -31,18 +33,15 @@ export declare class RushSubscriber<T = any> extends RushObserver<T> {
      * Applies middleware to transform events with retry logic
      * @param args - Middleware functions
      */
-    use(...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushSubscriberOption]): RushSubscriber<T>;
-    /**
-     * Helper method to wrap middleware with retry logic
-     * @param args - Middleware functions or array with options
-    */
-    private retryWrapper;
+    use(...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushUseOption]): this;
     /** Unsubscribes from the stream and clear buffer */
     unsubscribe(): this;
     /** Pauses the subscriber, buffering events if enabled */
     pause(): this;
     /** Resumes the stream, flushing buffered events */
     resume(): this;
+    /** Flushes the buffer when resuming */
+    private flushBuffer;
     /** Destroy the subscriber */
     destroy(): void;
 }

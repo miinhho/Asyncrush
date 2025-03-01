@@ -20,8 +20,7 @@ class RushObserver {
         this.completeHandler = null;
         /** Flag to enable error continuation */
         this.continueOnError = false;
-        if (options.continueOnError)
-            this.continueOnError = options.continueOnError;
+        this.continueOnError = !!options.continueOnError;
     }
     /** Emits a value to all chained 'next' handlers */
     next(value) {
@@ -35,14 +34,14 @@ class RushObserver {
         if (!this.continueOnError)
             this.destroy();
     }
-    /** Signals completion to all chained 'complete' handlers */
+    /** Signals completion to 'complete' handlers */
     complete() {
         if (this.completeHandler)
             this.completeHandler();
         this.cleanHandlers();
     }
     /**
-     * Adds a handlers for 'next' events
+     * Adds a handlers for 'next' events, chaining with existing handlers
      * @param handlers - The handlers to add
      */
     onNext(handler) {

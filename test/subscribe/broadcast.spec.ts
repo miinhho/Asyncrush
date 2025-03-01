@@ -1,9 +1,9 @@
-import { RushStream } from "../lib/stream/rush-stream";
-import { RushSubscriber } from "../lib/stream/rush-subscriber";
+import { RushStream } from "../../lib/stream/rush-stream";
+import { RushSubscriber } from "../../lib/stream/rush-subscriber";
 
 jest.useFakeTimers();
 
-describe("Subscribe RushSubscriber to RushStream", () => {
+describe("Broadcast from RustStream to RushSubscriber", () => {
   afterEach(() => {
     jest.clearAllTimers();
   });

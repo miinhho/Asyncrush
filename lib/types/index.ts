@@ -22,26 +22,25 @@ export type RushObserveStream<T> = Partial<RushObserverImpl<T>>;
  */
 export type RushMiddleware<I, O> = (value: I) => O | Promise<O>;
 
-/** Options for RushStream use method */
-export interface RushListenOption {
-  /** Error handler for middlewares in use method */
-  readonly errorHandler?: (error: unknown) => void;
-
+/** Options for retry wrapper function */
+export interface RushMiddlewareOption {
   /** Retries while error resolved */
-  readonly retries?: number;
+  readonly retries: number;
 
   /** Retry delay */
-  readonly retryDelay?: number;
+  readonly retryDelay: number;
 
   /** Max retry delay */
-  readonly maxRetryDelay?: number;
+  readonly maxRetryDelay: number;
 
   /** Jitter for randomizing retry delay time */
-  readonly jitter?: number;
+  readonly jitter: number;
 
   /** Function for setting delay time by attempt */
-  readonly delayFn?: (attempt: number, baseDelay: number) => number;
+  readonly delayFn: (attempt: number, baseDelay: number) => number;
 }
 
-/** Options for RushSubscriber use method */
-export type RushSubscriberOption = Omit<RushListenOption, 'errorHandler'>;
+/** Options for `use` method */
+export interface RushUseOption extends Partial<RushMiddlewareOption> {
+  readonly errorHandler?: (error: unknown) => void;
+}

@@ -1,5 +1,21 @@
 # Change Log
 
+## [1.2.3] (2025-03-02)
+
+### 🛠️ Fix:
+
+### ✨ New feature:
+
+### 🔧 Improvements:
+- Test case added. 95.36% test coverage achieved.
+- Improved code stability.  
+
+### Contributors
+- [miinhho](https://github.com/miinhho)
+
+<br>
+
+
 ## [1.2.2] (2025-03-01)
 
 ### 🛠️ Fix:

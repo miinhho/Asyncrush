@@ -1,5 +1,5 @@
 import { RushObserver } from "../observer/rush-observer";
-import { RushListenOption, RushMiddleware, RushObserveStream } from "../types";
+import { RushMiddleware, RushObserveStream, RushUseOption } from "../types";
 import { RushSubscriber } from "./rush-subscriber";
 /**
  * Stream that emits values, errors, and completion events with multicast and backpressure support
@@ -11,10 +11,8 @@ export declare class RushStream<T = any> {
     private sourceObserver;
     /** Output observer distributing events to listeners and subscribers */
     private outputObserver;
-    /** Handler for connect source & output observer */
+    /** Flag to stream uses `use` */
     private useHandler;
-    /** Error handler for middleware */
-    private errorHandler;
     /** Array of subscribers for multicast broadcasting */
     subscribers: Set<RushSubscriber<T>>;
     /** Cleanup function returned by the producer */
@@ -26,7 +24,7 @@ export declare class RushStream<T = any> {
     /** Maximum size of the buffer, null disables buffering */
     private maxBufferSize;
     /** Last value for debounce */
-    private lastValue;
+    private debounceTemp;
     /** Debounce time in milliseconds */
     private debounceMs;
     /** Timeout for debounce control */
@@ -52,6 +50,8 @@ export declare class RushStream<T = any> {
     pause(): this;
     /** Resumes the stream, flushing buffered events */
     resume(): this;
+    /** Flushes the buffer to emit all stored events */
+    private flushBuffer;
     /**
      * Adds a listener to the stream with traditional observer pattern
      * @param observer - Observer with optional event handlers
@@ -66,21 +66,16 @@ export declare class RushStream<T = any> {
      * Unsubscribes a multicast subscriber
      * @param subscriber - The subscriber to remove
     */
-    unsubscribe(...subscriber: RushSubscriber<T>[]): this;
+    unsubscribe(...subscribers: RushSubscriber<T>[]): this;
     /** Broadcasts an event to all multicast subscribers */
     private broadcast;
     /**
      * Applies middleware to transform events with retry logic
      * @param args - Middleware functions or array with options
      */
-    use(...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushListenOption]): this;
+    use(...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushUseOption]): this;
     /** Stops the stream and emits an event */
     unlisten(option?: 'destroy' | 'complete'): this;
-    /**
-     * Helper method to wrap middleware with retry logic
-     * @param args - Middleware functions or array with options
-    */
-    private retryWrapper;
     /** Set the debounce time in milliseconds  */
     debounce(ms: number): this;
     /** Set the throttle time in milliseconds  */

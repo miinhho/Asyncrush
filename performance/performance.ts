@@ -2,31 +2,24 @@ import { map, Observable, pipe } from "rxjs";
 import { RushStream } from "../dist/lib";
 
 const eventCount = 1_000_000_000;
-const transformsCount = 100;
+const transformsCount = [2, 5, 10, 20, 50, 100];
 
-function measureResources(label: string, fn: () => void): void {
-  console.log(`Starting ${label} with ${eventCount} events...`);
-  const startMemory = process.memoryUsage().heapUsed / 1024 / 1024;
-  const startCpu = process.cpuUsage();
+type ResourceUsage = {
+  ops: string;
+};
+
+function measureResources(label: string, fn: () => void): ResourceUsage {
   const startTime = performance.now();
-
   fn();
-
-  const endMemory = process.memoryUsage().heapUsed / 1024 / 1024;
-  const endCpu = process.cpuUsage(startCpu);
   const endTime = performance.now();
-
-  const memoryUsed = endMemory - startMemory;
-  const cpuUsed = (endCpu.user + endCpu.system) / 1000 / 1000;
   const duration = (endTime - startTime) / 1000;
 
-  console.log(`${label}:`);
-  console.log(`  Memory Used: ${memoryUsed.toFixed(2)} MB`);
-  console.log(`  CPU Time: ${cpuUsed.toFixed(2)} seconds`);
-  console.log(`  Ops/sec: ${((eventCount / duration) * 4).toFixed(0)} ops/sec`);
+  return {
+    ops: ((eventCount / duration) * 4).toFixed(0),
+  };
 }
 
-function testRushStreamTransform(transformCount: number) {
+function testAsyncRushTransform(transformCount: number) {
   const stream = new RushStream<number>((observer) => {
     const chunkSize = 1_000_000;
     for (let i = 0; i < eventCount; i += chunkSize) {
@@ -37,8 +30,14 @@ function testRushStreamTransform(transformCount: number) {
     observer.complete();
   });
 
-  const transform = (v: number) => v + 1;
-  const transforms = Array.from({ length: transformCount }, () => transform);
+  const transform1 = (v: number) => v + 1;
+  const transform2 = (v: number) => v * 2;
+  const transforms = Array.from({ length: transformCount }).map(() => {
+    if (Math.random() < 0.5) {
+      return transform1;
+    }
+    return transform2;
+  });
 
   stream.use(
     ...transforms,
@@ -59,8 +58,14 @@ function testRxJSTransform(transformCount: number) {
     subscriber.complete();
   });
 
-  const transform = map((v: number) => v + 1);
-  const transforms = Array.from({ length: transformCount }, () => transform);
+  const transform1 = map((v: number) => v + 1);
+  const transform2 = map((v: number) => v * 2);
+  const transforms = Array.from({ length: transformCount }).map(() => {
+    if (Math.random() < 0.5) {
+      return transform1;
+    }
+    return transform2;
+  });
 
   const piped = transforms.reduce(
     (acc, curr) => pipe(acc, curr),
@@ -73,13 +78,35 @@ function testRxJSTransform(transformCount: number) {
   });
 }
 
-console.log(`Starting benchmarks with ${transformsCount} transformations...\n`);
 
-measureResources("Asyncrush - Transformation", () => {
-  testRushStreamTransform(transformsCount);
-});
-measureResources("RxJS - Transformation", () => {
-  testRxJSTransform(transformsCount);
+const asyncrushResults: Map<number, ResourceUsage> = new Map();
+const rxjsResults: Map<number, ResourceUsage> = new Map();
+
+transformsCount.forEach((transformCount) => {
+  console.log(`Starting benchmarks with ${transformCount} transformations...\n`);
+
+  const asyncrush = measureResources("Asyncrush - Transformation", () => {
+    testAsyncRushTransform(transformCount);
+  });
+  const rxjs = measureResources("RxJS - Transformation", () => {
+    testRxJSTransform(transformCount);
+  });
+
+  asyncrushResults.set(transformCount, asyncrush);
+  rxjsResults.set(transformCount, rxjs);
+
+  console.log(`Benchmarks with ${transformCount} transformations done!\n`);
 });
 
-console.log("\nBenchmarks completed!");
+console.log("Results:");
+console.log("Asyncrush:");
+asyncrushResults.forEach((value, key) => {
+  console.log(`${key} transforms: ${value.ops} ops/sec`);
+});
+
+console.log("RxJS:");
+rxjsResults.forEach((value, key) => {
+  console.log(`${key} transforms: ${value.ops} ops/sec`);
+});
+
+console.log("Benchmark Complete!");

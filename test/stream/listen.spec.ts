@@ -1,8 +1,8 @@
-import { RushStream } from "../lib/stream/rush-stream";
+import { RushStream } from "../../lib/stream/rush-stream";
 
 jest.useFakeTimers();
 
-describe('RushStream `listen` method', () => {
+describe('RushStream Listening', () => {
   afterEach(() => {
     jest.clearAllTimers();
   });

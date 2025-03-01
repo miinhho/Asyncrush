@@ -24,10 +24,10 @@ export declare class RushObserver<T = any> implements RushObserverImpl<T> {
     next(value: T): void;
     /** Emits an error to 'error' handlers */
     error(err: unknown): void;
-    /** Signals completion to all chained 'complete' handlers */
+    /** Signals completion to 'complete' handlers */
     complete(): void;
     /**
-     * Adds a handlers for 'next' events
+     * Adds a handlers for 'next' events, chaining with existing handlers
      * @param handlers - The handlers to add
      */
     onNext(handler: (value: T) => void): void;

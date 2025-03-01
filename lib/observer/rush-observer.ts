@@ -23,7 +23,7 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
    * @param options - Whether to continue on error
    */
   constructor(options: { continueOnError?: boolean } = {}) {
-    if (options.continueOnError) this.continueOnError = options.continueOnError;
+    this.continueOnError = !!options.continueOnError;
   }
 
   /** Emits a value to all chained 'next' handlers */
@@ -37,14 +37,14 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
     if (!this.continueOnError) this.destroy();
   }
 
-  /** Signals completion to all chained 'complete' handlers */
+  /** Signals completion to 'complete' handlers */
   complete(): void {
     if (this.completeHandler) this.completeHandler();
     this.cleanHandlers();
   }
 
   /**
-   * Adds a handlers for 'next' events
+   * Adds a handlers for 'next' events, chaining with existing handlers
    * @param handlers - The handlers to add
    */
   onNext(handler: (value: T) => void): void {
