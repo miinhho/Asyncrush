@@ -3,6 +3,10 @@ import { RushStream } from "../lib/stream/rush-stream";
 jest.useFakeTimers();
 
 describe("RushStream `debounce` method", () => {
+  afterEach(() => {
+    jest.clearAllTimers();
+  });
+
   test("should debounce events correctly", done => {
     const mockNext = jest.fn();
 

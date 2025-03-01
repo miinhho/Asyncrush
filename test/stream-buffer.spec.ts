@@ -2,7 +2,11 @@ import { RushStream } from "../lib/stream/rush-stream";
 
 jest.useFakeTimers();
 
-describe('RushStream `pause` method', () => {
+describe('RushStream Buffer & Pause, Resume', () => {
+  afterEach(() => {
+    jest.clearAllTimers();
+  });
+
   test("should buffer events during pause and flush on resume, then complete on unlisten", done => {
     const mockNext = jest.fn();
     const mockComplete = jest.fn();

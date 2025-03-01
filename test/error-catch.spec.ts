@@ -1,7 +1,13 @@
 import { RushStream } from "../lib/stream/rush-stream";
 import { RushSubscriber } from "../lib/stream/rush-subscriber";
 
+jest.useFakeTimers();
+
 describe("Error handling", () => {
+  afterEach(() => {
+    jest.clearAllTimers();
+  });
+
   test("handles observer error", (done) => {
     const stream = new RushStream((observer) => {
       observer.next(1);

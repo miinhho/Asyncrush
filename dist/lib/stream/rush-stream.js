@@ -118,7 +118,10 @@ class RushStream {
         if (observer.error)
             this.outputObserver.onError(observer.error);
         if (observer.complete)
-            this.outputObserver.onComplete(observer.complete);
+            this.outputObserver.onComplete(() => {
+                observer.complete();
+                this.subscribers.forEach((sub) => sub.complete());
+            });
         this.sourceObserver.onNext((value) => {
             this.useHandler ? this.useHandler(value) : this.processEvent(value);
         });
@@ -141,8 +144,10 @@ class RushStream {
      * Unsubscribes a multicast subscriber
      * @param subscriber - The subscriber to remove
     */
-    unsubscribe(subscriber) {
-        this.subscribers.delete(subscriber);
+    unsubscribe(...subscriber) {
+        for (const sub of subscriber) {
+            this.subscribers.delete(sub);
+        }
         return this;
     }
     /** Broadcasts an event to all multicast subscribers */

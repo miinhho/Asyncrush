@@ -66,7 +66,7 @@ export declare class RushStream<T = any> {
      * Unsubscribes a multicast subscriber
      * @param subscriber - The subscriber to remove
     */
-    unsubscribe(subscriber: RushSubscriber<T>): this;
+    unsubscribe(...subscriber: RushSubscriber<T>[]): this;
     /** Broadcasts an event to all multicast subscribers */
     private broadcast;
     /**

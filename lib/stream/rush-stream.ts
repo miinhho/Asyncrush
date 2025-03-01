@@ -132,7 +132,10 @@ export class RushStream<T = any> {
   listen(observer: RushObserveStream<T>): this {
     if (observer.next) this.outputObserver.onNext(observer.next);
     if (observer.error) this.outputObserver.onError(observer.error);
-    if (observer.complete) this.outputObserver.onComplete(observer.complete);
+    if (observer.complete) this.outputObserver.onComplete(() => {
+      observer.complete!();
+      this.subscribers.forEach((sub) => sub.complete());
+    });
 
     this.sourceObserver.onNext((value: T) => {
       this.useHandler ? this.useHandler(value) : this.processEvent(value);
@@ -160,8 +163,10 @@ export class RushStream<T = any> {
    * Unsubscribes a multicast subscriber
    * @param subscriber - The subscriber to remove
   */
-  unsubscribe(subscriber: RushSubscriber<T>): this {
-    this.subscribers.delete(subscriber);
+  unsubscribe(...subscriber: RushSubscriber<T>[]): this {
+    for (const sub of subscriber) {
+      this.subscribers.delete(sub);
+    }
     return this;
   }
 

@@ -1,5 +1,5 @@
 import { RushObserver } from "../observer/rush-observer";
-import { RushListenOption, RushMiddleware, RushSubscriberOption } from "../types";
+import { RushMiddleware, RushSubscriberOption } from "../types";
 import { RushStream } from "./rush-stream";
 
 export class RushSubscriber<T = any> extends RushObserver<T> {
@@ -39,6 +39,16 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
     }
   }
 
+  override onComplete(handler: () => void): this {
+    super.onComplete(handler);
+    return this;
+  }
+
+  override onError(handler: (err: unknown) => void): this {
+    super.onError(handler);
+    return this;
+  }
+
   /**
    * Subscribes to a stream
    * @param stream - Stream to subscribe
@@ -55,7 +65,7 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
    * @param args - Middleware functions
    */
   use(
-    ...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushListenOption]
+    ...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushSubscriberOption]
   ): RushSubscriber<T> {
     const applyMiddleware = this.retryWrapper(...args);
 

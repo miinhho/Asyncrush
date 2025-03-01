@@ -33,6 +33,14 @@ class RushSubscriber extends rush_observer_1.RushObserver {
                 this.nextHandler(value);
         }
     }
+    onComplete(handler) {
+        super.onComplete(handler);
+        return this;
+    }
+    onError(handler) {
+        super.onError(handler);
+        return this;
+    }
     /**
      * Subscribes to a stream
      * @param stream - Stream to subscribe
