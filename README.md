@@ -59,7 +59,7 @@ stream.use(
 
 Tested with randomly selected operators/middleware processes,
 processing 1,000,000 batches from a total of 1 billion events,
-with operator selection based on Math.random values.
+with operator selection based on `Math.random` values.
 
 For reference, running the same operators/middleware repeatedly
 can achieve up to 8x better performance due to JIT optimizations.

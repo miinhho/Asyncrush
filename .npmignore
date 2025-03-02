@@ -19,3 +19,4 @@ tsconfig.json
 
 # Git
 .git
+.github
