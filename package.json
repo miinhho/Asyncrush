@@ -24,7 +24,8 @@
   ],
   "scripts": {
     "test": "jest --coverage",
-    "build": "rmdir /s /q dist && tsc -p tsconfig.json"
+    "build:windows": "rmdir /s /q dist && tsc -p tsconfig.json",
+    "build:linux": "rm -rf dist && tsc -p tsconfig.json"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",
