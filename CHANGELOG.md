@@ -7,7 +7,7 @@
 ### ✨ New feature:
 
 ### 🔧 Improvements:
-- Test case added. 95.36% test coverage achieved.
+- Test case added. 94.86% test coverage achieved.
 - Improved code stability.  
 
 ### Contributors

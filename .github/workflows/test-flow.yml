@@ -12,7 +12,6 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
     - uses: actions/checkout@v4
@@ -24,3 +23,11 @@ jobs:
     - run: npm ci
     - run: npm run build:linux --if-present
     - run: npm test
+    - run: npm run make-badge
+
+    - name: Update Coverage Badge
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN}}
+        publish_dir: ./coverage

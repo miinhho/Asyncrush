@@ -24,6 +24,7 @@
   ],
   "scripts": {
     "test": "jest --coverage",
+    "make-badge": "coverage-badges",
     "build:windows": "rmdir /s /q dist && tsc -p tsconfig.json",
     "build:linux": "rm -rf dist && tsc -p tsconfig.json"
   },
@@ -35,6 +36,7 @@
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.4",
     "babel-jest": "^29.7.0",
+    "coverage-badges-cli": "^2.1.0",
     "eslint": "^9.20.1",
     "eslint-config-prettier": "^10.0.1",
     "globals": "^15.15.0",
