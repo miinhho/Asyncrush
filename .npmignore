@@ -1,16 +1,19 @@
-# npm
+## npm
 node_modules/
 
-# dev
+## docs
+assets
+
+## dev
 lib
 
-# test
+## test
 test
 coverage
 commands
 performance
 
-# config
+## config
 .gitignore
 .editorconfig
 .prettierrc
@@ -19,6 +22,6 @@ eslint.config.mjs
 jest.config.ts
 tsconfig.json
 
-# Git
+## Git
 .git
 .github

@@ -1,6 +1,6 @@
 # Asyncrush
 
-![Coverage](./coverage/badges.svg)
+![Coverage](./assets/badges.svg)
 ![Test Workflow](https://github.com/miinhho/Asyncrush/actions/workflows/test-flow.yml/badge.svg)  
 
 
