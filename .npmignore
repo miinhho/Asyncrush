@@ -2,7 +2,9 @@
 node_modules/
 
 # dev
-src
+lib
+
+# test
 test
 coverage
 commands
