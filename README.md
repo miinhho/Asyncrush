@@ -18,7 +18,7 @@ Asyncrush is a **high-performance stream processing library** that leverages the
 - **Built-in Error Handling & Backoff**: Automatic error handling and backoff strategies allow for stable and resilient stream processing, even in the face of network or data failures.
 
 > [!Note]   
-> Unpacked + Full feature code size : **32.7 kB**  
+> Unpacked + Full feature code size : **35.7 kB**  
 
 <br>
 
