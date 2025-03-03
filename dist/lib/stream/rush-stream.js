@@ -15,34 +15,16 @@ class RushStream {
      */
     constructor(producer, options = {}) {
         this.producer = producer;
-        /** Source observer receiving events from the producer */
-        this.sourceObserver = new rush_observer_1.RushObserver();
-        /** Output observer distributing events to listeners and subscribers */
-        this.outputObserver = new rush_observer_1.RushObserver();
         /** Flag to stream uses `use` */
         this.useHandler = false;
         /** Array of subscribers for multicast broadcasting */
         this.subscribers = new Set();
-        /** Cleanup function returned by the producer */
-        this.cleanup = () => { };
         /** Flag to pause the stream */
         this.isPaused = false;
-        /** Buffer to store events when paused */
-        this.buffer = null;
-        /** Maximum size of the buffer, null disables buffering */
-        this.maxBufferSize = null;
-        /** Last value for debounce */
-        this.debounceTemp = null;
-        /** Debounce time in milliseconds */
-        this.debounceMs = null;
-        /** Timeout for debounce control */
-        this.debounceTimeout = null;
-        /** Throttle time in milliseconds */
-        this.throttleMs = null;
-        /** Timeout for throttle control */
-        this.throttleTimeout = null;
         this.sourceObserver = new rush_observer_1.RushObserver({ continueOnError: options.continueOnError });
         this.outputObserver = new rush_observer_1.RushObserver({ continueOnError: options.continueOnError });
+        if (options.debugHook)
+            this.debugHook = options.debugHook;
         if (options.maxBufferSize && options.maxBufferSize > 0) {
             this.maxBufferSize = options.maxBufferSize;
             this.buffer = [];
@@ -50,23 +32,23 @@ class RushStream {
     }
     /** Processes an event with debounce or throttle control */
     processEvent(value) {
-        if (this.debounceMs !== null && this.debounceMs > 0) {
+        if (this.debounceMs && this.debounceMs > 0) {
             this.debounceTemp = value;
             if (this.debounceTimeout)
                 clearTimeout(this.debounceTimeout);
             this.debounceTimeout = setTimeout(() => {
-                if (this.debounceTemp !== null) {
+                if (this.debounceTemp) {
                     this.emit(this.debounceTemp);
-                    this.debounceTemp = null;
+                    this.debounceTemp = undefined;
                 }
-                this.debounceTimeout = null;
+                this.debounceTimeout = undefined;
             }, this.debounceMs);
         }
-        else if (this.throttleMs !== null && this.throttleMs > 0) {
+        else if (this.throttleMs && this.throttleMs > 0) {
             if (!this.throttleTimeout) {
                 this.emit(value);
                 this.throttleTimeout = setTimeout(() => {
-                    this.throttleTimeout = null;
+                    this.throttleTimeout = undefined;
                 }, this.throttleMs);
             }
         }
@@ -76,6 +58,8 @@ class RushStream {
     }
     /** Emits an event to the output observer and broadcasts to subscribers */
     emit(value) {
+        var _a, _b;
+        (_b = (_a = this === null || this === void 0 ? void 0 : this.debugHook) === null || _a === void 0 ? void 0 : _a.onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, value);
         if (this.isPaused && this.buffer) {
             if (this.buffer.length >= this.maxBufferSize) {
                 this.buffer.shift();
@@ -111,6 +95,8 @@ class RushStream {
      * @param observer - Observer with optional event handlers
      */
     listen(observer) {
+        var _a, _b;
+        (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onListen) === null || _b === void 0 ? void 0 : _b.call(_a, observer);
         if (observer.next)
             this.outputObserver.onNext(observer.next);
         if (observer.error)
@@ -125,9 +111,8 @@ class RushStream {
                 this.processEvent(value);
             });
         const cleanupFn = this.producer(this.sourceObserver);
-        if (typeof cleanupFn === 'function') {
+        if (typeof cleanupFn === 'function')
             this.cleanup = cleanupFn;
-        }
         return this;
     }
     /**
@@ -136,8 +121,10 @@ class RushStream {
      */
     subscribe(...subscribers) {
         subscribers.forEach(sub => {
+            var _a, _b;
             this.subscribers.add(sub);
             sub.subscribe(this);
+            (_b = (_a = this === null || this === void 0 ? void 0 : this.debugHook) === null || _a === void 0 ? void 0 : _a.onSubscribe) === null || _b === void 0 ? void 0 : _b.call(_a, sub);
         });
         return this;
     }
@@ -146,7 +133,12 @@ class RushStream {
      * @param subscriber - The subscriber to remove
     */
     unsubscribe(...subscribers) {
-        subscribers.forEach(sub => this.subscribers.delete(sub));
+        subscribers.forEach(sub => {
+            var _a, _b;
+            (_b = (_a = this === null || this === void 0 ? void 0 : this.debugHook) === null || _a === void 0 ? void 0 : _a.onUnsubscribe) === null || _b === void 0 ? void 0 : _b.call(_a, sub);
+            this.subscribers.delete(sub);
+            sub.unsubscribe();
+        });
         return this;
     }
     /** Broadcasts an event to all multicast subscribers */
@@ -169,6 +161,8 @@ class RushStream {
             middlewares = args;
         }
         const errorHandlerWrapper = (error) => {
+            var _a, _b;
+            (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onError) === null || _b === void 0 ? void 0 : _b.call(_a, error);
             errorHandler(error);
             this.outputObserver.error(error);
         };
@@ -190,6 +184,8 @@ class RushStream {
     }
     /** Stops the stream and emits an event */
     unlisten(option) {
+        var _a, _b, _c;
+        (_b = (_a = this === null || this === void 0 ? void 0 : this.debugHook) === null || _a === void 0 ? void 0 : _a.onUnlisten) === null || _b === void 0 ? void 0 : _b.call(_a, option);
         if (option === 'destroy') {
             this.sourceObserver.destroy();
             this.outputObserver.destroy();
@@ -198,35 +194,33 @@ class RushStream {
                 this.buffer = [];
             this.useHandler = false;
             this.isPaused = false;
-            this.debounceTemp = null;
-            this.debounceMs = null;
-            this.throttleMs = null;
+            this.debounceTemp = undefined;
+            this.debounceMs = undefined;
+            this.throttleMs = undefined;
             if (this.debounceTimeout) {
                 clearTimeout(this.debounceTimeout);
-                this.debounceTimeout = null;
+                this.debounceTimeout = undefined;
             }
             if (this.throttleTimeout) {
                 clearTimeout(this.throttleTimeout);
-                this.throttleTimeout = null;
+                this.throttleTimeout = undefined;
             }
         }
         else {
             this.sourceObserver.complete();
             this.outputObserver.complete();
         }
-        if (typeof this.cleanup === 'function') {
-            this.cleanup();
-        }
+        (_c = this.cleanup) === null || _c === void 0 ? void 0 : _c.call(this);
         return this;
     }
     /** Set the debounce time in milliseconds  */
     debounce(ms) {
-        if (this.throttleMs !== null) {
+        if (this.throttleMs) {
             console.warn('[Asyncrush] - Debounce overrides existing throttle setting');
-            this.throttleMs = null;
+            this.throttleMs = undefined;
             if (this.throttleTimeout) {
                 clearTimeout(this.throttleTimeout);
-                this.throttleTimeout = null;
+                this.throttleTimeout = undefined;
             }
         }
         this.debounceMs = ms;
@@ -234,12 +228,12 @@ class RushStream {
     }
     /** Set the throttle time in milliseconds  */
     throttle(ms) {
-        if (this.debounceMs !== null) {
+        if (this.debounceMs) {
             console.warn('[Asyncrush] - Throttle overrides existing debounce setting');
-            this.debounceMs = null;
+            this.debounceMs = undefined;
             if (this.debounceTimeout) {
                 clearTimeout(this.debounceTimeout);
-                this.debounceTimeout = null;
+                this.debounceTimeout = undefined;
             }
         }
         this.throttleMs = ms;

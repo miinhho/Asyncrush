@@ -1,5 +1,5 @@
 import { RushObserver } from "../observer/rush-observer";
-import { RushMiddleware, RushUseOption } from "../types";
+import { RushDebugHook, RushMiddleware, RushUseOption } from "../types";
 import { RushStream } from "./rush-stream";
 export declare class RushSubscriber<T = any> extends RushObserver<T> {
     /** Reference to the stream */
@@ -7,9 +7,11 @@ export declare class RushSubscriber<T = any> extends RushObserver<T> {
     /** Flag to pause the subscriber */
     private isPaused;
     /** Maximum buffer size */
-    private maxBufferSize;
+    private maxBufferSize?;
     /** Buffer for paused events */
-    private buffer;
+    private buffer?;
+    /** Debugging hooks */
+    private debugHook?;
     /**
      * Creates a new RushSubscriber instance
      * @param options - Whether to continue on error
@@ -17,6 +19,7 @@ export declare class RushSubscriber<T = any> extends RushObserver<T> {
     constructor(options?: {
         continueOnError?: boolean;
         maxBufferSize?: number;
+        debugHook?: RushDebugHook<T>;
     });
     /** Emits a value to all chained 'next' handlers */
     next(value: T): void;

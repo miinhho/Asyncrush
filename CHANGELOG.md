@@ -3,11 +3,13 @@
 ## [1.2.3] (2025-03-02)
 
 ### 🛠️ Fix:
+- Changed property initialization from `null` to `?` to make it more null safe.
 
 ### ✨ New feature:
+- `RushDebugHook` for debugging stream events and lifecycle stages.
 
 ### 🔧 Improvements:
-- Test case added. 94.86% test coverage achieved.
+- Test case added. 96% test coverage achieved.
 - Improved code stability.  
 
 ### Contributors

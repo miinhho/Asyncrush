@@ -1,5 +1,5 @@
 import { RushObserver } from "../observer/rush-observer";
-import { RushMiddleware, RushObserveStream, RushUseOption } from "../types";
+import { RushDebugHook, RushMiddleware, RushObserveStream, RushUseOption } from "../types";
 import { RushSubscriber } from "./rush-subscriber";
 /**
  * Stream that emits values, errors, and completion events with multicast and backpressure support
@@ -16,23 +16,25 @@ export declare class RushStream<T = any> {
     /** Array of subscribers for multicast broadcasting */
     subscribers: Set<RushSubscriber<T>>;
     /** Cleanup function returned by the producer */
-    private cleanup;
+    private cleanup?;
     /** Flag to pause the stream */
     private isPaused;
     /** Buffer to store events when paused */
-    private buffer;
+    private buffer?;
     /** Maximum size of the buffer, null disables buffering */
-    private maxBufferSize;
+    private maxBufferSize?;
     /** Last value for debounce */
-    private debounceTemp;
+    private debounceTemp?;
     /** Debounce time in milliseconds */
-    private debounceMs;
+    private debounceMs?;
     /** Timeout for debounce control */
-    private debounceTimeout;
+    private debounceTimeout?;
     /** Throttle time in milliseconds */
-    private throttleMs;
+    private throttleMs?;
     /** Timeout for throttle control */
-    private throttleTimeout;
+    private throttleTimeout?;
+    /** Debugging hooks */
+    private debugHook?;
     /**
      * Creates a new RushStream instance
      * @param producer - Function that emits events to the source observer and returns a cleanup function
@@ -41,6 +43,7 @@ export declare class RushStream<T = any> {
     constructor(producer: ((observer: RushObserver<T>) => void) | ((observer: RushObserver<T>) => () => void), options?: {
         maxBufferSize?: number;
         continueOnError?: boolean;
+        debugHook?: RushDebugHook<T>;
     });
     /** Processes an event with debounce or throttle control */
     private processEvent;
