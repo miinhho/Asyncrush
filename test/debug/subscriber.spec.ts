@@ -51,7 +51,7 @@ describe("Debugging in RushSubscriber", () => {
 
   test("should called when the subscriber is destroyed", async () => {
     const debugHook: RushDebugHook<number> = {
-      onUnlisten(option) {
+      onUnlisten: (option) => {
         expect(option).toBe("destroy");
       },
     };
@@ -60,14 +60,14 @@ describe("Debugging in RushSubscriber", () => {
 
     new RushStream<number>((observer) => {
       observer.next(1);
-    }, { debugHook }).subscribe(sub);
+    }).subscribe(sub);
 
     sub.destroy();
   });
 
   test("should called when the stream is completed", async () => {
     const debugHook: RushDebugHook<number> = {
-      onUnlisten(option) {
+      onUnlisten: (option) => {
         expect(option).toBe("complete");
       },
     };
@@ -76,10 +76,10 @@ describe("Debugging in RushSubscriber", () => {
 
     new RushStream<number>((observer) => {
       observer.next(1);
-    }, { debugHook }).subscribe(sub).unlisten('complete');
+    }).subscribe(sub).unlisten('complete');
   });
 
-  test("should called when an error occurs in the stream", async () => {
+  test("should called when an error occurs in the subscriber", async () => {
     const errorSpy = jest.fn();
 
     const debugHook: RushDebugHook<number> = {

@@ -67,7 +67,7 @@ describe("Debugging in RushStream", () => {
 
   test("should called when the stream is stopped", async () => {
     const debugHook: RushDebugHook<number> = {
-      onUnlisten(option) {
+      onUnlisten: (option) => {
         expect(option).toBe("complete");
       },
     };
