@@ -1,3 +1,5 @@
+import { RushSubscriber } from "lib/stream/rush-subscriber";
+
 /** Interface for the RushObserver */
 export interface RushObserverImpl<T> {
 
@@ -43,4 +45,47 @@ export interface RushMiddlewareOption {
 /** Options for `use` method */
 export interface RushUseOption extends Partial<RushMiddlewareOption> {
   readonly errorHandler?: (error: unknown) => void;
+}
+
+
+/**
+ * Options for debugging stream lifecycle and event processing
+ * @template T - The type of values handled by the stream
+ */
+export interface RushDebugHook<T = any> {
+  /**
+   * Called when a value is emitted to the stream middlewares
+   * @param value - The value being emitted
+   */
+  onEmit?: (value: T) => void;
+
+  /**
+   * Called when a subscriber is added to the stream
+   * @param subscriber - The subscriber that was added
+   */
+  onSubscribe?: (subscriber: RushSubscriber<T>) => void;
+
+  /**
+   * Called when a subscriber is removed from the stream
+   * @param subscriber - The subscriber that was removed
+   */
+  onUnsubscribe?: (subscriber: RushSubscriber<T>) => void;
+
+  /**
+   * Called when a new listener is attached to the stream
+   * @param observer - The listener that was attached
+   */
+  onListen?: (observer: RushObserveStream<T>) => void;
+
+  /**
+   * Called when the stream is stopped
+   * @param option - whether the stream was destroyed or completed
+   */
+  onUnlisten?: (option?: 'destroy' | 'complete') => void;
+
+  /**
+   * Called when an error occurs in the stream
+   * @param error - The error that occurred
+   */
+  onError?: (error: unknown) => void;
 }

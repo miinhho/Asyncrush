@@ -83,4 +83,34 @@ describe("createRetryWrapper function", () => {
       expect(res).toBe(4);
     });
   });
+
+  test("middlewares should be chained correctly with retries & jitter", async () => {
+    let attempt = 0;
+    const middlewares = [
+      (value: number) => {
+        if (attempt === 0) {
+          throw new Error("Error");
+        }
+        return value + 1;
+      },
+      (value: number) => value * 2,
+    ];
+    const options = {
+      retries: 1,
+      retryDelay: 1,
+      maxRetryDelay: 2,
+      jitter: 0.1,
+      delayFn: (attempt: number, baseDelay: number) => baseDelay,
+    };
+    const errorHandler = (error: unknown) => {
+      attempt++;
+    };
+
+    const { applyMiddleware } = createRetryWrapper(middlewares, options, errorHandler);
+    const result = applyMiddleware(1) as Promise<number>;
+
+    result.then((res) => {
+      expect(res).toBe(4);
+    });
+  });
 });
