@@ -34,7 +34,7 @@ describe('RushStream Buffer & Pause, Resume', () => {
 
     setTimeout(() => {
       stream.unlisten("complete");
-    }, 300);
+    }, 30);
 
     jest.advanceTimersByTime(11);
     expect(mockNext).toHaveBeenCalledTimes(2);
@@ -42,7 +42,7 @@ describe('RushStream Buffer & Pause, Resume', () => {
     expect(mockNext).toHaveBeenCalledWith(2);
     expect(mockComplete).not.toHaveBeenCalled();
 
-    jest.advanceTimersByTime(290);
+    jest.advanceTimersByTime(20);
     expect(mockComplete).toHaveBeenCalledTimes(1);
 
     done();
@@ -76,7 +76,7 @@ describe('RushStream Buffer & Pause, Resume', () => {
 
     setTimeout(() => {
       stream.unlisten("complete");
-    }, 300);
+    }, 30);
 
     jest.advanceTimersByTime(11);
     expect(mockNext).toHaveBeenCalledTimes(2);
@@ -84,7 +84,7 @@ describe('RushStream Buffer & Pause, Resume', () => {
     expect(mockNext).toHaveBeenCalledWith(3);
     expect(mockComplete).not.toHaveBeenCalled();
 
-    jest.advanceTimersByTime(290);
+    jest.advanceTimersByTime(20);
     expect(mockComplete).toHaveBeenCalledTimes(1);
 
     done();

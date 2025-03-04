@@ -22,7 +22,6 @@ class RushSubscriber extends rush_observer_1.RushObserver {
     /** Emits a value to all chained 'next' handlers */
     next(value) {
         var _a, _b;
-        (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, value);
         if (this.isPaused && this.buffer) {
             if (this.buffer.length >= this.maxBufferSize) {
                 this.buffer.shift();
@@ -33,12 +32,15 @@ class RushSubscriber extends rush_observer_1.RushObserver {
             if (this.nextHandler)
                 this.nextHandler(value);
         }
+        if (this.debugHook)
+            (_b = (_a = this.debugHook).onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, value);
     }
     /** Signals an completion to 'complete' handlers */
     onComplete(handler) {
         var _a, _b;
-        (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onUnlisten) === null || _b === void 0 ? void 0 : _b.call(_a, 'complete');
         super.onComplete(handler);
+        if (this.debugHook)
+            (_b = (_a = this.debugHook).onUnlisten) === null || _b === void 0 ? void 0 : _b.call(_a, 'complete');
         return this;
     }
     /** Emits an error to 'error' handlers */
@@ -52,11 +54,12 @@ class RushSubscriber extends rush_observer_1.RushObserver {
      */
     subscribe(stream) {
         var _a, _b;
-        (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onSubscribe) === null || _b === void 0 ? void 0 : _b.call(_a, this);
         if (this.stream && this.stream !== stream)
             this.unsubscribe();
         stream.subscribers.add(this);
         this.stream = stream;
+        if (this.debugHook)
+            (_b = (_a = this.debugHook).onSubscribe) === null || _b === void 0 ? void 0 : _b.call(_a, this);
         return this;
     }
     /**
@@ -66,7 +69,7 @@ class RushSubscriber extends rush_observer_1.RushObserver {
     use(...args) {
         let middlewares = [];
         let options = {};
-        const { retries = 0, retryDelay = 0, maxRetryDelay = Infinity, jitter = 0, delayFn = (attempt, baseDelay) => baseDelay * Math.pow(2, attempt), errorHandler = (error) => { }, } = options;
+        const { errorHandler = (error) => { }, } = options;
         if (Array.isArray(args[0])) {
             middlewares = args[0];
             ``;
@@ -77,9 +80,10 @@ class RushSubscriber extends rush_observer_1.RushObserver {
         }
         const errorHandlerWrapper = (error) => {
             var _a, _b;
-            (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onError) === null || _b === void 0 ? void 0 : _b.call(_a, error);
             errorHandler(error);
             this.error(error);
+            if (this.debugHook)
+                (_b = (_a = this.debugHook).onError) === null || _b === void 0 ? void 0 : _b.call(_a, error);
         };
         const { applyMiddleware } = (0, retry_utils_1.createRetryWrapper)(middlewares, options, errorHandlerWrapper);
         this.onNext((value) => {
@@ -90,12 +94,13 @@ class RushSubscriber extends rush_observer_1.RushObserver {
     /** Unsubscribes from the stream and clear buffer */
     unsubscribe() {
         var _a, _b, _c;
-        (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onUnsubscribe) === null || _b === void 0 ? void 0 : _b.call(_a, this);
         if (this.buffer)
             this.buffer = [];
-        if ((_c = this.stream) === null || _c === void 0 ? void 0 : _c.subscribers.has(this))
+        if ((_a = this.stream) === null || _a === void 0 ? void 0 : _a.subscribers.has(this))
             this.stream.unsubscribe(this);
         this.stream = undefined;
+        if (this.debugHook)
+            (_c = (_b = this.debugHook).onUnsubscribe) === null || _c === void 0 ? void 0 : _c.call(_b, this);
         return this;
     }
     /** Pauses the subscriber, buffering events if enabled */
@@ -127,11 +132,12 @@ class RushSubscriber extends rush_observer_1.RushObserver {
     /** Destroy the subscriber */
     destroy() {
         var _a, _b;
-        (_b = (_a = this === null || this === void 0 ? void 0 : this.debugHook) === null || _a === void 0 ? void 0 : _a.onUnlisten) === null || _b === void 0 ? void 0 : _b.call(_a, 'destroy');
         if (this.buffer)
             this.buffer = undefined;
         this.unsubscribe();
         super.destroy();
+        if (this.debugHook)
+            (_b = (_a = this.debugHook).onUnlisten) === null || _b === void 0 ? void 0 : _b.call(_a, 'destroy');
     }
 }
 exports.RushSubscriber = RushSubscriber;

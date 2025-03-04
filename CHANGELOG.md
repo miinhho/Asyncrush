@@ -1,6 +1,23 @@
 # Change Log
 
-## [1.3.0] (2025-03-02)
+## [1.3.1] (2025-03-05)
+
+### 🛠️ Fix:
+- Middleware next to promise middleware error handling issue fixed.  
+- `RushMiddlewareOption` is now integrated with `RushUseOption`.  
+
+### ✨ New feature:
+
+### 🔧 Improvements:
+- Test case added. 98.23% test coverage achieved.  
+- unpacked size changed to `34.1 kB`.  
+
+### Contributors
+- [miinhho](https://github.com/miinhho)
+
+<br>
+
+## [1.3.0] (2025-03-04)
 
 ### 🛠️ Fix:
 - Changed property initialization from `null` to `?` to make it more null safe.

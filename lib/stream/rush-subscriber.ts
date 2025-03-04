@@ -1,5 +1,5 @@
 import { RushObserver } from "../observer/rush-observer";
-import { RushDebugHook, RushMiddleware, RushMiddlewareOption, RushUseOption } from "../types";
+import { RushDebugHook, RushMiddleware, RushUseOption } from "../types";
 import { createRetryWrapper } from "../utils/retry-utils";
 import { RushStream } from "./rush-stream";
 
@@ -39,8 +39,6 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
 
   /** Emits a value to all chained 'next' handlers */
   override next(value: T): void {
-    this.debugHook?.onEmit?.(value);
-
     if (this.isPaused && this.buffer) {
       if (this.buffer.length >= this.maxBufferSize!) {
         this.buffer.shift();
@@ -49,13 +47,14 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
     } else {
       if (this.nextHandler) this.nextHandler(value);
     }
+
+    if (this.debugHook) this.debugHook.onEmit?.(value);
   }
 
   /** Signals an completion to 'complete' handlers */
   override onComplete(handler: () => void): this {
-    this.debugHook?.onUnlisten?.('complete');
-
     super.onComplete(handler);
+    if (this.debugHook) this.debugHook.onUnlisten?.('complete');
     return this;
   }
 
@@ -70,11 +69,11 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
    * @param stream - Stream to subscribe
    */
   subscribe(stream: RushStream<T>) {
-    this.debugHook?.onSubscribe?.(this);
-
     if (this.stream && this.stream !== stream) this.unsubscribe();
     stream.subscribers.add(this);
     this.stream = stream;
+
+    if (this.debugHook) this.debugHook.onSubscribe?.(this);
     return this;
   }
 
@@ -89,11 +88,6 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
     let options: RushUseOption = {};
 
     const {
-      retries = 0,
-      retryDelay = 0,
-      maxRetryDelay = Infinity,
-      jitter = 0,
-      delayFn = (attempt: number, baseDelay: number) => baseDelay * Math.pow(2, attempt),
       errorHandler = (error: unknown) => { },
     } = options;
 
@@ -105,13 +99,13 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
     }
 
     const errorHandlerWrapper = (error: unknown) => {
-      this.debugHook?.onError?.(error);
       errorHandler(error);
       this.error(error);
+      if (this.debugHook) this.debugHook.onError?.(error);
     };
 
     const { applyMiddleware } = createRetryWrapper<T>(
-      middlewares, options as RushMiddlewareOption, errorHandlerWrapper
+      middlewares, options, errorHandlerWrapper
     );
 
     this.onNext((value) => {
@@ -123,11 +117,11 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
 
   /** Unsubscribes from the stream and clear buffer */
   unsubscribe(): this {
-    this.debugHook?.onUnsubscribe?.(this);
-
     if (this.buffer) this.buffer = [];
     if (this.stream?.subscribers.has(this)) this.stream.unsubscribe(this);
     this.stream = undefined;
+
+    if (this.debugHook) this.debugHook.onUnsubscribe?.(this);
     return this;
   }
 
@@ -160,10 +154,10 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
 
   /** Destroy the subscriber */
   override destroy(): void {
-    this?.debugHook?.onUnlisten?.('destroy');
-
     if (this.buffer) this.buffer = undefined;
     this.unsubscribe();
     super.destroy();
+
+    if (this.debugHook) this.debugHook.onUnlisten?.('destroy');
   }
 }

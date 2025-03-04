@@ -7,13 +7,13 @@ import { RushObserverImpl } from "../types";
  */
 export class RushObserver<T = any> implements RushObserverImpl<T> {
   /** Handler for 'next' events, chained for multiple listeners */
-  protected nextHandler: ((value: T) => void) | null = null;
+  protected nextHandler?: ((value: T) => void);
 
   /** Handler for 'error' events */
-  protected errorHandler: ((err: unknown) => void) | null = null;
+  protected errorHandler?: ((err: unknown) => void);
 
   /** Handler for 'complete' events */
-  protected completeHandler: (() => void) | null = null;
+  protected completeHandler?: (() => void);
 
   /** Flag to enable error continuation */
   protected continueOnError: boolean = false;
@@ -51,7 +51,7 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
     const prevNext = this.nextHandler;
     this.nextHandler = (value: T) => {
       try {
-        prevNext?.(value);
+        if (prevNext) prevNext(value);
         handler(value);
       } catch (err) {
         this.error(err);
@@ -82,8 +82,8 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
 
   /** Clears all event handlers to free resources */
   private cleanHandlers(): void {
-    this.nextHandler = null;
-    this.errorHandler = null;
-    this.completeHandler = null;
+    this.nextHandler = undefined;
+    this.errorHandler = undefined;
+    this.completeHandler = undefined;
   }
 }

@@ -59,7 +59,6 @@ class RushStream {
     /** Emits an event to the output observer and broadcasts to subscribers */
     emit(value) {
         var _a, _b;
-        (_b = (_a = this === null || this === void 0 ? void 0 : this.debugHook) === null || _a === void 0 ? void 0 : _a.onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, value);
         if (this.isPaused && this.buffer) {
             if (this.buffer.length >= this.maxBufferSize) {
                 this.buffer.shift();
@@ -70,6 +69,8 @@ class RushStream {
             this.outputObserver.next(value);
             this.broadcast(value);
         }
+        if (this.debugHook)
+            (_b = (_a = this.debugHook).onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, value);
     }
     /** Pauses the stream, buffering events if enabled */
     pause() {
@@ -96,7 +97,6 @@ class RushStream {
      */
     listen(observer) {
         var _a, _b;
-        (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onListen) === null || _b === void 0 ? void 0 : _b.call(_a, observer);
         if (observer.next)
             this.outputObserver.onNext(observer.next);
         if (observer.error)
@@ -113,6 +113,8 @@ class RushStream {
         const cleanupFn = this.producer(this.sourceObserver);
         if (typeof cleanupFn === 'function')
             this.cleanup = cleanupFn;
+        if (this.debugHook)
+            (_b = (_a = this.debugHook).onListen) === null || _b === void 0 ? void 0 : _b.call(_a, observer);
         return this;
     }
     /**
@@ -124,7 +126,8 @@ class RushStream {
             var _a, _b;
             this.subscribers.add(sub);
             sub.subscribe(this);
-            (_b = (_a = this === null || this === void 0 ? void 0 : this.debugHook) === null || _a === void 0 ? void 0 : _a.onSubscribe) === null || _b === void 0 ? void 0 : _b.call(_a, sub);
+            if (this.debugHook)
+                (_b = (_a = this.debugHook).onSubscribe) === null || _b === void 0 ? void 0 : _b.call(_a, sub);
         });
         return this;
     }
@@ -135,9 +138,10 @@ class RushStream {
     unsubscribe(...subscribers) {
         subscribers.forEach(sub => {
             var _a, _b;
-            (_b = (_a = this === null || this === void 0 ? void 0 : this.debugHook) === null || _a === void 0 ? void 0 : _a.onUnsubscribe) === null || _b === void 0 ? void 0 : _b.call(_a, sub);
             this.subscribers.delete(sub);
             sub.unsubscribe();
+            if (this.debugHook)
+                (_b = (_a = this.debugHook).onUnsubscribe) === null || _b === void 0 ? void 0 : _b.call(_a, sub);
         });
         return this;
     }
@@ -152,7 +156,7 @@ class RushStream {
     use(...args) {
         let middlewares = [];
         let options = {};
-        const { retries = 0, retryDelay = 0, maxRetryDelay = Infinity, jitter = 0, delayFn = (attempt, baseDelay) => baseDelay * Math.pow(2, attempt), errorHandler = (error) => { }, } = options;
+        const { errorHandler = (error) => { }, } = options;
         if (Array.isArray(args[0])) {
             middlewares = args[0];
             options = args[1] && typeof args[1] === 'object' ? args[1] : {};
@@ -162,17 +166,16 @@ class RushStream {
         }
         const errorHandlerWrapper = (error) => {
             var _a, _b;
-            (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onError) === null || _b === void 0 ? void 0 : _b.call(_a, error);
             errorHandler(error);
             this.outputObserver.error(error);
+            if (this.debugHook)
+                (_b = (_a = this.debugHook).onError) === null || _b === void 0 ? void 0 : _b.call(_a, error);
         };
         const { applyMiddleware } = (0, retry_utils_1.createRetryWrapper)(middlewares, options, errorHandlerWrapper);
         const newHandler = (value) => {
             const result = applyMiddleware(value);
             if (result instanceof Promise) {
-                result.then((res) => {
-                    this.processEvent(res);
-                });
+                result.then((res) => { this.processEvent(res); });
             }
             else {
                 this.processEvent(result);
@@ -185,13 +188,11 @@ class RushStream {
     /** Stops the stream and emits an event */
     unlisten(option) {
         var _a, _b, _c;
-        (_b = (_a = this === null || this === void 0 ? void 0 : this.debugHook) === null || _a === void 0 ? void 0 : _a.onUnlisten) === null || _b === void 0 ? void 0 : _b.call(_a, option);
         if (option === 'destroy') {
             this.sourceObserver.destroy();
             this.outputObserver.destroy();
             this.subscribers.clear();
-            if (this.buffer)
-                this.buffer = [];
+            this.buffer = undefined;
             this.useHandler = false;
             this.isPaused = false;
             this.debounceTemp = undefined;
@@ -210,7 +211,9 @@ class RushStream {
             this.sourceObserver.complete();
             this.outputObserver.complete();
         }
-        (_c = this.cleanup) === null || _c === void 0 ? void 0 : _c.call(this);
+        (_a = this.cleanup) === null || _a === void 0 ? void 0 : _a.call(this);
+        if (this.debugHook)
+            (_c = (_b = this.debugHook).onUnlisten) === null || _c === void 0 ? void 0 : _c.call(_b, option);
         return this;
     }
     /** Set the debounce time in milliseconds  */

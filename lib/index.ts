@@ -3,7 +3,7 @@ import { RushStream } from "./stream/rush-stream";
 import { RushSubscriber } from "./stream/rush-subscriber";
 import type {
   RushDebugHook,
-  RushMiddleware, RushObserverImpl,
+  RushObserverImpl,
   RushObserveStream,
   RushUseOption
 } from "./types";
@@ -11,7 +11,7 @@ import type {
 export { RushObserver, RushStream, RushSubscriber };
 
   export type {
-    RushDebugHook, RushMiddleware, RushObserverImpl,
+    RushDebugHook, RushObserverImpl,
     RushObserveStream, RushUseOption
   };
 

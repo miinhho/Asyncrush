@@ -1,5 +1,5 @@
 import { RushObserver } from "../observer/rush-observer";
-import { RushDebugHook, RushMiddleware, RushMiddlewareOption, RushObserveStream, RushUseOption } from "../types";
+import { RushDebugHook, RushMiddleware, RushObserveStream, RushUseOption } from "../types";
 import { createRetryWrapper } from "../utils/retry-utils";
 import { RushSubscriber } from "./rush-subscriber";
 
@@ -99,7 +99,6 @@ export class RushStream<T = any> {
 
   /** Emits an event to the output observer and broadcasts to subscribers */
   private emit(value: T): void {
-    this?.debugHook?.onEmit?.(value);
     if (this.isPaused && this.buffer) {
       if (this.buffer.length >= this.maxBufferSize!) {
         this.buffer.shift();
@@ -109,6 +108,8 @@ export class RushStream<T = any> {
       this.outputObserver.next(value);
       this.broadcast(value);
     }
+
+    if (this.debugHook) this.debugHook.onEmit?.(value);
   }
 
   /** Pauses the stream, buffering events if enabled */
@@ -138,7 +139,6 @@ export class RushStream<T = any> {
    * @param observer - Observer with optional event handlers
    */
   listen(observer: RushObserveStream<T>): this {
-    this.debugHook?.onListen?.(observer);
     if (observer.next) this.outputObserver.onNext(observer.next);
     if (observer.error) this.outputObserver.onError(observer.error);
     if (observer.complete) this.outputObserver.onComplete(() => {
@@ -153,6 +153,7 @@ export class RushStream<T = any> {
     const cleanupFn = this.producer(this.sourceObserver);
     if (typeof cleanupFn === 'function') this.cleanup = cleanupFn;
 
+    if (this.debugHook) this.debugHook.onListen?.(observer);
     return this;
   }
 
@@ -164,7 +165,7 @@ export class RushStream<T = any> {
     subscribers.forEach(sub => {
       this.subscribers.add(sub);
       sub.subscribe(this);
-      this?.debugHook?.onSubscribe?.(sub);
+      if (this.debugHook) this.debugHook.onSubscribe?.(sub);
     });
     return this;
   }
@@ -175,9 +176,9 @@ export class RushStream<T = any> {
   */
   unsubscribe(...subscribers: RushSubscriber<T>[]): this {
     subscribers.forEach(sub => {
-      this?.debugHook?.onUnsubscribe?.(sub);
       this.subscribers.delete(sub);
       sub.unsubscribe();
+      if (this.debugHook) this.debugHook.onUnsubscribe?.(sub);
     });
     return this;
   }
@@ -198,11 +199,6 @@ export class RushStream<T = any> {
     let options: RushUseOption = {};
 
     const {
-      retries = 0,
-      retryDelay = 0,
-      maxRetryDelay = Infinity,
-      jitter = 0,
-      delayFn = (attempt: number, baseDelay: number) => baseDelay * Math.pow(2, attempt),
       errorHandler = (error: unknown) => { },
     } = options;
 
@@ -214,24 +210,21 @@ export class RushStream<T = any> {
     }
 
     const errorHandlerWrapper = (error: unknown) => {
-      this.debugHook?.onError?.(error);
       errorHandler(error);
       this.outputObserver.error(error);
+      if (this.debugHook) this.debugHook.onError?.(error);
     };
 
     const { applyMiddleware } = createRetryWrapper<T>(
-      middlewares, options as RushMiddlewareOption, errorHandlerWrapper
+      middlewares, options, errorHandlerWrapper
     );
 
     const newHandler = (value: T) => {
       const result = applyMiddleware(value);
       if (result instanceof Promise) {
-        result.then(
-          (res) => {
-            this.processEvent(res);
-          });
-        } else {
-          this.processEvent(result);
+        result.then((res) => { this.processEvent(res); });
+      } else {
+        this.processEvent(result);
       }
     };
 
@@ -243,12 +236,11 @@ export class RushStream<T = any> {
 
   /** Stops the stream and emits an event */
   unlisten(option?: 'destroy' | 'complete'): this {
-    this?.debugHook?.onUnlisten?.(option);
     if (option === 'destroy') {
       this.sourceObserver.destroy();
       this.outputObserver.destroy();
       this.subscribers.clear();
-      if (this.buffer) this.buffer = [];
+      this.buffer = undefined;
       this.useHandler = false;
       this.isPaused = false;
       this.debounceTemp = undefined;
@@ -268,6 +260,7 @@ export class RushStream<T = any> {
     }
 
     this.cleanup?.();
+    if (this.debugHook) this.debugHook.onUnlisten?.(option);
 
     return this;
   }

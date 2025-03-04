@@ -31,7 +31,7 @@ describe("RushStream retry", () => {
         }
       });
 
-    jest.advanceTimersByTime(60);
+    jest.advanceTimersByTime(30);
     setImmediate(() => {
       expect(attempt).toBe(3);
       expect(nextFn).toHaveBeenCalledWith(2);

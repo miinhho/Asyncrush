@@ -17,33 +17,27 @@ export interface RushObserverImpl<T> {
 export type RushObserveStream<T> = Partial<RushObserverImpl<T>>;
 
 
-/**
- * Middleware function type
- * @param value - The input value
- * @returns The output value or a promise that resolves to the output value
- */
+/** Middleware function type */
 export type RushMiddleware<I, O> = (value: I) => O | Promise<O>;
 
 /** Options for retry wrapper function */
-export interface RushMiddlewareOption {
+export interface RushUseOption {
   /** Retries while error resolved */
-  readonly retries: number;
+  readonly retries?: number;
 
   /** Retry delay */
-  readonly retryDelay: number;
+  readonly retryDelay?: number;
 
   /** Max retry delay */
-  readonly maxRetryDelay: number;
+  readonly maxRetryDelay?: number;
 
   /** Jitter for randomizing retry delay time */
-  readonly jitter: number;
+  readonly jitter?: number;
 
   /** Function for setting delay time by attempt */
-  readonly delayFn: (attempt: number, baseDelay: number) => number;
-}
+  readonly delayFn?: (attempt: number, baseDelay: number) => number;
 
-/** Options for `use` method */
-export interface RushUseOption extends Partial<RushMiddlewareOption> {
+  /** Error handler */
   readonly errorHandler?: (error: unknown) => void;
 }
 

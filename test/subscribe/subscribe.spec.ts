@@ -34,6 +34,9 @@ describe('RushSubscriber subscribe', () => {
 
     expect(mockSub).toHaveBeenCalledTimes(1);
     expect(mockSub).toHaveBeenCalledWith(2);
+    expect(stream1.subscribers.size).toBe(0);
+    expect(stream2.subscribers.size).toBe(1);
+    expect(sub.stream).toBe(stream2);
     done();
   });
 

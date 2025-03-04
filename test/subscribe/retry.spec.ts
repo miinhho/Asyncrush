@@ -31,7 +31,7 @@ describe("Subscriber Retry when error", () => {
 
     stream.listen({ next: (value) => { } });
 
-    jest.advanceTimersByTime(60);
+    jest.advanceTimersByTime(40);
     setImmediate(() => {
       expect(attempt).toBe(3);
       expect(nextFn).toHaveBeenCalledWith(2);

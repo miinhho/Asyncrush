@@ -6,11 +6,11 @@ import { RushObserverImpl } from "../types";
  */
 export declare class RushObserver<T = any> implements RushObserverImpl<T> {
     /** Handler for 'next' events, chained for multiple listeners */
-    protected nextHandler: ((value: T) => void) | null;
+    protected nextHandler?: ((value: T) => void);
     /** Handler for 'error' events */
-    protected errorHandler: ((err: unknown) => void) | null;
+    protected errorHandler?: ((err: unknown) => void);
     /** Handler for 'complete' events */
-    protected completeHandler: (() => void) | null;
+    protected completeHandler?: (() => void);
     /** Flag to enable error continuation */
     protected continueOnError: boolean;
     /**

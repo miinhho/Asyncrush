@@ -13,13 +13,13 @@ describe("RushStream `debounce` method", () => {
     const stream = new RushStream<number>(
       observer => {
         setTimeout(() => observer.next(1), 0);
-        setTimeout(() => observer.next(2), 80);
-        setTimeout(() => observer.next(3), 200);
+        setTimeout(() => observer.next(2), 8);
+        setTimeout(() => observer.next(3), 20);
       },
       { maxBufferSize: 3 }
     );
 
-    stream.debounce(100).listen({
+    stream.debounce(10).listen({
       next: (value) => {
         mockNext(value);
       },
@@ -27,10 +27,10 @@ describe("RushStream `debounce` method", () => {
       },
     });
 
-    jest.advanceTimersByTime(200);
+    jest.advanceTimersByTime(20);
     expect(mockNext).toHaveBeenCalledTimes(1);
     expect(mockNext).toHaveBeenCalledWith(2);
-    jest.advanceTimersByTime(300);
+    jest.advanceTimersByTime(30);
     expect(mockNext).toHaveBeenCalledTimes(2);
     expect(mockNext).toHaveBeenCalledWith(3);
     done();
@@ -42,13 +42,13 @@ describe("RushStream `debounce` method", () => {
     const stream = new RushStream<number>(
       observer => {
         setTimeout(() => observer.next(1), 0);
-        setTimeout(() => observer.next(2), 80);
-        setTimeout(() => observer.next(3), 200);
+        setTimeout(() => observer.next(2), 8);
+        setTimeout(() => observer.next(3), 20);
       });
 
     stream
-      .throttle(100)
-      .debounce(100)
+      .throttle(10)
+      .debounce(10)
       .listen({
       next: (value) => {
         mockNext(value);
@@ -56,7 +56,7 @@ describe("RushStream `debounce` method", () => {
       complete: () => { },
     });
 
-    jest.advanceTimersByTime(300);
+    jest.advanceTimersByTime(30);
     expect(mockNext).toHaveBeenCalledTimes(2);
     expect(mockNext).toHaveBeenCalledWith(2);
     expect(mockNext).toHaveBeenCalledWith(3);

@@ -12,12 +12,6 @@ class RushObserver {
      * @param options - Whether to continue on error
      */
     constructor(options = {}) {
-        /** Handler for 'next' events, chained for multiple listeners */
-        this.nextHandler = null;
-        /** Handler for 'error' events */
-        this.errorHandler = null;
-        /** Handler for 'complete' events */
-        this.completeHandler = null;
         /** Flag to enable error continuation */
         this.continueOnError = false;
         this.continueOnError = !!options.continueOnError;
@@ -48,7 +42,8 @@ class RushObserver {
         const prevNext = this.nextHandler;
         this.nextHandler = (value) => {
             try {
-                prevNext === null || prevNext === void 0 ? void 0 : prevNext(value);
+                if (prevNext)
+                    prevNext(value);
                 handler(value);
             }
             catch (err) {
@@ -76,9 +71,9 @@ class RushObserver {
     }
     /** Clears all event handlers to free resources */
     cleanHandlers() {
-        this.nextHandler = null;
-        this.errorHandler = null;
-        this.completeHandler = null;
+        this.nextHandler = undefined;
+        this.errorHandler = undefined;
+        this.completeHandler = undefined;
     }
 }
 exports.RushObserver = RushObserver;

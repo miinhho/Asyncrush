@@ -2,7 +2,14 @@ import { map, Observable, pipe } from "rxjs";
 import { RushStream } from "../dist/lib";
 
 const eventCount = 1_000_000_000;
-const transformsCount = [2, 5, 10, 20, 50, 100];
+const transformsCount = [
+  2,
+  5,
+  10,
+  20,
+  50,
+  100,
+];
 
 type ResourceUsage = {
   ops: string;

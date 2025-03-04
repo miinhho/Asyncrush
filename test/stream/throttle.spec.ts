@@ -13,18 +13,18 @@ describe("RushStream Throttle", () => {
     const stream = new RushStream<number>(
       observer => {
         setTimeout(() => observer.next(1), 0);
-        setTimeout(() => observer.next(2), 80);
-        setTimeout(() => observer.next(3), 200);
+        setTimeout(() => observer.next(2), 8);
+        setTimeout(() => observer.next(3), 20);
       });
 
-    stream.throttle(100).listen({
+    stream.throttle(10).listen({
       next: (value) => {
         mockNext(value);
       },
       complete: () => { },
     });
 
-    jest.advanceTimersByTime(300);
+    jest.advanceTimersByTime(30);
     expect(mockNext).toHaveBeenCalledTimes(2);
     expect(mockNext).toHaveBeenCalledWith(1);
     expect(mockNext).toHaveBeenCalledWith(3);
@@ -37,18 +37,18 @@ describe("RushStream Throttle", () => {
     const stream = new RushStream<number>(
       observer => {
         setTimeout(() => observer.next(1), 0);
-        setTimeout(() => observer.next(2), 80);
-        setTimeout(() => observer.next(3), 200);
+        setTimeout(() => observer.next(2), 8);
+        setTimeout(() => observer.next(3), 20);
       });
 
-    stream.debounce(100).throttle(100).listen({
+    stream.debounce(10).throttle(10).listen({
       next: (value) => {
         mockNext(value);
       },
       complete: () => { },
     });
 
-    jest.advanceTimersByTime(300);
+    jest.advanceTimersByTime(30);
     expect(mockNext).toHaveBeenCalledTimes(2);
     expect(mockNext).toHaveBeenCalledWith(1);
     expect(mockNext).toHaveBeenCalledWith(3);

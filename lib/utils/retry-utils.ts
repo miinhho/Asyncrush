@@ -1,4 +1,4 @@
-import { RushMiddleware, RushMiddlewareOption } from "../types";
+import { RushMiddleware, RushUseOption } from "../types";
 
 /**
  * Creates a retry wrapper for middleware chains
@@ -7,7 +7,7 @@ import { RushMiddleware, RushMiddlewareOption } from "../types";
  */
 export function createRetryWrapper<T>(
   middlewares: RushMiddleware<T, T>[],
-  options: RushMiddlewareOption,
+  options: RushUseOption,
   errorHandler: (error: unknown) => void
 ) {
   const {
@@ -36,32 +36,17 @@ export function createRetryWrapper<T>(
     for (const middleware of middlewares) {
       if (result instanceof Promise) {
         result = result.then(
-          (value) => {
-            try {
-              return middleware(value);
-            } catch (error) {
-              if (attempt < retries) {
-                return scheduleRetry(attempt, value);
-              }
-              errorHandler(error);
-              return value;
-            }
-          },
-          (error) => {
-            if (attempt < retries) {
-              return scheduleRetry(attempt, value);
-            }
-            errorHandler(error);
-            throw error;
-          }
-        );
+          (value) => middleware(value)
+        ).catch((error) => {
+          if (attempt < retries) return scheduleRetry(attempt, value);
+          errorHandler(error);
+          throw error;
+        });
       } else {
         try {
           result = middleware(result);
         } catch (error) {
-          if (attempt < retries) {
-            return scheduleRetry(attempt, value);
-          }
+          if (attempt < retries) return scheduleRetry(attempt, value);
           errorHandler(error);
           return value;
         }
