@@ -26,6 +26,12 @@ Asyncrush is a **high-performance stream processing library** that leverages the
 ```bash
 npm install asyncrush
 ```
+```bash
+yarn add asyncrush
+```
+```bash
+pnpm add asyncrush
+```
 
 <br>
 
