@@ -1,3 +1,4 @@
+import { RushOptions } from "lib/types";
 import {
   RushDebugHook,
   RushMiddleware,
@@ -20,6 +21,21 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
   /** Buffer for paused events */
   private buffer?: T[];
 
+  /** Last value for debounce */
+  private debounceTemp?: T;
+
+  /** Debounce time in milliseconds */
+  private debounceMs?: number;
+
+  /** Timeout for debounce control */
+  private debounceTimeout?: NodeJS.Timeout;
+
+  /** Throttle time in milliseconds */
+  private throttleMs?: number;
+
+  /** Timeout for throttle control */
+  private throttleTimeout?: NodeJS.Timeout;
+
   /** Debugging hooks */
   private debugHook?: RushDebugHook<T>;
 
@@ -27,11 +43,7 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
    * Creates a new RushSubscriber instance
    * @param options - Whether to continue on error
    */
-  constructor(options: {
-    continueOnError?: boolean;
-    maxBufferSize?: number;
-    debugHook?: RushDebugHook<T>;
-  } = {}) {
+  constructor(options: RushOptions<T> = {}) {
     super(options);
     if (options.maxBufferSize && options.maxBufferSize > 0) {
       this.maxBufferSize = options.maxBufferSize;
@@ -41,28 +53,71 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
     if (options.debugHook) this.debugHook = options.debugHook;
   }
 
-  /** Emits a value to all chained 'next' handlers */
-  override next(value: T): void {
+  /** Processes an event with debounce or throttle control */
+  private processEvent(value: T): void {
+    if (this.debounceMs && this.debounceMs > 0) {
+      this.debounceTemp = value;
+      if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
+      this.debounceTimeout = setTimeout(() => {
+        if (this.debounceTemp) {
+          this.emit(this.debounceTemp);
+          this.debounceTemp = undefined;
+        }
+        this.debounceTimeout = undefined;
+      }, this.debounceMs);
+    } else if (this.throttleMs && this.throttleMs > 0) {
+      if (!this.throttleTimeout) {
+        this.emit(value);
+        this.throttleTimeout = setTimeout(() => {
+          this.throttleTimeout = undefined;
+        }, this.throttleMs);
+      }
+    } else {
+      this.emit(value);
+    }
+  }
+
+  /** Emits an event to the output observer and broadcasts to subscribers */
+  private emit(value: T): void {
     if (this.isPaused && this.buffer) {
       if (this.buffer.length >= this.maxBufferSize!) {
         this.buffer.shift();
       }
       this.buffer.push(value);
     } else {
-      if (this.nextHandler) this.nextHandler(value);
-    }
+      this.nextHandler!(value);
 
-    if (this.debugHook) this.debugHook.onEmit?.(value);
+      if (this.debugHook) this.debugHook.onEmit?.(value);
+    }
+  }
+
+  /** Emits a value to all chained 'next' handlers */
+  override next(value: T): void {
+    if (this.nextHandler) this.processEvent(value);
   }
 
   /** Signals an completion to 'complete' handlers */
-  override onComplete(handler: () => void): this {
-    super.onComplete(handler);
+  override complete(): void {
     if (this.debugHook) this.debugHook.onUnlisten?.('complete');
+    super.complete();
+  }
+
+  /**
+   * Adds a handlers for 'next' events, chaining with existing handlers
+   * @param handlers - The handlers to add
+   */
+  override onNext(handler: (value: T) => void): this {
+    super.onNext(handler);
     return this;
   }
 
-  /** Emits an error to 'error' handlers */
+  /** Add a handler for 'complete' events */
+  override onComplete(handler: () => void): this {
+    super.onComplete(handler);
+    return this;
+  }
+
+  /** Add a handler for 'error' events */
   override onError(handler: (err: unknown) => void): this {
     super.onError(handler);
     return this;
@@ -72,7 +127,7 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
    * Subscribes to a stream
    * @param stream - Stream to subscribe
    */
-  subscribe(stream: RushStream<T>) {
+  subscribe(stream: RushStream<T>): this {
     if (this.stream && this.stream !== stream) this.unsubscribe();
     stream.subscribers.add(this);
     this.stream = stream;
@@ -147,21 +202,55 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
     if (!this.buffer || this.isPaused) return;
 
     while (this.buffer.length > 0 && !this.isPaused) {
-      try {
-        if (this.nextHandler) this.nextHandler(this.buffer.shift()!);
-      } catch (err) {
-        this.error(err);
-        break;
-      }
+      this.processEvent(this.buffer.shift()!);
     }
   }
 
   /** Destroy the subscriber */
   override destroy(): void {
-    if (this.buffer) this.buffer = undefined;
     this.unsubscribe();
     super.destroy();
+    if (this.buffer) this.buffer = undefined;
+    this.debounceTemp = undefined;
+    this.debounceMs = undefined;
+    this.throttleMs = undefined;
+    if (this.debounceTimeout) {
+      clearTimeout(this.debounceTimeout);
+      this.debounceTimeout = undefined;
+    }
+    if (this.throttleTimeout) {
+      clearTimeout(this.throttleTimeout);
+      this.throttleTimeout = undefined;
+    }
 
     if (this.debugHook) this.debugHook.onUnlisten?.('destroy');
+  }
+
+  /** Set the debounce time in milliseconds  */
+  debounce(ms: number): this {
+    if (this.throttleMs) {
+      console.warn('[Asyncrush] - Debounce overrides existing throttle setting');
+      this.throttleMs = undefined;
+      if (this.throttleTimeout) {
+        clearTimeout(this.throttleTimeout);
+        this.throttleTimeout = undefined;
+      }
+    }
+    this.debounceMs = ms;
+    return this;
+  }
+
+  /** Set the throttle time in milliseconds  */
+  throttle(ms: number): this {
+    if (this.debounceMs) {
+      console.warn('[Asyncrush] - Throttle overrides existing debounce setting');
+      this.debounceMs = undefined;
+      if (this.debounceTimeout) {
+        clearTimeout(this.debounceTimeout);
+        this.debounceTimeout = undefined;
+      }
+    }
+    this.throttleMs = ms;
+    return this;
   }
 }

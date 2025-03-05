@@ -7,7 +7,7 @@ describe("RushStream Throttle", () => {
     jest.clearAllTimers();
   });
 
-  test("throttle events", done => {
+  test("throttle events", (done) => {
     const mockNext = jest.fn();
 
     const stream = new RushStream<number>(
@@ -31,7 +31,7 @@ describe("RushStream Throttle", () => {
     done();
   });
 
-  test("throttle events even if debounce was set", done => {
+  test("throttle events even if debounce was set", (done) => {
     const mockNext = jest.fn();
 
     const stream = new RushStream<number>(
@@ -55,7 +55,7 @@ describe("RushStream Throttle", () => {
     done();
   });
 
-  test("throttle events even if debounce was ran", async () => {
+  test("throttle events even if debounce was ran", (done) => {
     const mockNext = jest.fn();
 
     const stream = new RushStream<number>(
@@ -73,13 +73,13 @@ describe("RushStream Throttle", () => {
       complete: () => { },
     });
 
-    setTimeout(() => {
-      stream.throttle(10);
-    }, 10);
+    jest.advanceTimersByTime(10);
+    stream.throttle(10);
 
-    jest.advanceTimersByTime(31);
+    jest.advanceTimersByTime(21);
     expect(mockNext).toHaveBeenCalledTimes(2);
     expect(mockNext).toHaveBeenCalledWith(3);
     expect(mockNext).toHaveBeenCalledWith(4);
+    done();
   });
 });

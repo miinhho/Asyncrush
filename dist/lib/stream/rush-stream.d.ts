@@ -1,4 +1,5 @@
-import { RushDebugHook, RushMiddleware, RushObserver, RushObserveStream, RushSubscriber, RushUseOption } from "../";
+import { RushOptions } from "lib/types";
+import { RushMiddleware, RushObserver, RushObserveStream, RushSubscriber, RushUseOption } from "../";
 /**
  * Stream that emits values, errors, and completion events with multicast and backpressure support
  * @template T - The type of values emitted by the stream
@@ -38,11 +39,7 @@ export declare class RushStream<T = any> {
      * @param producer - Function that emits events to the source observer and returns a cleanup function
      * @param options - Configuration options for buffering and error handling
      */
-    constructor(producer: ((observer: RushObserver<T>) => void) | ((observer: RushObserver<T>) => () => void), options?: {
-        maxBufferSize?: number;
-        continueOnError?: boolean;
-        debugHook?: RushDebugHook<T>;
-    });
+    constructor(producer: ((observer: RushObserver<T>) => void) | ((observer: RushObserver<T>) => () => void), options?: RushOptions<T>);
     /** Processes an event with debounce or throttle control */
     private processEvent;
     /** Emits an event to the output observer and broadcasts to subscribers */

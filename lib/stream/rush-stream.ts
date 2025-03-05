@@ -1,3 +1,4 @@
+import { RushOptions } from "lib/types";
 import {
   RushDebugHook,
   RushMiddleware,
@@ -63,11 +64,7 @@ export class RushStream<T = any> {
    */
   constructor(
     private producer: ((observer: RushObserver<T>) => void) | ((observer: RushObserver<T>) => () => void),
-    options: {
-      maxBufferSize?: number;
-      continueOnError?: boolean;
-      debugHook?: RushDebugHook<T>;
-    } = {}
+    options: RushOptions<T> = {}
   ) {
     this.sourceObserver = new RushObserver<T>({ continueOnError: options.continueOnError });
     this.outputObserver = new RushObserver<T>({ continueOnError: options.continueOnError });
@@ -112,9 +109,9 @@ export class RushStream<T = any> {
     } else {
       this.outputObserver.next(value);
       this.broadcast(value);
-    }
 
-    if (this.debugHook) this.debugHook.onEmit?.(value);
+      if (this.debugHook) this.debugHook.onEmit?.(value);
+    }
   }
 
   /** Pauses the stream, buffering events if enabled */
@@ -145,7 +142,10 @@ export class RushStream<T = any> {
    */
   listen(observer: RushObserveStream<T>): this {
     if (observer.next) this.outputObserver.onNext(observer.next);
-    if (observer.error) this.outputObserver.onError(observer.error);
+    if (observer.error) {
+      this.outputObserver.onError(observer.error);
+      this.sourceObserver.onError(observer.error);
+    }
     if (observer.complete) {
       this.outputObserver.onComplete(() => {
         observer.complete!();
@@ -229,7 +229,7 @@ export class RushStream<T = any> {
     const newHandler = (value: T) => {
       const result = applyMiddleware(value);
       if (result instanceof Promise) {
-        result.then((res) => { this.processEvent(res); });
+        result.then((res) => this.processEvent(res));
       } else {
         this.processEvent(result);
       }

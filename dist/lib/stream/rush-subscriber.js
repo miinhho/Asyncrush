@@ -19,8 +19,34 @@ class RushSubscriber extends __1.RushObserver {
         if (options.debugHook)
             this.debugHook = options.debugHook;
     }
-    /** Emits a value to all chained 'next' handlers */
-    next(value) {
+    /** Processes an event with debounce or throttle control */
+    processEvent(value) {
+        if (this.debounceMs && this.debounceMs > 0) {
+            this.debounceTemp = value;
+            if (this.debounceTimeout)
+                clearTimeout(this.debounceTimeout);
+            this.debounceTimeout = setTimeout(() => {
+                if (this.debounceTemp) {
+                    this.emit(this.debounceTemp);
+                    this.debounceTemp = undefined;
+                }
+                this.debounceTimeout = undefined;
+            }, this.debounceMs);
+        }
+        else if (this.throttleMs && this.throttleMs > 0) {
+            if (!this.throttleTimeout) {
+                this.emit(value);
+                this.throttleTimeout = setTimeout(() => {
+                    this.throttleTimeout = undefined;
+                }, this.throttleMs);
+            }
+        }
+        else {
+            this.emit(value);
+        }
+    }
+    /** Emits an event to the output observer and broadcasts to subscribers */
+    emit(value) {
         var _a, _b;
         if (this.isPaused && this.buffer) {
             if (this.buffer.length >= this.maxBufferSize) {
@@ -29,21 +55,37 @@ class RushSubscriber extends __1.RushObserver {
             this.buffer.push(value);
         }
         else {
-            if (this.nextHandler)
-                this.nextHandler(value);
+            this.nextHandler(value);
+            if (this.debugHook)
+                (_b = (_a = this.debugHook).onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, value);
         }
-        if (this.debugHook)
-            (_b = (_a = this.debugHook).onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, value);
+    }
+    /** Emits a value to all chained 'next' handlers */
+    next(value) {
+        if (this.nextHandler)
+            this.processEvent(value);
     }
     /** Signals an completion to 'complete' handlers */
-    onComplete(handler) {
+    complete() {
         var _a, _b;
-        super.onComplete(handler);
         if (this.debugHook)
             (_b = (_a = this.debugHook).onUnlisten) === null || _b === void 0 ? void 0 : _b.call(_a, 'complete');
+        super.complete();
+    }
+    /**
+     * Adds a handlers for 'next' events, chaining with existing handlers
+     * @param handlers - The handlers to add
+     */
+    onNext(handler) {
+        super.onNext(handler);
         return this;
     }
-    /** Emits an error to 'error' handlers */
+    /** Add a handler for 'complete' events */
+    onComplete(handler) {
+        super.onComplete(handler);
+        return this;
+    }
+    /** Add a handler for 'error' events */
     onError(handler) {
         super.onError(handler);
         return this;
@@ -119,25 +161,55 @@ class RushSubscriber extends __1.RushObserver {
         if (!this.buffer || this.isPaused)
             return;
         while (this.buffer.length > 0 && !this.isPaused) {
-            try {
-                if (this.nextHandler)
-                    this.nextHandler(this.buffer.shift());
-            }
-            catch (err) {
-                this.error(err);
-                break;
-            }
+            this.processEvent(this.buffer.shift());
         }
     }
     /** Destroy the subscriber */
     destroy() {
         var _a, _b;
-        if (this.buffer)
-            this.buffer = undefined;
         this.unsubscribe();
         super.destroy();
+        if (this.buffer)
+            this.buffer = undefined;
+        this.debounceTemp = undefined;
+        this.debounceMs = undefined;
+        this.throttleMs = undefined;
+        if (this.debounceTimeout) {
+            clearTimeout(this.debounceTimeout);
+            this.debounceTimeout = undefined;
+        }
+        if (this.throttleTimeout) {
+            clearTimeout(this.throttleTimeout);
+            this.throttleTimeout = undefined;
+        }
         if (this.debugHook)
             (_b = (_a = this.debugHook).onUnlisten) === null || _b === void 0 ? void 0 : _b.call(_a, 'destroy');
+    }
+    /** Set the debounce time in milliseconds  */
+    debounce(ms) {
+        if (this.throttleMs) {
+            console.warn('[Asyncrush] - Debounce overrides existing throttle setting');
+            this.throttleMs = undefined;
+            if (this.throttleTimeout) {
+                clearTimeout(this.throttleTimeout);
+                this.throttleTimeout = undefined;
+            }
+        }
+        this.debounceMs = ms;
+        return this;
+    }
+    /** Set the throttle time in milliseconds  */
+    throttle(ms) {
+        if (this.debounceMs) {
+            console.warn('[Asyncrush] - Throttle overrides existing debounce setting');
+            this.debounceMs = undefined;
+            if (this.debounceTimeout) {
+                clearTimeout(this.debounceTimeout);
+                this.debounceTimeout = undefined;
+            }
+        }
+        this.throttleMs = ms;
+        return this;
     }
 }
 exports.RushSubscriber = RushSubscriber;

@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRetryWrapper = createRetryWrapper;
+exports.createRetryWrapper = void 0;
 /**
  * Creates a retry wrapper for middleware chains
  * @param options - Configuration for retry behavior
  * @returns Object with middleware application function
  */
-function createRetryWrapper(middlewares, options, errorHandler) {
+const createRetryWrapper = (middlewares, options, errorHandler) => {
     const { retries = 0, retryDelay = 0, maxRetryDelay = Infinity, jitter = 0, delayFn = (attempt, baseDelay) => baseDelay * Math.pow(2, attempt), } = options;
     const scheduleRetry = (attempt, value) => {
         let delay = delayFn(attempt, retryDelay);
@@ -36,11 +36,11 @@ function createRetryWrapper(middlewares, options, errorHandler) {
                     if (attempt < retries)
                         return scheduleRetry(attempt, value);
                     errorHandler(error);
-                    return value;
                 }
             }
         }
         return result;
     };
     return { applyMiddleware };
-}
+};
+exports.createRetryWrapper = createRetryWrapper;

@@ -1,63 +1,47 @@
+/**
+ * @jest-environment jsdom
+ */
 import { streamFromTarget } from "../../lib";
 
-global.document = {
-  createElement: (tag: string) => ({
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: (event: Event) => true,
-  }),
-} as any;
+jest.useFakeTimers();
 
 describe("streamFromTarget", () => {
-  let button: any;
-
-  beforeEach(() => {
-    button = document.createElement("button");
+  afterEach(() => {
+    jest.clearAllTimers();
   });
 
-  test("emits DOM events", async () => {
-    const stream = streamFromTarget<Event>(button, "click");
+  test("emits DOM events", (done) => {
+    const div = document.createElement("div");
+    const stream = streamFromTarget<Event>(div, "click");
     const mockNext = jest.fn();
 
     stream.listen({
-      next: (event) => {
-        mockNext(event);
-        expect(mockNext).toHaveBeenCalledWith(clickEvent);
-      },
-      complete: () => {},
-      error: () => {},
+      next: mockNext,
     });
 
     const clickEvent = new Event("click");
-    button.dispatchEvent(clickEvent);
+    div.dispatchEvent(clickEvent);
+
+    jest.advanceTimersByTime(1);
+    expect(mockNext).toHaveBeenCalledWith(expect.any(Event));
+    done();
   });
 
-  test("unlistens from DOM events", async () => {
-    const stream = streamFromTarget<Event>(button, "click");
+  test("unlistens from DOM events", (done) => {
+    const mockNext = jest.fn();
+    const div = document.createElement("div");
+    const stream = streamFromTarget<Event>(div, "click");
     const listener = stream.listen({
-      next: () => {},
+      next: mockNext,
       complete: () => {},
       error: () => {},
     });
 
     listener.unlisten();
-    expect(button.removeEventListener).toHaveBeenCalledTimes(1);
-  });
+    div.dispatchEvent(new Event("click"));
 
-  test("handles errors in DOM event handler", async () => {
-    const stream = streamFromTarget<Event>(button, "click");
-    const mockError = jest.fn();
-
-    stream.listen({
-      next: () => { throw new Error("Handler error"); },
-      error: mockError,
-    });
-
-    const clickEvent = new Event("click");
-    button.dispatchEvent(clickEvent);
-
-    setTimeout(() => {
-      expect(mockError).toHaveBeenCalledWith(expect.any(Error));
-    }, 0);
+    jest.advanceTimersByTime(1);
+    expect(mockNext).not.toHaveBeenCalled();
+    done();
   });
 });

@@ -1,25 +1,25 @@
+/**
+ * @jest-environment jsdom
+ */
 import { streamFromTargets } from "../../lib";
 
-describe("streamFromTargets", () => {
-  let buttons: any[];
+jest.useFakeTimers();
 
-  beforeEach(() => {
-    buttons = [
-      { addEventListener: jest.fn(), removeEventListener: jest.fn(), dispatchEvent: jest.fn() },
-      { addEventListener: jest.fn(), removeEventListener: jest.fn(), dispatchEvent: jest.fn() },
-    ];
+describe("streamFromTargets", () => {
+  afterEach(() => {
+    jest.clearAllTimers();
   });
 
-  test("emits events from multiple targets", async () => {
+  test("emits events from multiple targets", (done) => {
+    const buttons = [
+      document.createElement('button'),
+      document.createElement('button'),
+    ];
     const stream = streamFromTargets<Event>(buttons, "click");
     const mockNext = jest.fn();
 
     stream.listen({
-      next: (value) => {
-        mockNext();
-        expect(mockNext).toHaveBeenCalledTimes(2);
-        expect(mockNext).toHaveBeenCalledWith(clickEvent);
-      },
+      next: mockNext,
       complete: () => {},
       error: () => {},
     });
@@ -27,21 +27,31 @@ describe("streamFromTargets", () => {
     const clickEvent = new Event("click");
     buttons[0].dispatchEvent(clickEvent);
     buttons[1].dispatchEvent(clickEvent);
+
+    jest.advanceTimersByTime(1);
+    expect(mockNext).toHaveBeenCalledTimes(2);
+    expect(mockNext).toHaveBeenCalledWith(clickEvent);
+    done();
   });
 
-  test("unlisten from all targets", async () => {
+  test("unlisten from all targets", (done) => {
+    const mockNext = jest.fn();
+    const buttons = [
+      document.createElement('button'),
+      document.createElement('button'),
+    ];
     const stream = streamFromTargets<Event>(buttons, "click");
     const listener = stream.listen({
-      next: () => {},
+      next: mockNext,
       complete: () => {},
       error: () => {},
     });
 
     listener.unlisten();
-    setTimeout(() => {
-      buttons.forEach((button) => {
-        expect(button.removeEventListener).toHaveBeenCalledWith("click", expect.any(Function));
-      });
-    }, 0);
+    buttons.forEach((button) => {
+      button.dispatchEvent(new Event("click"));
+      expect(mockNext).not.toHaveBeenCalled();
+    });
+    done();
   });
 });

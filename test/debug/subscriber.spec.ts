@@ -7,24 +7,31 @@ describe("Debugging in RushSubscriber", () => {
     jest.clearAllTimers();
   });
 
-  test("called when a value is emitted", async () => {
+  test("called when a value is emitted", (done) => {
     const debugHook: RushDebugHook<number> = {
       onEmit: (value) => {
         expect(value).toBe(1);
+        done();
       }
     };
 
     const sub = new RushSubscriber<number>({ debugHook });
+    sub.onNext((value) => { });
 
     new RushStream<number>((observer) => {
       observer.next(1);
-    }).subscribe(sub);
+    }).subscribe(sub).listen({
+      next: (value) => { },
+      error: (err) => { },
+      complete: () => { }
+    });
   });
 
-  test("called when a subscriber is added", async () => {
+  test("called when a subscriber is added", (done) => {
     const debugHook: RushDebugHook<number> = {
       onSubscribe: (subscriber) => {
         expect(subscriber).toBeInstanceOf(RushSubscriber);
+        done();
       }
     };
 
@@ -35,10 +42,11 @@ describe("Debugging in RushSubscriber", () => {
     }).subscribe(sub);
   });
 
-  test("called when a subscriber is removed", async () => {
+  test("called when a subscriber is removed", (done) => {
     const debugHook: RushDebugHook<number> = {
       onUnsubscribe: (subscriber) => {
         expect(subscriber).toBeInstanceOf(RushSubscriber);
+        done();
       }
     };
 
@@ -49,10 +57,11 @@ describe("Debugging in RushSubscriber", () => {
     }).subscribe(sub).unsubscribe(sub);
   });
 
-  test("called when the subscriber is destroyed", async () => {
+  test("called when the subscriber is destroyed", (done) => {
     const debugHook: RushDebugHook<number> = {
       onUnlisten: (option) => {
         expect(option).toBe("destroy");
+        done();
       },
     };
 
@@ -65,10 +74,11 @@ describe("Debugging in RushSubscriber", () => {
     sub.destroy();
   });
 
-  test("called when the stream is completed", async () => {
+  test("called when the stream is completed", (done) => {
     const debugHook: RushDebugHook<number> = {
       onUnlisten: (option) => {
         expect(option).toBe("complete");
+        done();
       },
     };
 
@@ -76,15 +86,18 @@ describe("Debugging in RushSubscriber", () => {
 
     new RushStream<number>((observer) => {
       observer.next(1);
-    }).subscribe(sub).unlisten('complete');
+    }).subscribe(sub).listen({
+      complete: () => { }
+    }).unlisten('complete');
   });
 
-  test("called when an error occurs in the subscriber", async () => {
+  test("called when an error occurs in the subscriber", (done) => {
     const errorSpy = jest.fn();
 
     const debugHook: RushDebugHook<number> = {
       onError: (err) => {
         expect(errorSpy).toHaveBeenCalledWith(expect.any(Error));
+        done();
       }
     };
 

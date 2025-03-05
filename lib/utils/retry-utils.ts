@@ -5,11 +5,11 @@ import { RushMiddleware, RushUseOption } from "../";
  * @param options - Configuration for retry behavior
  * @returns Object with middleware application function
  */
-export function createRetryWrapper<T>(
+export const createRetryWrapper = <T>(
   middlewares: RushMiddleware<T, T>[],
   options: RushUseOption,
   errorHandler: (error: unknown) => void
-) {
+) => {
   const {
     retries = 0,
     retryDelay = 0,
@@ -48,7 +48,6 @@ export function createRetryWrapper<T>(
         } catch (error) {
           if (attempt < retries) return scheduleRetry(attempt, value);
           errorHandler(error);
-          return value;
         }
       }
     }

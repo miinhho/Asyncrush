@@ -7,7 +7,7 @@ describe("RushStream retry", () => {
     jest.clearAllTimers();
   });
 
-  test("retry stream middleware error", async () => {
+  test("retry stream middleware error", (done) => {
     const stream = new RushStream<number>((observer) => {
       observer.next(1);
     }, { continueOnError: true });
@@ -20,21 +20,21 @@ describe("RushStream retry", () => {
         attempt++;
         if (attempt < 3) throw new Error("retry");
         return value * 2;
+      }, (value) => {
+        return nextFn(value);
       }], {
-        retries: 2,
-        retryDelay: 10,
+        retries: 3,
+        retryDelay: 1,
         delayFn: (attempt, retryDelay) => retryDelay
       })
       .listen({
-        next: (value) => {
-          nextFn(value);
-        }
+        next: (value) => { nextFn(value); },
+        error: (error) => { }
       });
 
-    jest.advanceTimersByTime(30);
-    setImmediate(() => {
-      expect(attempt).toBe(3);
-      expect(nextFn).toHaveBeenCalledWith(2);
-    });
+    jest.advanceTimersByTime(10);
+    expect(attempt).toBe(3);
+    expect(nextFn).toHaveBeenCalledWith(2);
+    done();
   });
 });

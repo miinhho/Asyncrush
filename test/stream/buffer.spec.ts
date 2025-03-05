@@ -7,7 +7,7 @@ describe('RushStream Buffer & Pause, Resume', () => {
     jest.clearAllTimers();
   });
 
-  test("buffer events during pause and flush on resume, then complete on unlisten", done => {
+  test("buffer events during pause and flush on resume, then complete on unlisten", (done) => {
     const mockNext = jest.fn();
     const mockComplete = jest.fn();
 
@@ -48,7 +48,7 @@ describe('RushStream Buffer & Pause, Resume', () => {
     done();
   });
 
-  test("latest buffer removed first", done => {
+  test("latest buffer removed first", (done) => {
     const mockNext = jest.fn();
     const mockComplete = jest.fn();
 

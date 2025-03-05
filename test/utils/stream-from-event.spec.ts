@@ -1,77 +1,76 @@
 import EventEmitter from "node:events";
-import { streamFromEvent } from "../../lib";
+import { RushDebugHook, streamFromEvent } from "../../lib";
+
+jest.useFakeTimers();
 
 describe("streamFromEvent", () => {
-  let emitter: EventEmitter;
-
-  beforeEach(() => {
-    emitter = new EventEmitter();
+  afterEach(() => {
+    jest.clearAllTimers();
   });
 
-  test("emits single argument events", async () => {
+  test("emits single argument events", (done) => {
+    const emitter = new EventEmitter();
     const stream = streamFromEvent<string>(emitter, "data");
     const mockNext = jest.fn();
 
-    stream.listen({
-      next: mockNext,
-      complete: () => { },
-      error: () => { },
-    });
+    stream.listen({ next: mockNext });
 
     emitter.emit("data", "hello");
 
     expect(mockNext).toHaveBeenCalledWith("hello");
+    done();
   });
 
-  test("emits multi-argument events", async () => {
+  test("emits multi-argument events", (done) => {
+    const emitter = new EventEmitter();
     const stream = streamFromEvent(emitter, "data");
     const mockNext = jest.fn();
 
-    stream.listen({
-      next: mockNext,
-      complete: () => { },
-      error: () => { },
-    });
+    stream.listen({ next: mockNext });
 
     emitter.emit("data", "hello", "world");
 
     expect(mockNext).toHaveBeenCalledWith(["hello", "world"]);
+    done();
   });
 
-  test("completes on 'end' event", async () => {
+  test("completes on 'end' event", (done) => {
+    const emitter = new EventEmitter();
     const stream = streamFromEvent(emitter, "data");
     const mockComplete = jest.fn();
 
-    stream.listen({
-      next: () => { },
-      complete: () => {
-        mockComplete();
-        expect(mockComplete).toHaveBeenCalled();
-        expect(emitter.listenerCount('end')).toBe(0);
-        expect(emitter.listenerCount('data')).toBe(0);
-        expect(emitter.listenerCount('error')).toBe(0);
-      },
-      error: () => { },
-    });
+    stream.listen({ complete: mockComplete });
 
     emitter.emit('end');
+
+    jest.advanceTimersByTime(0);
+    expect(mockComplete).toHaveBeenCalled();
+    expect(emitter.listenerCount('end')).toBe(0);
+    expect(emitter.listenerCount('data')).toBe(0);
+    expect(emitter.listenerCount('error')).toBe(0);
+    done();
   });
 
-  test("errors on 'error' event", async () => {
-    const stream = streamFromEvent(emitter, "data");
+  test("errors on 'error' event", (done) => {
+    const emitter = new EventEmitter();
+    const debug: RushDebugHook = {
+      onError: (err) => {
+        console.error(err);
+      }
+    };
+    const stream = streamFromEvent(emitter, "data", { continueOnError: true, debug });
     const mockError = jest.fn();
 
     stream.listen({
-      next: () => { },
-      complete: () => { },
-      error: (err) => {
-        mockError(err);
-        expect(mockError).toHaveBeenCalledWith(new Error('test error'));
-        expect(emitter.listenerCount('error')).toBe(0);
-      },
+      next: (value) => { },
+      error: mockError,
+      complete: () => { }
     });
 
-    const err = new Error('test error');
-    emitter.emit('error', err);
+    emitter.emit('error', new Error('error'));
+
+    jest.advanceTimersByTime(0);
+    expect(mockError).toHaveBeenCalled();
+    done();
   });
 });

@@ -7,7 +7,7 @@ describe("Subscriber Retry when error", () => {
     jest.clearAllTimers();
   });
 
-  test("retry subscriber middleware error", async () => {
+  test("retry subscriber middleware error", (done) => {
     const stream = new RushStream<number>((observer) => {
       observer.next(1);
     }, { continueOnError: true });
@@ -20,20 +20,21 @@ describe("Subscriber Retry when error", () => {
         attempt++;
         if (attempt < 3) throw new Error("retry");
         return value * 2;
-        }, (value) => {
+      }, (value) => {
         return nextFn(value);
         }], {
           retries: 2,
-          retryDelay: 10,
+          retryDelay: 1,
           delayFn: (attempt, retryDelay) => retryDelay
-        }).subscribe(stream);
+      })
+      .onError((error) => {})
+      .subscribe(stream);
 
     stream.listen({ next: (value) => { } });
 
-    jest.advanceTimersByTime(40);
-    setImmediate(() => {
-      expect(attempt).toBe(3);
-      expect(nextFn).toHaveBeenCalledWith(2);
-    });
+    jest.advanceTimersByTime(10);
+    expect(attempt).toBe(3);
+    expect(nextFn).toHaveBeenCalledWith(2);
+    done();
   });
 });

@@ -83,3 +83,17 @@ export interface RushDebugHook<T = any> {
    */
   onError?: (error: unknown) => void;
 }
+
+/**
+ * Constructor options for RushStream & RushSubscriber
+ */
+export type RushOptions<T = any> = {
+  /** Whether continue on error */
+  continueOnError?: boolean;
+
+  /** Maximum buffer size for the stream */
+  maxBufferSize?: number;
+
+  /** Debugging hooks */
+  debugHook?: RushDebugHook<T>;
+}

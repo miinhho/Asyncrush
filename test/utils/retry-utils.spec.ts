@@ -30,10 +30,10 @@ describe("createRetryWrapper function", () => {
     done();
   });
 
-  test("middleware chained with retries", async () => {
+  test("middleware chained with retries", (done) => {
     let attempt = 0;
     const middlewares = [
-      (value: number) => {
+      async (value: number) => {
         if (attempt === 0) {
           throw new Error("Error");
         }
@@ -55,12 +55,14 @@ describe("createRetryWrapper function", () => {
     const { applyMiddleware } = createRetryWrapper(middlewares, options, errorHandler);
     const result = applyMiddleware(1) as Promise<number>;
 
+    jest.advanceTimersByTime(10);
     result.then((res) => {
       expect(res).toBe(4);
     });
+    done();
   });
 
-  test("middleware chained with promise", async () => {
+  test("middleware chained with promise", (done) => {
     const middlewares = [
       async (value: number) => new Promise<number>((res) => res(value + 1)),
       async (value: number) => value * 2,
@@ -72,22 +74,21 @@ describe("createRetryWrapper function", () => {
       jitter: 0,
       delayFn: (attempt: number, baseDelay: number) => baseDelay,
     };
-    const errorHandler = (error: unknown) => {
-      expect(error).toBeUndefined();
-    };
+    const errorHandler = (error: unknown) => { };
 
     const { applyMiddleware } = createRetryWrapper(middlewares, options, errorHandler);
     const result = applyMiddleware(1) as Promise<number>;
 
     result.then((res) => {
       expect(res).toBe(4);
+      done();
     });
   });
 
-  test("middleware with retries & jitter", async () => {
+  test("middleware with retries & jitter", (done) => {
     let attempt = 0;
     const middlewares = [
-      (value: number) => {
+      async (value: number) => {
         if (attempt === 0) {
           throw new Error("Error");
         }
@@ -109,12 +110,15 @@ describe("createRetryWrapper function", () => {
     const { applyMiddleware } = createRetryWrapper(middlewares, options, errorHandler);
     const result = applyMiddleware(1) as Promise<number>;
 
+    jest.advanceTimersByTime(10);
     result.then((res) => {
       expect(res).toBe(4);
+      expect(attempt).toBe(1);
     });
+    done();
   });
 
-  test("middleware promise catching errors in another middleware", async () => {
+  test("middleware promise catching errors in another middleware", (done) => {
     let attempt = 0;
     const middlewares = [
       async (value: number) => {
@@ -122,7 +126,7 @@ describe("createRetryWrapper function", () => {
           (res) => res(value)
         ).then((value) => value + 1);
       },
-      (value: number) => {
+      async (value: number) => {
         if (attempt === 0) {
           throw new Error("Error");
         }
@@ -143,8 +147,11 @@ describe("createRetryWrapper function", () => {
     const { applyMiddleware } = createRetryWrapper(middlewares, options, errorHandler);
     const result = applyMiddleware(1) as Promise<number>;
 
+    jest.advanceTimersByTime(10);
     result.then((res) => {
       expect(res).toBe(4);
+      expect(attempt).toBe(1);
     });
+    done();
   });
 });

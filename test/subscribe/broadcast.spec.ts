@@ -57,10 +57,9 @@ describe("Broadcast from RustStream to RushSubscriber", () => {
     done();
   });
 
-  test("completion stream broadcasted to subscribers", async () => {
+  test("completion stream broadcasted to subscribers", (done) => {
     const stream = new RushStream<number>((observer) => {
       observer.next(1);
-      setTimeout(() => observer.complete(), 10);
     });
 
     const mockSub = jest.fn();
@@ -68,15 +67,14 @@ describe("Broadcast from RustStream to RushSubscriber", () => {
 
     sub.onComplete(() => {
       mockSub();
-    }).subscribe(stream);
-
-    stream.listen({
-      next: () => {},
-      complete: () => { },
     });
 
-    setTimeout(() => {
-      expect(mockSub).toHaveBeenCalledTimes(1);
-    }, 11);
+    stream.subscribe(sub).listen({
+      next: () => { },
+      complete: () => { },
+    }).unlisten('complete');
+
+    expect(mockSub).toHaveBeenCalledTimes(1);
+    done();
   });
 });

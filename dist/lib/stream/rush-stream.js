@@ -68,9 +68,9 @@ class RushStream {
         else {
             this.outputObserver.next(value);
             this.broadcast(value);
+            if (this.debugHook)
+                (_b = (_a = this.debugHook).onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, value);
         }
-        if (this.debugHook)
-            (_b = (_a = this.debugHook).onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, value);
     }
     /** Pauses the stream, buffering events if enabled */
     pause() {
@@ -99,8 +99,10 @@ class RushStream {
         var _a, _b;
         if (observer.next)
             this.outputObserver.onNext(observer.next);
-        if (observer.error)
+        if (observer.error) {
             this.outputObserver.onError(observer.error);
+            this.sourceObserver.onError(observer.error);
+        }
         if (observer.complete) {
             this.outputObserver.onComplete(() => {
                 observer.complete();
@@ -176,7 +178,7 @@ class RushStream {
         const newHandler = (value) => {
             const result = applyMiddleware(value);
             if (result instanceof Promise) {
-                result.then((res) => { this.processEvent(res); });
+                result.then((res) => this.processEvent(res));
             }
             else {
                 this.processEvent(result);

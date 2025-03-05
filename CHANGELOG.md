@@ -1,5 +1,26 @@
 # Change Log
 
+## [2.2.0] (2025-03-06)
+
+### 🛠️ Fix:  
+- `streamFromTarget`, `streamFromTargets`, `streamFromEvents`, `streamFromEvent` bug fix.  
+- `RushDebugHook.onEmit` bug fix.  
+- `streamFromDynamicTargets` is not supported.  
+
+### ✨ New feature:
+- `RushSubscriber` supports debounce & throttle.  
+- `mergeStream` for merge multiple streams.  
+
+### 🔧 Improvements:
+- Test case added. 97.38% test coverage achieved.  
+- Unpacked size changed to `42.2 kB`.  
+- Some test case error fixed -> now all test case is working fine.  
+
+### Contributors
+- [miinhho](https://github.com/miinhho)
+
+<br>
+
 ## [2.1.0] (2025-03-06)
 
 ### 🛠️ Fix:  
