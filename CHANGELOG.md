@@ -1,13 +1,17 @@
 # Change Log
 
-## [2.0.1] (2025-03-06)
+## [2.1.0] (2025-03-06)
 
 ### 🛠️ Fix:  
 
 ### ✨ New feature:
 - `streamFromTarget` now gets [`AddEventListenerOptions`](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#options) to handle Web API better.  
+- `streamFromTargets`, `streamFromDynamicTargets`, `streamFromEvents` are added to make stream with multiple events.   
 
 ### 🔧 Improvements:
+- Test case added. 97.87% test coverage achieved.  
+- Unpacked size changed to `42.2 kB`.  
+- Add a comment to that didn't have a comment.   
 
 ### Contributors
 - [miinhho](https://github.com/miinhho)

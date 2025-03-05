@@ -1,5 +1,5 @@
 import EventEmitter from "node:events";
-import { streamFromEvent } from "../lib";
+import { streamFromEvent } from "../../lib";
 
 describe("streamFromEvent", () => {
   let emitter: EventEmitter;
@@ -48,6 +48,8 @@ describe("streamFromEvent", () => {
         mockComplete();
         expect(mockComplete).toHaveBeenCalled();
         expect(emitter.listenerCount('end')).toBe(0);
+        expect(emitter.listenerCount('data')).toBe(0);
+        expect(emitter.listenerCount('error')).toBe(0);
       },
       error: () => { },
     });

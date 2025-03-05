@@ -1,4 +1,4 @@
-import { streamFromTarget } from "../lib";
+import { streamFromTarget } from "../../lib";
 
 global.document = {
   createElement: (tag: string) => ({
