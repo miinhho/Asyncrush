@@ -1,5 +1,19 @@
 # Change Log
 
+## [2.0.1] (2025-03-06)
+
+### 🛠️ Fix:  
+
+### ✨ New feature:
+- `streamFromTarget` now gets [`AddEventListenerOptions`](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#options) to handle Web API better.  
+
+### 🔧 Improvements:
+
+### Contributors
+- [miinhho](https://github.com/miinhho)
+
+<br>
+
 ## [2.0.0] (2025-03-06)
 
 ### Convenience patch!!  

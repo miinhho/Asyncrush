@@ -1,10 +1,10 @@
 import EventEmitter from "node:events";
 import { RushStream } from "../";
 
-export function streamFromTarget<T extends Event>(
+export function streamFromTarget<T = any | any[]>(
   target: EventTarget,
   eventName: string,
-  options: EventListenerOptions = {}
+  options: AddEventListenerOptions = {}
 ): RushStream<T> {
   return new RushStream<T>((observer) => {
     const eventHandler = (...args: any[]) => observer.next((args.length > 1 ? args : args[0]) as T);
