@@ -1,6 +1,6 @@
 # Asyncrush
 
-![Coverage](https://github.com/user-attachments/assets/16e33f53-041e-4e72-b4c1-b043bb43742f)
+![Coverage](https://github.com/user-attachments/assets/d454bcc8-da00-4c5c-9e9b-b2925c4e8e4e)
 ![Test Workflow](https://github.com/miinhho/Asyncrush/actions/workflows/test-flow.yml/badge.svg)  
 
 
@@ -18,7 +18,7 @@ Asyncrush is a **high-performance stream processing library** that leverages the
 - **Built-in Error Handling & Backoff**: Automatic error handling and backoff strategies allow for stable and resilient stream processing, even in the face of network or data failures.
 
 > [!Note]   
-> Unpacked + Full feature code size : **34.1 kB**  
+> Unpacked + Full feature code size : **36.0 kB**  
 
 <br>
 

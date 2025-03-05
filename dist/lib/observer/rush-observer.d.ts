@@ -1,4 +1,4 @@
-import { RushObserverImpl } from "../types";
+import { RushObserverImpl } from "../";
 /**
  * Observer that emits values, errors, and completion events with handler support
  * @template T - Type of values emitted by the observer

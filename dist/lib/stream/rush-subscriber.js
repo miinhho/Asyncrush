@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RushSubscriber = void 0;
-const rush_observer_1 = require("../observer/rush-observer");
+const __1 = require("../");
 const retry_utils_1 = require("../utils/retry-utils");
-class RushSubscriber extends rush_observer_1.RushObserver {
+class RushSubscriber extends __1.RushObserver {
     /**
      * Creates a new RushSubscriber instance
      * @param options - Whether to continue on error

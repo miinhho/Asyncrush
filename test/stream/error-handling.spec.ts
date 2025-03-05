@@ -1,4 +1,4 @@
-import { RushStream } from "../../lib/stream/rush-stream";
+import { RushStream } from "../../lib";
 
 jest.useFakeTimers();
 
@@ -7,7 +7,7 @@ describe("RushStream Error handling", () => {
     jest.clearAllTimers();
   });
 
-  test("handles middleware error", (done) => {
+  test("handle middleware error", (done) => {
     const stream = new RushStream<number>((observer) => {
       observer.next(1);
     }, { continueOnError: true });

@@ -1,5 +1,25 @@
 # Change Log
 
+## [2.0.0] (2025-03-06)
+
+### Convenience patch!!  
+- Now you can get a stream from event that extends `Event` or `EventEmitter`.   
+
+### 🛠️ Fix:
+
+### ✨ New feature:
+- `streamFromTarget`, `streamFromEvent` for getting stream from event.  
+
+### 🔧 Improvements:
+- Test case added. 97.19% test coverage achieved.  
+- Unpacked size changed to `36.0 kB`.  
+- Refactor to make it easier to maintain.  
+
+### Contributors
+- [miinhho](https://github.com/miinhho)
+
+<br>
+
 ## [1.3.1] (2025-03-05)
 
 ### 🛠️ Fix:

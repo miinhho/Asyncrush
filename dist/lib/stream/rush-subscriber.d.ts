@@ -1,6 +1,4 @@
-import { RushObserver } from "../observer/rush-observer";
-import { RushDebugHook, RushMiddleware, RushUseOption } from "../types";
-import { RushStream } from "./rush-stream";
+import { RushDebugHook, RushMiddleware, RushObserver, RushStream, RushUseOption } from "../";
 export declare class RushSubscriber<T = any> extends RushObserver<T> {
     /** Reference to the stream */
     stream?: RushStream<T>;

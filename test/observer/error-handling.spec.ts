@@ -1,5 +1,4 @@
-import { RushObserver } from "../../lib/observer/rush-observer";
-import { RushStream } from "../../lib/stream/rush-stream";
+import { RushObserver, RushStream } from "../../lib";
 
 jest.useFakeTimers();
 
@@ -8,7 +7,7 @@ describe("Error handling", () => {
     jest.clearAllTimers();
   });
 
-  test("handles observer error", (done) => {
+  test("observer error handling", (done) => {
     const stream = new RushStream((observer) => {
       observer.next(1);
     }, { continueOnError: true });
@@ -25,7 +24,7 @@ describe("Error handling", () => {
     done();
   });
 
-  test("observer should catch error", (done) => {
+  test("observer error catching", (done) => {
     const observer = new RushObserver({ continueOnError: true });
     const errorSpy = jest.fn();
 

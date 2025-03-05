@@ -1,4 +1,4 @@
-import { RushStream } from "../../lib/stream/rush-stream";
+import { RushStream } from "../../lib";
 
 jest.useFakeTimers();
 
@@ -7,7 +7,7 @@ describe('RushStream Unlisten', () => {
     jest.clearAllTimers();
   });
 
-  test("should call clean up function", (done) => {
+  test("call clean up function", (done) => {
     const message = 'unlisten';
     const stream = new RushStream<number>((observer) => {
       observer.next(1);
@@ -28,7 +28,7 @@ describe('RushStream Unlisten', () => {
     stream.unlisten();
   });
 
-  test("should not call complete event if unlisten with destroy option", (done) => {
+  test("not call complete event if unlisten with destroy option", (done) => {
     const stream = new RushStream<number>((observer) => {
       observer.next(1);
     });

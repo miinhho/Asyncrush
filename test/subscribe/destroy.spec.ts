@@ -1,8 +1,7 @@
-import { RushStream } from "../../lib/stream/rush-stream";
-import { RushSubscriber } from "../../lib/stream/rush-subscriber";
+import { RushStream, RushSubscriber } from "../../lib";
 
 describe("RushSubscriber Destroy", () => {
-  test("should automatically unsubscribe if it destroyed", (done) => {
+  test("unsubscribe if it destroyed", (done) => {
     const stream = new RushStream<number>((observer) => {
       observer.next(1);
     });

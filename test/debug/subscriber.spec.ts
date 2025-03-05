@@ -7,7 +7,7 @@ describe("Debugging in RushSubscriber", () => {
     jest.clearAllTimers();
   });
 
-  test("should called when a value is emitted", async () => {
+  test("called when a value is emitted", async () => {
     const debugHook: RushDebugHook<number> = {
       onEmit: (value) => {
         expect(value).toBe(1);
@@ -21,7 +21,7 @@ describe("Debugging in RushSubscriber", () => {
     }).subscribe(sub);
   });
 
-  test("should called when a subscriber is added", async () => {
+  test("called when a subscriber is added", async () => {
     const debugHook: RushDebugHook<number> = {
       onSubscribe: (subscriber) => {
         expect(subscriber).toBeInstanceOf(RushSubscriber);
@@ -35,7 +35,7 @@ describe("Debugging in RushSubscriber", () => {
     }).subscribe(sub);
   });
 
-  test("should called when a subscriber is removed", async () => {
+  test("called when a subscriber is removed", async () => {
     const debugHook: RushDebugHook<number> = {
       onUnsubscribe: (subscriber) => {
         expect(subscriber).toBeInstanceOf(RushSubscriber);
@@ -49,7 +49,7 @@ describe("Debugging in RushSubscriber", () => {
     }).subscribe(sub).unsubscribe(sub);
   });
 
-  test("should called when the subscriber is destroyed", async () => {
+  test("called when the subscriber is destroyed", async () => {
     const debugHook: RushDebugHook<number> = {
       onUnlisten: (option) => {
         expect(option).toBe("destroy");
@@ -65,7 +65,7 @@ describe("Debugging in RushSubscriber", () => {
     sub.destroy();
   });
 
-  test("should called when the stream is completed", async () => {
+  test("called when the stream is completed", async () => {
     const debugHook: RushDebugHook<number> = {
       onUnlisten: (option) => {
         expect(option).toBe("complete");
@@ -79,7 +79,7 @@ describe("Debugging in RushSubscriber", () => {
     }).subscribe(sub).unlisten('complete');
   });
 
-  test("should called when an error occurs in the subscriber", async () => {
+  test("called when an error occurs in the subscriber", async () => {
     const errorSpy = jest.fn();
 
     const debugHook: RushDebugHook<number> = {

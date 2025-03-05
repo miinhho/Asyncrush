@@ -1,5 +1,4 @@
-import { RushStream } from "../../lib/stream/rush-stream";
-import { RushSubscriber } from "../../lib/stream/rush-subscriber";
+import { RushStream, RushSubscriber } from "../../lib";
 
 jest.useFakeTimers();
 
@@ -8,7 +7,7 @@ describe("RushSubscriber Use Middleware", () => {
     jest.clearAllTimers();
   });
 
-  test("should transform data with middleware", (done) => {
+  test("transform data with middleware", (done) => {
     const stream = new RushStream<number>((observer) => {
       observer.next(1);
     });

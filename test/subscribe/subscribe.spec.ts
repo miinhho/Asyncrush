@@ -1,5 +1,4 @@
-import { RushStream } from "../../lib/stream/rush-stream";
-import { RushSubscriber } from "../../lib/stream/rush-subscriber";
+import { RushStream, RushSubscriber } from "../../lib";
 
 jest.useFakeTimers();
 
@@ -8,7 +7,7 @@ describe('RushSubscriber subscribe', () => {
     jest.clearAllTimers();
   });
 
-  test("should be only subscribed to one stream", (done) => {
+  test("only subscribed to one stream", (done) => {
     const stream1 = new RushStream<number>((observer) => {
       observer.next(1);
     });
@@ -40,7 +39,7 @@ describe('RushSubscriber subscribe', () => {
     done();
   });
 
-  test("should unsubscribe from the stream", (done) => {
+  test("unsubscribe from the stream", (done) => {
     const stream = new RushStream<number>((observer) => {
       observer.next(1);
     });

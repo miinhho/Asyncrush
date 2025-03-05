@@ -1,4 +1,4 @@
-import { RushStream } from "../../lib/stream/rush-stream";
+import { RushStream } from "../../lib";
 
 jest.useFakeTimers();
 
@@ -7,7 +7,7 @@ describe('RushStream Buffer & Pause, Resume', () => {
     jest.clearAllTimers();
   });
 
-  test("should buffer events during pause and flush on resume, then complete on unlisten", done => {
+  test("buffer events during pause and flush on resume, then complete on unlisten", done => {
     const mockNext = jest.fn();
     const mockComplete = jest.fn();
 
@@ -48,7 +48,7 @@ describe('RushStream Buffer & Pause, Resume', () => {
     done();
   });
 
-  test("latest buffer should be removed first", done => {
+  test("latest buffer removed first", done => {
     const mockNext = jest.fn();
     const mockComplete = jest.fn();
 

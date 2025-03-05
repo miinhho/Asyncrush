@@ -1,5 +1,4 @@
-import { RushStream } from "../../lib/stream/rush-stream";
-import { RushSubscriber } from "../../lib/stream/rush-subscriber";
+import { RushStream, RushSubscriber } from "../../lib";
 
 jest.useFakeTimers();
 
@@ -8,7 +7,7 @@ describe("Broadcast from RustStream to RushSubscriber", () => {
     jest.clearAllTimers();
   });
 
-  test("should broadcast events to multiple subscribers", (done) => {
+  test("broadcast events to multiple subscribers", (done) => {
     const stream = new RushStream<number>((observer) => {
       observer.next(1);
     });
@@ -34,7 +33,7 @@ describe("Broadcast from RustStream to RushSubscriber", () => {
     done();
   });
 
-  test("should transform data with middleware", (done) => {
+  test("transform data with middleware", (done) => {
     const stream = new RushStream<number>((observer) => {
       observer.next(1);
     });
@@ -58,7 +57,7 @@ describe("Broadcast from RustStream to RushSubscriber", () => {
     done();
   });
 
-  test("should completion stream broadcasted to subscribers", async () => {
+  test("completion stream broadcasted to subscribers", async () => {
     const stream = new RushStream<number>((observer) => {
       observer.next(1);
       setTimeout(() => observer.complete(), 10);

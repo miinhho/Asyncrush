@@ -7,7 +7,7 @@ describe("createRetryWrapper function", () => {
     jest.clearAllTimers();
   });
 
-  test("middlewares should be chained correctly", (done) => {
+  test("middleware chain", (done) => {
     const middlewares = [
       (value: number) => value + 1,
       (value: number) => value * 2,
@@ -30,7 +30,7 @@ describe("createRetryWrapper function", () => {
     done();
   });
 
-  test("middlewares should be chained correctly with retries", async () => {
+  test("middleware chained with retries", async () => {
     let attempt = 0;
     const middlewares = [
       (value: number) => {
@@ -60,7 +60,7 @@ describe("createRetryWrapper function", () => {
     });
   });
 
-  test("middlewares should be chained correctly with promise", async () => {
+  test("middleware chained with promise", async () => {
     const middlewares = [
       async (value: number) => new Promise<number>((res) => res(value + 1)),
       async (value: number) => value * 2,
@@ -84,7 +84,7 @@ describe("createRetryWrapper function", () => {
     });
   });
 
-  test("middlewares should be work with retries & jitter", async () => {
+  test("middleware with retries & jitter", async () => {
     let attempt = 0;
     const middlewares = [
       (value: number) => {
@@ -114,7 +114,7 @@ describe("createRetryWrapper function", () => {
     });
   });
 
-  test("middlewares with promise should check errors in another middleware", async () => {
+  test("middleware promise catching errors in another middleware", async () => {
     let attempt = 0;
     const middlewares = [
       async (value: number) => {

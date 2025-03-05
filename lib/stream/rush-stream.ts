@@ -1,7 +1,12 @@
-import { RushObserver } from "../observer/rush-observer";
-import { RushDebugHook, RushMiddleware, RushObserveStream, RushUseOption } from "../types";
+import {
+  RushDebugHook,
+  RushMiddleware,
+  RushObserver,
+  RushObserveStream,
+  RushSubscriber,
+  RushUseOption
+} from "../";
 import { createRetryWrapper } from "../utils/retry-utils";
-import { RushSubscriber } from "./rush-subscriber";
 
 /**
  * Stream that emits values, errors, and completion events with multicast and backpressure support
@@ -141,10 +146,12 @@ export class RushStream<T = any> {
   listen(observer: RushObserveStream<T>): this {
     if (observer.next) this.outputObserver.onNext(observer.next);
     if (observer.error) this.outputObserver.onError(observer.error);
-    if (observer.complete) this.outputObserver.onComplete(() => {
-      observer.complete!();
-      this.subscribers.forEach((sub) => sub.complete());
-    });
+    if (observer.complete) {
+      this.outputObserver.onComplete(() => {
+        observer.complete!();
+        this.subscribers.forEach((sub) => sub.complete());
+      });
+    }
 
     if (!this.useHandler) this.sourceObserver.onNext((value: T) => {
       this.processEvent(value);

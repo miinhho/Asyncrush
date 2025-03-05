@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RushStream = void 0;
-const rush_observer_1 = require("../observer/rush-observer");
+const __1 = require("../");
 const retry_utils_1 = require("../utils/retry-utils");
 /**
  * Stream that emits values, errors, and completion events with multicast and backpressure support
@@ -21,8 +21,8 @@ class RushStream {
         this.subscribers = new Set();
         /** Flag to pause the stream */
         this.isPaused = false;
-        this.sourceObserver = new rush_observer_1.RushObserver({ continueOnError: options.continueOnError });
-        this.outputObserver = new rush_observer_1.RushObserver({ continueOnError: options.continueOnError });
+        this.sourceObserver = new __1.RushObserver({ continueOnError: options.continueOnError });
+        this.outputObserver = new __1.RushObserver({ continueOnError: options.continueOnError });
         if (options.debugHook)
             this.debugHook = options.debugHook;
         if (options.maxBufferSize && options.maxBufferSize > 0) {
@@ -101,11 +101,12 @@ class RushStream {
             this.outputObserver.onNext(observer.next);
         if (observer.error)
             this.outputObserver.onError(observer.error);
-        if (observer.complete)
+        if (observer.complete) {
             this.outputObserver.onComplete(() => {
                 observer.complete();
                 this.subscribers.forEach((sub) => sub.complete());
             });
+        }
         if (!this.useHandler)
             this.sourceObserver.onNext((value) => {
                 this.processEvent(value);

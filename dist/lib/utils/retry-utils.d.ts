@@ -1,4 +1,4 @@
-import { RushMiddleware, RushUseOption } from "../types";
+import { RushMiddleware, RushUseOption } from "../";
 /**
  * Creates a retry wrapper for middleware chains
  * @param options - Configuration for retry behavior

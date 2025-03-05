@@ -1,4 +1,4 @@
-import { RushStream } from "../../lib/stream/rush-stream";
+import { RushStream } from "../../lib";
 
 jest.useFakeTimers();
 
@@ -7,7 +7,7 @@ describe('RushStream Listening', () => {
     jest.clearAllTimers();
   });
 
-  test("should receive events and chain handlers", (done) => {
+  test("receive events and chain handlers", (done) => {
     const stream = new RushStream<number>((observer) => {
       observer.next(1);
     });

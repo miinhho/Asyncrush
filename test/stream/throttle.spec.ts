@@ -1,4 +1,4 @@
-import { RushStream } from "../../lib/stream/rush-stream";
+import { RushStream } from "../../lib";
 
 jest.useFakeTimers();
 
@@ -7,7 +7,7 @@ describe("RushStream Throttle", () => {
     jest.clearAllTimers();
   });
 
-  test("should throttle events correctly", done => {
+  test("throttle events", done => {
     const mockNext = jest.fn();
 
     const stream = new RushStream<number>(
@@ -31,7 +31,7 @@ describe("RushStream Throttle", () => {
     done();
   });
 
-  test("should throttle events even if debounce was set", done => {
+  test("throttle events even if debounce was set", done => {
     const mockNext = jest.fn();
 
     const stream = new RushStream<number>(
@@ -55,7 +55,7 @@ describe("RushStream Throttle", () => {
     done();
   });
 
-  test("should throttle events even if debounce was ran", async () => {
+  test("throttle events even if debounce was ran", async () => {
     const mockNext = jest.fn();
 
     const stream = new RushStream<number>(

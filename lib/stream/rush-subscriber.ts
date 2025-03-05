@@ -1,7 +1,11 @@
-import { RushObserver } from "../observer/rush-observer";
-import { RushDebugHook, RushMiddleware, RushUseOption } from "../types";
+import {
+  RushDebugHook,
+  RushMiddleware,
+  RushObserver,
+  RushStream,
+  RushUseOption
+} from "../";
 import { createRetryWrapper } from "../utils/retry-utils";
-import { RushStream } from "./rush-stream";
 
 export class RushSubscriber<T = any> extends RushObserver<T> {
   /** Reference to the stream */

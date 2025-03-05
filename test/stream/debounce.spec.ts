@@ -1,4 +1,4 @@
-import { RushStream } from "../../lib/stream/rush-stream";
+import { RushStream } from "../../lib";
 
 jest.useFakeTimers();
 
@@ -36,7 +36,7 @@ describe("RushStream `debounce` method", () => {
     done();
   });
 
-  test("should debounce events even if throttle was set", (done) => {
+  test("debounce events even if throttle was set", (done) => {
     const mockNext = jest.fn();
 
     const stream = new RushStream<number>(
@@ -63,7 +63,7 @@ describe("RushStream `debounce` method", () => {
     done();
   });
 
-  test("should debounce events even if throttle was ran", async () => {
+  test("debounce events even if throttle was ran", async () => {
     const mockNext = jest.fn();
 
     const stream = new RushStream<number>(
