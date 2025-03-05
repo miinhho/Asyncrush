@@ -13,7 +13,7 @@
 
 ### 🔧 Improvements:
 - Test case added. 97.38% test coverage achieved.  
-- Unpacked size changed to `42.2 kB`.  
+- Unpacked size changed to `45.9 kB`.  
 - Some test case error fixed -> now all test case is working fine.  
 
 ### Contributors
