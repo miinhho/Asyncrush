@@ -1,8 +1,8 @@
-import { RushOptions } from "lib/types";
 import {
   RushDebugHook,
   RushMiddleware,
   RushObserver,
+  RushOptions,
   RushStream,
   RushUseOption
 } from "../";

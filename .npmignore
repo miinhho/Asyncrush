@@ -1,11 +1,9 @@
 ## npm
 node_modules/
 
-## docs
-assets
-
 ## dev
 lib
+TODO.md
 
 ## test
 test

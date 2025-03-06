@@ -1,5 +1,4 @@
-import { RushOptions } from "lib/types";
-import { RushMiddleware, RushObserver, RushStream, RushUseOption } from "../";
+import { RushMiddleware, RushObserver, RushOptions, RushStream, RushUseOption } from "../";
 export declare class RushSubscriber<T = any> extends RushObserver<T> {
     /** Reference to the stream */
     stream?: RushStream<T>;

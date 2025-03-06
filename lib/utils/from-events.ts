@@ -1,12 +1,12 @@
-import { RushOptions } from "lib/types";
 import EventEmitter from "node:events";
-import { RushStream } from "../";
+import { RushOptions, RushStream } from "../";
 
 /**
  * Creates a RushStream from a single EventTarget.
  * @param target - The EventTarget to listen to.
  * @param eventName - The name of the event to listen for.
  * @param options - Options for the event listeners.
+ * @param streamOptions - Options for the RushStream.
  */
 export const streamFromTarget = <T>(
   target: EventTarget,
@@ -24,6 +24,7 @@ export const streamFromTarget = <T>(
  * @param targets - An array or NodeList of EventTargets to listen to.
  * @param eventName - The name of the event to listen for.
  * @param options - Options for the event listeners.
+ * @param streamOptions - Options for the RushStream.
  */
 export const streamFromTargets = <T extends Event>(
   targets: EventTarget[] | NodeList,
@@ -51,6 +52,7 @@ export const streamFromTargets = <T extends Event>(
  * Creates a RushStream from a single EventEmitter.
  * @param target - The EventEmitter to listen to.
  * @param eventName - The name of the event to listen for.
+ * @param streamOptions - Options for the RushStream.
  */
 export const streamFromEvent = <T = any | any[]>(
   target: EventEmitter,
@@ -87,6 +89,7 @@ export const streamFromEvent = <T = any | any[]>(
  * Creates a RushStream from multiple EventEmitter.
  * @param targets - An array of EventEmitters to listen to.
  * @param eventName - The name of the event to listen for.
+ * @param streamOptions - Options for the RushStream.
  */
 export const streamFromEvents = <T = any | any[]>(
   targets: EventEmitter[],

@@ -1,5 +1,22 @@
 # Change Log
 
+## [2.2.1] (2025-03-06)
+
+### 🛠️ Fix:  
+- Module path error in `RushStream`, `RushSubscriber`, `from-events`.  
+
+### ✨ New feature:
+
+### 🔧 Improvements:
+- Test case added. 97.64% test coverage achieved.  
+- Unpacked size changed to `46.5 kB`.  
+- Code comment added.  
+
+### Contributors
+- [miinhho](https://github.com/miinhho)
+
+<br>
+
 ## [2.2.0] (2025-03-06)
 
 ### 🛠️ Fix:  

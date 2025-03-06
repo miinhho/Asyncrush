@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.mergeStream = void 0;
-const rush_stream_1 = require("../stream/rush-stream");
+const __1 = require("../");
 /**
  * Merges multiple streams into a single stream
  * @param streams - The streams to merge
  */
 const mergeStream = (...streams) => {
-    return new rush_stream_1.RushStream((observer) => {
+    return new __1.RushStream((observer) => {
         let completedStreams = 0;
         const streamBundle = streams.map((stream) => {
             return stream.listen(({

@@ -1,5 +1,4 @@
-import { RushOptions } from "lib/types";
-import { RushMiddleware, RushObserver, RushObserveStream, RushSubscriber, RushUseOption } from "../";
+import { RushMiddleware, RushObserver, RushObserveStream, RushOptions, RushSubscriber, RushUseOption } from "../";
 /**
  * Stream that emits values, errors, and completion events with multicast and backpressure support
  * @template T - The type of values emitted by the stream
@@ -51,7 +50,7 @@ export declare class RushStream<T = any> {
     /** Flushes the buffer to emit all stored events */
     private flushBuffer;
     /**
-     * Adds a listener to the stream with traditional observer pattern
+     * Adds a listener to the stream
      * @param observer - Observer with optional event handlers
      */
     listen(observer: RushObserveStream<T>): this;
@@ -72,7 +71,10 @@ export declare class RushStream<T = any> {
      * @param args - Middleware functions or array with options
      */
     use(...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushUseOption]): this;
-    /** Stops the stream and emits an event */
+    /**
+     * Stops the stream and emits an event with options
+     * @param option - The option to stop the stream (default: `complete`)
+     */
     unlisten(option?: 'destroy' | 'complete'): this;
     /** Set the debounce time in milliseconds  */
     debounce(ms: number): this;

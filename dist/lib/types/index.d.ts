@@ -1,5 +1,8 @@
-import { RushSubscriber } from "lib/stream/rush-subscriber";
-/** Interface for the RushObserver */
+import { RushSubscriber } from "../";
+/**
+ * Interface for the RushObserver
+ * @param T - The type of values handled by the observer
+ */
 export interface RushObserverImpl<T> {
     /** Emits the next value */
     readonly next: (value: T) => void;
@@ -10,9 +13,13 @@ export interface RushObserverImpl<T> {
 }
 /** Partial type for observer's stream options */
 export type RushObserveStream<T> = Partial<RushObserverImpl<T>>;
-/** Middleware function type */
+/**
+ * Middleware function type
+ * @template I - The input type of the middleware
+ * @template O - The output type of the middleware
+ */
 export type RushMiddleware<I, O> = (value: I) => O | Promise<O>;
-/** Options for retry wrapper function */
+/** Options for applying middlewares */
 export interface RushUseOption {
     /** Retries while error resolved */
     readonly retries?: number;
@@ -65,6 +72,7 @@ export interface RushDebugHook<T = any> {
 }
 /**
  * Constructor options for RushStream & RushSubscriber
+ * @template T - The type of values handled by the stream
  */
 export type RushOptions<T = any> = {
     /** Whether continue on error */

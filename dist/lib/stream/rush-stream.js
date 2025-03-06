@@ -92,7 +92,7 @@ class RushStream {
         }
     }
     /**
-     * Adds a listener to the stream with traditional observer pattern
+     * Adds a listener to the stream
      * @param observer - Observer with optional event handlers
      */
     listen(observer) {
@@ -188,7 +188,10 @@ class RushStream {
         this.useHandler = true;
         return this;
     }
-    /** Stops the stream and emits an event */
+    /**
+     * Stops the stream and emits an event with options
+     * @param option - The option to stop the stream (default: `complete`)
+     */
     unlisten(option) {
         var _a, _b, _c;
         if (option === 'destroy') {

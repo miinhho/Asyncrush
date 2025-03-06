@@ -7,6 +7,7 @@ const __1 = require("../");
  * @param target - The EventTarget to listen to.
  * @param eventName - The name of the event to listen for.
  * @param options - Options for the event listeners.
+ * @param streamOptions - Options for the RushStream.
  */
 const streamFromTarget = (target, eventName, options = {}, streamOptions = {}) => new __1.RushStream((observer) => {
     const eventHandler = (event) => observer.next(event);
@@ -19,6 +20,7 @@ exports.streamFromTarget = streamFromTarget;
  * @param targets - An array or NodeList of EventTargets to listen to.
  * @param eventName - The name of the event to listen for.
  * @param options - Options for the event listeners.
+ * @param streamOptions - Options for the RushStream.
  */
 const streamFromTargets = (targets, eventName, options = {}, streamOptions = {}) => new __1.RushStream((observer) => {
     const eventHandler = (event) => observer.next(event);
@@ -37,6 +39,7 @@ exports.streamFromTargets = streamFromTargets;
  * Creates a RushStream from a single EventEmitter.
  * @param target - The EventEmitter to listen to.
  * @param eventName - The name of the event to listen for.
+ * @param streamOptions - Options for the RushStream.
  */
 const streamFromEvent = (target, eventName, streamOptions = {}) => {
     const stream = new __1.RushStream((observer) => {
@@ -66,6 +69,7 @@ exports.streamFromEvent = streamFromEvent;
  * Creates a RushStream from multiple EventEmitter.
  * @param targets - An array of EventEmitters to listen to.
  * @param eventName - The name of the event to listen for.
+ * @param streamOptions - Options for the RushStream.
  */
 const streamFromEvents = (targets, eventName, streamOptions = {}) => {
     const stream = new __1.RushStream((observer) => {

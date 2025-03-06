@@ -1,9 +1,9 @@
-import { RushOptions } from "lib/types";
 import {
   RushDebugHook,
   RushMiddleware,
   RushObserver,
   RushObserveStream,
+  RushOptions,
   RushSubscriber,
   RushUseOption
 } from "../";
@@ -137,7 +137,7 @@ export class RushStream<T = any> {
   }
 
   /**
-   * Adds a listener to the stream with traditional observer pattern
+   * Adds a listener to the stream
    * @param observer - Observer with optional event handlers
    */
   listen(observer: RushObserveStream<T>): this {
@@ -241,7 +241,10 @@ export class RushStream<T = any> {
     return this;
   }
 
-  /** Stops the stream and emits an event */
+  /**
+   * Stops the stream and emits an event with options
+   * @param option - The option to stop the stream (default: `complete`)
+   */
   unlisten(option?: 'destroy' | 'complete'): this {
     if (option === 'destroy') {
       this.sourceObserver.destroy();
