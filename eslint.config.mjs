@@ -13,8 +13,15 @@ export default [
     eslintConfigPrettier,
     {
         rules: {
-            indent: "error",
-            tabwidth: ["warn", 2],
+            "@typescript-eslint/no-explicit-any": "off",
+            "no-extra-boolean-cast": "off",
+            "no-proto": 'error',
+            "no-restricted-syntax": "error",
+
+            "prefer-const": "warn",
+            "eqeqeq": "warn",
+
+            "no-inline-comments": "warn",
         }
     }
 ];

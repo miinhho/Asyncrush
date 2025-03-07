@@ -1,4 +1,5 @@
 "use strict";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RushSubscriber = void 0;
 const __1 = require("../");
@@ -111,11 +112,13 @@ class RushSubscriber extends __1.RushObserver {
     use(...args) {
         let middlewares = [];
         let options = {};
-        const { errorHandler = (error) => { }, } = options;
+        const { errorHandler = (error) => { } } = options;
         if (Array.isArray(args[0])) {
             middlewares = args[0];
-            ``;
-            options = args[1] && typeof args[1] === 'object' ? args[1] : {};
+            options =
+                args[1] && typeof args[1] === 'object'
+                    ? args[1]
+                    : {};
         }
         else {
             middlewares = args;

@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import {
   RushDebugHook,
   RushMiddleware,
   RushObserver,
   RushOptions,
   RushStream,
-  RushUseOption
-} from "../";
-import { createRetryWrapper } from "../utils/retry-utils";
+  RushUseOption,
+} from '../';
+import { createRetryWrapper } from '../utils/retry-utils';
 
 export class RushSubscriber<T = any> extends RushObserver<T> {
   /** Reference to the stream */
@@ -146,13 +148,14 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
     let middlewares: RushMiddleware<T, T>[] = [];
     let options: RushUseOption = {};
 
-    const {
-      errorHandler = (error: unknown) => { },
-    } = options;
+    const { errorHandler = (error: unknown) => {} } = options;
 
     if (Array.isArray(args[0])) {
-      middlewares = args[0];``
-      options = args[1] && typeof args[1] === 'object' ? args[1] as RushUseOption : {};
+      middlewares = args[0];
+      options =
+        args[1] && typeof args[1] === 'object'
+          ? (args[1] as RushUseOption)
+          : {};
     } else {
       middlewares = args as RushMiddleware<T, T>[];
     }
@@ -164,7 +167,9 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
     };
 
     const { applyMiddleware } = createRetryWrapper<T>(
-      middlewares, options, errorHandlerWrapper
+      middlewares,
+      options,
+      errorHandlerWrapper
     );
 
     this.onNext((value) => {
@@ -229,7 +234,9 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
   /** Set the debounce time in milliseconds  */
   debounce(ms: number): this {
     if (this.throttleMs) {
-      console.warn('[Asyncrush] - Debounce overrides existing throttle setting');
+      console.warn(
+        '[Asyncrush] - Debounce overrides existing throttle setting'
+      );
       this.throttleMs = undefined;
       if (this.throttleTimeout) {
         clearTimeout(this.throttleTimeout);
@@ -243,7 +250,9 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
   /** Set the throttle time in milliseconds  */
   throttle(ms: number): this {
     if (this.debounceMs) {
-      console.warn('[Asyncrush] - Throttle overrides existing debounce setting');
+      console.warn(
+        '[Asyncrush] - Throttle overrides existing debounce setting'
+      );
       this.debounceMs = undefined;
       if (this.debounceTimeout) {
         clearTimeout(this.debounceTimeout);

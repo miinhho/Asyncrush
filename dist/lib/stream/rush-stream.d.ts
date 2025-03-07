@@ -1,4 +1,4 @@
-import { RushMiddleware, RushObserver, RushObserveStream, RushOptions, RushSubscriber, RushUseOption } from "../";
+import { RushMiddleware, RushObserver, RushObserveStream, RushOptions, RushSubscriber, RushUseOption } from '../';
 /**
  * Stream that emits values, errors, and completion events with multicast and backpressure support
  * @template T - The type of values emitted by the stream
@@ -62,7 +62,7 @@ export declare class RushStream<T = any> {
     /**
      * Unsubscribes a multicast subscriber
      * @param subscriber - The subscriber to remove
-    */
+     */
     unsubscribe(...subscribers: RushSubscriber<T>[]): this;
     /** Broadcasts an event to all multicast subscribers */
     private broadcast;

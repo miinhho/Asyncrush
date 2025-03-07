@@ -1,5 +1,5 @@
 import EventEmitter from "node:events";
-import { streamFromEvents } from "../../lib";
+import { streamFromEvents } from "../../dist/lib";
 
 jest.useFakeTimers();
 

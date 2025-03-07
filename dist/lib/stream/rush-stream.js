@@ -1,4 +1,5 @@
 "use strict";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RushStream = void 0;
 const __1 = require("../");
@@ -21,14 +22,18 @@ class RushStream {
         this.subscribers = new Set();
         /** Flag to pause the stream */
         this.isPaused = false;
-        this.sourceObserver = new __1.RushObserver({ continueOnError: options.continueOnError });
-        this.outputObserver = new __1.RushObserver({ continueOnError: options.continueOnError });
-        if (options.debugHook)
-            this.debugHook = options.debugHook;
+        this.sourceObserver = new __1.RushObserver({
+            continueOnError: options.continueOnError,
+        });
+        this.outputObserver = new __1.RushObserver({
+            continueOnError: options.continueOnError,
+        });
         if (options.maxBufferSize && options.maxBufferSize > 0) {
             this.maxBufferSize = options.maxBufferSize;
             this.buffer = [];
         }
+        if (options.debugHook)
+            this.debugHook = options.debugHook;
     }
     /** Processes an event with debounce or throttle control */
     processEvent(value) {
@@ -125,7 +130,7 @@ class RushStream {
      * @param subscribers - Subscribers to add
      */
     subscribe(...subscribers) {
-        subscribers.forEach(sub => {
+        subscribers.forEach((sub) => {
             var _a, _b;
             this.subscribers.add(sub);
             sub.subscribe(this);
@@ -137,9 +142,9 @@ class RushStream {
     /**
      * Unsubscribes a multicast subscriber
      * @param subscriber - The subscriber to remove
-    */
+     */
     unsubscribe(...subscribers) {
-        subscribers.forEach(sub => {
+        subscribers.forEach((sub) => {
             var _a, _b;
             this.subscribers.delete(sub);
             sub.unsubscribe();
@@ -150,7 +155,7 @@ class RushStream {
     }
     /** Broadcasts an event to all multicast subscribers */
     broadcast(value) {
-        this.subscribers.forEach(sub => sub.next(value));
+        this.subscribers.forEach((sub) => sub.next(value));
     }
     /**
      * Applies middleware to transform events with retry logic
@@ -159,10 +164,13 @@ class RushStream {
     use(...args) {
         let middlewares = [];
         let options = {};
-        const { errorHandler = (error) => { }, } = options;
+        const { errorHandler = (error) => { } } = options;
         if (Array.isArray(args[0])) {
             middlewares = args[0];
-            options = args[1] && typeof args[1] === 'object' ? args[1] : {};
+            options =
+                args[1] && typeof args[1] === 'object'
+                    ? args[1]
+                    : {};
         }
         else {
             middlewares = args;

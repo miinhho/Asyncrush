@@ -9,15 +9,17 @@
   - [ ] Type
   - [ ] Utility Functions
 
-- [ ] Setting up linter for contributors
-  - [ ] Eslint
-  - [ ] Prettier
-  - [ ] Editor Config
 
 ### In Progress
 
 
 ### Done ✓
+
+- [x] Setting up linter for contributors
+  - [x] Eslint
+  - [x] Prettier
+  - [x] Editor Config
+
 
 - [x] Usage docs
   - [x] RushStream

@@ -1,4 +1,4 @@
-import { RushSubscriber } from "../";
+import { RushSubscriber } from '../';
 /**
  * Interface for the RushObserver
  * @param T - The type of values handled by the observer

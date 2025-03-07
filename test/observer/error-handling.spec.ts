@@ -1,4 +1,4 @@
-import { RushObserver, RushStream } from "../../lib";
+import { RushObserver, RushStream } from "../../dist/lib";
 
 jest.useFakeTimers();
 

@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import { streamFromTargets } from "../../lib";
+import { streamFromTargets } from "../../dist/lib";
 
 jest.useFakeTimers();
 

@@ -1,4 +1,4 @@
-import { RushStream } from "../";
+import { RushStream } from '../';
 /**
  * Merges multiple streams into a single stream
  * @param streams - The streams to merge

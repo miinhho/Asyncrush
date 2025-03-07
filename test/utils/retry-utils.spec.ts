@@ -1,4 +1,4 @@
-import { createRetryWrapper } from "../../lib/utils/retry-utils";
+import { createRetryWrapper } from "../../dist/lib/utils/retry-utils";
 
 jest.useFakeTimers();
 

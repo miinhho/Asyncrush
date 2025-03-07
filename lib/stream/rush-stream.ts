@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import {
   RushDebugHook,
   RushMiddleware,
@@ -5,9 +7,9 @@ import {
   RushObserveStream,
   RushOptions,
   RushSubscriber,
-  RushUseOption
-} from "../";
-import { createRetryWrapper } from "../utils/retry-utils";
+  RushUseOption,
+} from '../';
+import { createRetryWrapper } from '../utils/retry-utils';
 
 /**
  * Stream that emits values, errors, and completion events with multicast and backpressure support
@@ -56,23 +58,28 @@ export class RushStream<T = any> {
   /** Debugging hooks */
   private debugHook?: RushDebugHook<T>;
 
-
   /**
    * Creates a new RushStream instance
    * @param producer - Function that emits events to the source observer and returns a cleanup function
    * @param options - Configuration options for buffering and error handling
    */
   constructor(
-    private producer: ((observer: RushObserver<T>) => void) | ((observer: RushObserver<T>) => () => void),
+    private producer:
+      | ((observer: RushObserver<T>) => void)
+      | ((observer: RushObserver<T>) => () => void),
     options: RushOptions<T> = {}
   ) {
-    this.sourceObserver = new RushObserver<T>({ continueOnError: options.continueOnError });
-    this.outputObserver = new RushObserver<T>({ continueOnError: options.continueOnError });
-    if (options.debugHook) this.debugHook = options.debugHook;
+    this.sourceObserver = new RushObserver<T>({
+      continueOnError: options.continueOnError,
+    });
+    this.outputObserver = new RushObserver<T>({
+      continueOnError: options.continueOnError,
+    });
     if (options.maxBufferSize && options.maxBufferSize > 0) {
       this.maxBufferSize = options.maxBufferSize;
       this.buffer = [];
     }
+    if (options.debugHook) this.debugHook = options.debugHook;
   }
 
   /** Processes an event with debounce or throttle control */
@@ -153,9 +160,10 @@ export class RushStream<T = any> {
       });
     }
 
-    if (!this.useHandler) this.sourceObserver.onNext((value: T) => {
-      this.processEvent(value);
-    });
+    if (!this.useHandler)
+      this.sourceObserver.onNext((value: T) => {
+        this.processEvent(value);
+      });
 
     const cleanupFn = this.producer(this.sourceObserver);
     if (typeof cleanupFn === 'function') this.cleanup = cleanupFn;
@@ -169,7 +177,7 @@ export class RushStream<T = any> {
    * @param subscribers - Subscribers to add
    */
   subscribe(...subscribers: RushSubscriber<T>[]): this {
-    subscribers.forEach(sub => {
+    subscribers.forEach((sub) => {
       this.subscribers.add(sub);
       sub.subscribe(this);
       if (this.debugHook) this.debugHook.onSubscribe?.(sub);
@@ -180,9 +188,9 @@ export class RushStream<T = any> {
   /**
    * Unsubscribes a multicast subscriber
    * @param subscriber - The subscriber to remove
-  */
+   */
   unsubscribe(...subscribers: RushSubscriber<T>[]): this {
-    subscribers.forEach(sub => {
+    subscribers.forEach((sub) => {
       this.subscribers.delete(sub);
       sub.unsubscribe();
       if (this.debugHook) this.debugHook.onUnsubscribe?.(sub);
@@ -192,7 +200,7 @@ export class RushStream<T = any> {
 
   /** Broadcasts an event to all multicast subscribers */
   private broadcast(value: T): void {
-    this.subscribers.forEach(sub => sub.next(value));
+    this.subscribers.forEach((sub) => sub.next(value));
   }
 
   /**
@@ -205,13 +213,14 @@ export class RushStream<T = any> {
     let middlewares: RushMiddleware<T, T>[] = [];
     let options: RushUseOption = {};
 
-    const {
-      errorHandler = (error: unknown) => { },
-    } = options;
+    const { errorHandler = (error: unknown) => {} } = options;
 
     if (Array.isArray(args[0])) {
       middlewares = args[0];
-      options = args[1] && typeof args[1] === 'object' ? args[1] as RushUseOption : {};
+      options =
+        args[1] && typeof args[1] === 'object'
+          ? (args[1] as RushUseOption)
+          : {};
     } else {
       middlewares = args as RushMiddleware<T, T>[];
     }
@@ -223,7 +232,9 @@ export class RushStream<T = any> {
     };
 
     const { applyMiddleware } = createRetryWrapper<T>(
-      middlewares, options, errorHandlerWrapper
+      middlewares,
+      options,
+      errorHandlerWrapper
     );
 
     const newHandler = (value: T) => {
@@ -278,7 +289,9 @@ export class RushStream<T = any> {
   /** Set the debounce time in milliseconds  */
   debounce(ms: number): this {
     if (this.throttleMs) {
-      console.warn('[Asyncrush] - Debounce overrides existing throttle setting');
+      console.warn(
+        '[Asyncrush] - Debounce overrides existing throttle setting'
+      );
       this.throttleMs = undefined;
       if (this.throttleTimeout) {
         clearTimeout(this.throttleTimeout);
@@ -292,7 +305,9 @@ export class RushStream<T = any> {
   /** Set the throttle time in milliseconds  */
   throttle(ms: number): this {
     if (this.debounceMs) {
-      console.warn('[Asyncrush] - Throttle overrides existing debounce setting');
+      console.warn(
+        '[Asyncrush] - Throttle overrides existing debounce setting'
+      );
       this.debounceMs = undefined;
       if (this.debounceTimeout) {
         clearTimeout(this.debounceTimeout);

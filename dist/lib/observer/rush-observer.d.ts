@@ -1,4 +1,4 @@
-import { RushObserverImpl } from "../";
+import { RushObserverImpl } from '../';
 /**
  * Observer that emits values, errors, and completion events with handler support
  * @template T - Type of values emitted by the observer
@@ -6,11 +6,11 @@ import { RushObserverImpl } from "../";
  */
 export declare class RushObserver<T = any> implements RushObserverImpl<T> {
     /** Handler for 'next' events, chained for multiple listeners */
-    protected nextHandler?: ((value: T) => void);
+    protected nextHandler?: (value: T) => void;
     /** Handler for 'error' events */
-    protected errorHandler?: ((err: unknown) => void);
+    protected errorHandler?: (err: unknown) => void;
     /** Handler for 'complete' events */
-    protected completeHandler?: (() => void);
+    protected completeHandler?: () => void;
     /** Flag to enable error continuation */
     protected continueOnError: boolean;
     /**

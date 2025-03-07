@@ -1,4 +1,4 @@
-import { RushDebugHook, RushStream, RushSubscriber } from "../../lib";
+import { RushDebugHook, RushStream, RushSubscriber } from "../../dist/lib";
 
 jest.useFakeTimers();
 

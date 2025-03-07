@@ -1,4 +1,4 @@
-import { RushMiddleware, RushUseOption } from "../";
+import { RushMiddleware, RushUseOption } from '../';
 
 /**
  * Creates a retry wrapper for middleware chains
@@ -27,7 +27,9 @@ export const createRetryWrapper = <T>(
     }
 
     delay = Math.min(delay, maxRetryDelay);
-    return new Promise((resolve) => setTimeout(() => resolve(applyMiddleware(value, attempt + 1)), delay));
+    return new Promise((resolve) =>
+      setTimeout(() => resolve(applyMiddleware(value, attempt + 1)), delay)
+    );
   };
 
   const applyMiddleware = (value: T, attempt: number = 0): T | Promise<T> => {
@@ -35,19 +37,20 @@ export const createRetryWrapper = <T>(
 
     for (const middleware of middlewares) {
       if (result instanceof Promise) {
-        result = result.then(
-          (value) => middleware(value)
-        ).catch((error) => {
-          if (attempt < retries) return scheduleRetry(attempt, value);
-          errorHandler(error);
-          throw error;
-        });
+        result = result
+          .then((value) => middleware(value))
+          .catch((error) => {
+            if (attempt < retries) return scheduleRetry(attempt, value);
+            errorHandler(error);
+            throw error;
+          });
       } else {
         try {
           result = middleware(result);
         } catch (error) {
           if (attempt < retries) return scheduleRetry(attempt, value);
           errorHandler(error);
+          throw error;
         }
       }
     }
@@ -56,4 +59,4 @@ export const createRetryWrapper = <T>(
   };
 
   return { applyMiddleware };
-}
+};

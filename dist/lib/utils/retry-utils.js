@@ -21,7 +21,9 @@ const createRetryWrapper = (middlewares, options, errorHandler) => {
         let result = value;
         for (const middleware of middlewares) {
             if (result instanceof Promise) {
-                result = result.then((value) => middleware(value)).catch((error) => {
+                result = result
+                    .then((value) => middleware(value))
+                    .catch((error) => {
                     if (attempt < retries)
                         return scheduleRetry(attempt, value);
                     errorHandler(error);
@@ -36,6 +38,7 @@ const createRetryWrapper = (middlewares, options, errorHandler) => {
                     if (attempt < retries)
                         return scheduleRetry(attempt, value);
                     errorHandler(error);
+                    throw error;
                 }
             }
         }

@@ -1,11 +1,10 @@
-import { RushSubscriber } from "../";
+import { RushSubscriber } from '../';
 
 /**
  * Interface for the RushObserver
  * @param T - The type of values handled by the observer
  */
 export interface RushObserverImpl<T> {
-
   /** Emits the next value */
   readonly next: (value: T) => void;
 
@@ -18,7 +17,6 @@ export interface RushObserverImpl<T> {
 
 /** Partial type for observer's stream options */
 export type RushObserveStream<T> = Partial<RushObserverImpl<T>>;
-
 
 /**
  * Middleware function type
@@ -47,7 +45,6 @@ export interface RushUseOption {
   /** Error handler */
   readonly errorHandler?: (error: unknown) => void;
 }
-
 
 /**
  * Options for debugging stream lifecycle and event processing
@@ -104,4 +101,4 @@ export type RushOptions<T = any> = {
 
   /** Debugging hooks */
   debugHook?: RushDebugHook<T>;
-}
+};

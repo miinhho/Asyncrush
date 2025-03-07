@@ -1,4 +1,4 @@
-import { RushStream, RushSubscriber } from "../../lib";
+import { RushStream, RushSubscriber } from "../../dist/lib";
 
 describe("RushSubscriber Destroy", () => {
   test("unsubscribe if it destroyed", (done) => {

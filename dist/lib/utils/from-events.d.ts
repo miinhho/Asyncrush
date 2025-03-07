@@ -1,5 +1,5 @@
-import EventEmitter from "node:events";
-import { RushOptions, RushStream } from "../";
+import EventEmitter from 'node:events';
+import { RushOptions, RushStream } from '../';
 /**
  * Creates a RushStream from a single EventTarget.
  * @param target - The EventTarget to listen to.
@@ -22,11 +22,11 @@ export declare const streamFromTargets: <T extends Event>(targets: EventTarget[]
  * @param eventName - The name of the event to listen for.
  * @param streamOptions - Options for the RushStream.
  */
-export declare const streamFromEvent: <T = any>(target: EventEmitter, eventName: string, streamOptions?: RushOptions<T>) => RushStream<T>;
+export declare const streamFromEvent: <T = any | any[]>(target: EventEmitter, eventName: string, streamOptions?: RushOptions<T>) => RushStream<T>;
 /**
  * Creates a RushStream from multiple EventEmitter.
  * @param targets - An array of EventEmitters to listen to.
  * @param eventName - The name of the event to listen for.
  * @param streamOptions - Options for the RushStream.
  */
-export declare const streamFromEvents: <T = any>(targets: EventEmitter[], eventName: string, streamOptions?: RushOptions<T>) => RushStream<T>;
+export declare const streamFromEvents: <T = any | any[]>(targets: EventEmitter[], eventName: string, streamOptions?: RushOptions<T>) => RushStream<T>;

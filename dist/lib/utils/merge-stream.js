@@ -10,15 +10,15 @@ const mergeStream = (...streams) => {
     return new __1.RushStream((observer) => {
         let completedStreams = 0;
         const streamBundle = streams.map((stream) => {
-            return stream.listen(({
+            return stream.listen({
                 next: (value) => observer.next(value),
                 error: (error) => observer.error(error),
                 complete: () => {
                     completedStreams++;
                     if (completedStreams === streams.length)
                         observer.complete();
-                }
-            }));
+                },
+            });
         });
         return () => streamBundle.forEach((stream) => stream.unlisten());
     });

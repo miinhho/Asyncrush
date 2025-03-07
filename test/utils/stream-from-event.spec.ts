@@ -1,5 +1,5 @@
 import EventEmitter from "node:events";
-import { RushDebugHook, streamFromEvent } from "../../lib";
+import { RushDebugHook, streamFromEvent } from "../../dist/lib";
 
 jest.useFakeTimers();
 

@@ -58,8 +58,8 @@ const streamFromEvent = (target, eventName, streamOptions = {}) => {
         target.on('error', errorHandler);
         return () => {
             target.off(eventName, eventHandler);
-            target.off('error', errorHandler);
             target.off('end', endHandler);
+            target.off('error', errorHandler);
         };
     }, Object.assign({}, streamOptions));
     return stream;
@@ -86,15 +86,15 @@ const streamFromEvents = (targets, eventName, streamOptions = {}) => {
         const listeners = new Map();
         targets.forEach((target) => {
             target.on(eventName, eventHandler);
-            target.on("end", endHandler);
-            target.on("error", errorHandler);
+            target.on('end', endHandler);
+            target.on('error', errorHandler);
             listeners.set(target, [eventHandler, endHandler, errorHandler]);
         });
         return () => {
             listeners.forEach((handlers, target) => {
                 target.off(eventName, handlers[0]);
-                target.off("error", handlers[2]);
-                target.off("end", handlers[1]);
+                target.off('end', handlers[1]);
+                target.off('error', handlers[2]);
             });
             listeners.clear();
         };
