@@ -1,4 +1,5 @@
-import { RushSubscriber } from '../';
+import { RushSubscriber } from '../core';
+import { BackpressureMode } from '../manager';
 
 /**
  * Interface for the RushObserver
@@ -55,6 +56,23 @@ export interface RushUseOption {
 
   /** Error handler */
   readonly errorHandler?: (error: unknown) => void;
+}
+
+/**
+ * Configuration options for backpressure
+ */
+export interface BackpressureOptions {
+  /** Maximum buffer size before applying backpressure */
+  highWatermark: number;
+
+  /** Buffer level at which to resume normal flow */
+  lowWatermark: number;
+
+  /** How to handle backpressure when buffer is full */
+  mode: BackpressureMode;
+
+  /** Timeout in ms for wait mode (prevents infinite blocking) */
+  waitTimeout?: number;
 }
 
 /**
@@ -121,4 +139,33 @@ export type RushOptions<T = any> = {
 
   /** Debugging hooks */
   debugHook?: RushDebugHook<T>;
+
+  /** Enable object pooling for event objects */
+  useObjectPool?: boolean;
+
+  /** Configuration for the object pool */
+  poolConfig?: {
+    initialSize?: number;
+    maxSize?: number;
+  };
+
+  /** Configuration for backpressure support */
+  backpressure?: Partial<BackpressureOptions>;
+
+  /** EventTargets or EventEmitters that should be tracked for cleanup */
+  eventTargets?: Array<EventTarget | { on: Function; off: Function }>;
 };
+
+/**
+ * Result of a backpressure operation
+ */
+export interface BackpressureResult<T> {
+  /** Whether the value was accepted */
+  accepted: boolean;
+
+  /** The value, if it was accepted */
+  value?: T;
+
+  /** Promise to wait on if in WAIT mode */
+  waitPromise?: Promise<void>;
+}

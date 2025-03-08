@@ -1,5 +1,18 @@
 # Change Log
 
+## [3.0.0] (2025-03-06)
+
+### 🛠️ Fix:  
+
+### ✨ New feature:
+
+### 🔧 Improvements:
+
+### Contributors
+- [miinhho](https://github.com/miinhho)
+
+<br>
+
 ## [2.2.1] (2025-03-06)
 
 ### 🛠️ Fix:  

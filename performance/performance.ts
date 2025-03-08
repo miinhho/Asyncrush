@@ -4,11 +4,11 @@ import { RushStream } from "../dist/lib";
 const eventCount = 1_000_000_000;
 const transformsCount = [
   5,
-  10,
-  20,
-  50,
-  100,
-  500,
+  // 10,
+  // 20,
+  // 50,
+  // 100,
+  // 500,
 ];
 
 type ResourceUsage = {

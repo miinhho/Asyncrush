@@ -1,26 +1,32 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mergeStream = void 0;
-const __1 = require("../");
+exports.mergeStreams = mergeStreams;
+const create_stream_1 = require("./create-stream");
 /**
- * Merges multiple streams into a single stream
- * @param streams - The streams to merge
+ * Creates a stream that merges multiple source streams
+ * @param streams Source streams to merge
+ * @param options Configuration options
+ * @returns A stream that emits values from all source streams
  */
-const mergeStream = (...streams) => {
-    return new __1.RushStream((observer) => {
-        let completedStreams = 0;
-        const streamBundle = streams.map((stream) => {
-            return stream.listen({
-                next: (value) => observer.next(value),
-                error: (error) => observer.error(error),
-                complete: () => {
-                    completedStreams++;
-                    if (completedStreams === streams.length)
-                        observer.complete();
-                },
-            });
-        });
-        return () => streamBundle.forEach((stream) => stream.unlisten());
-    });
-};
-exports.mergeStream = mergeStream;
+function mergeStreams(streams, options = {}) {
+    return (0, create_stream_1.createStream)((observer) => {
+        if (streams.length === 0) {
+            observer.complete();
+            return;
+        }
+        let completedCount = 0;
+        const subscriptions = streams.map((stream) => stream.listen({
+            next: (value) => observer.next(value),
+            error: (error) => observer.error(error),
+            complete: () => {
+                completedCount++;
+                if (completedCount === streams.length) {
+                    observer.complete();
+                }
+            },
+        }));
+        return () => {
+            subscriptions.forEach((subscription) => subscription.unlisten());
+        };
+    }, options);
+}

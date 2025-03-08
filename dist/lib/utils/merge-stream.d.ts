@@ -1,6 +1,9 @@
-import { RushStream } from '../';
+import { RushStream } from '../core';
+import { RushOptions } from '../types';
 /**
- * Merges multiple streams into a single stream
- * @param streams - The streams to merge
+ * Creates a stream that merges multiple source streams
+ * @param streams Source streams to merge
+ * @param options Configuration options
+ * @returns A stream that emits values from all source streams
  */
-export declare const mergeStream: <T>(...streams: RushStream<T>[]) => RushStream<T>;
+export declare function mergeStreams<T>(streams: RushStream<T>[], options?: RushOptions<T>): RushStream<T>;

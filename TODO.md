@@ -9,6 +9,10 @@
   - [ ] Type
   - [ ] Utility Functions
 
+- [ ] Fix bugs in retry & stream & subscriber
+- [ ] Test for Utility functions
+- [ ] Performance test for version 3.0.0
+
 
 ### In Progress
 
