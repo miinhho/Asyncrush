@@ -5,9 +5,9 @@ const url = resolve(
   __dirname, "../coverage/lcov-report/index.html");
 
 const start =
-  process.platform == 'darwin'
+  process.platform === 'darwin'
     ? 'open'
-    : process.platform == 'win32'
+    : process.platform === 'win32'
     ? 'start'
       : 'xdg-open';
 

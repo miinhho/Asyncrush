@@ -20,11 +20,19 @@ export declare class RushObserver<T = any> implements RushObserverImpl<T> {
     constructor(options?: {
         continueOnError?: boolean;
     });
-    /** Emits a value to all chained 'next' handlers */
+    /**
+     * Emits a value to all chained 'next' handlers
+     * @param value - The value to emit
+     */
     next(value: T): void;
-    /** Emits an error to 'error' handlers */
+    /**
+     * Emits an error to 'error' handlers
+     * @param err - The error to emit
+     */
     error(err: unknown): void;
-    /** Signals completion to 'complete' handlers */
+    /**
+     * Signals completion to 'complete' handlers
+     */
     complete(): void;
     /**
      * Adds a handlers for 'next' events, chaining with existing handlers
@@ -41,8 +49,12 @@ export declare class RushObserver<T = any> implements RushObserverImpl<T> {
      * @param handler - The handler to add
      */
     onComplete(handler: () => void): void;
-    /** Destroys the observer, and clearing handlers */
+    /**
+     * Destroys the observer, and clearing handlers
+     */
     destroy(): void;
-    /** Clears all event handlers to free resources */
+    /**
+     * Clears all event handlers to free resources
+     */
     private cleanHandlers;
 }

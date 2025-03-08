@@ -6,7 +6,7 @@ import tseslint from "typescript-eslint";
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
-    {files: ["src/*.{js,mjs,cjs,ts}"]},
+    {files: ["lib/*.{js,mjs,cjs,ts}"]},
     {languageOptions: { globals: globals.browser }},
     pluginJs.configs.recommended,
     ...tseslint.configs.recommended,
@@ -14,6 +14,8 @@ export default [
     {
         rules: {
             "@typescript-eslint/no-explicit-any": "off",
+            "@typescript-eslint/no-unused-vars": "warn",
+
             "no-extra-boolean-cast": "off",
             "no-proto": 'error',
             "no-restricted-syntax": "error",

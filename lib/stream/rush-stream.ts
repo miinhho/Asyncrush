@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import {
   RushDebugHook,
   RushMiddleware,
@@ -82,7 +80,9 @@ export class RushStream<T = any> {
     if (options.debugHook) this.debugHook = options.debugHook;
   }
 
-  /** Processes an event with debounce or throttle control */
+  /**
+   * Processes an event with debounce or throttle control
+   */
   private processEvent(value: T): void {
     if (this.debounceMs && this.debounceMs > 0) {
       this.debounceTemp = value;
@@ -106,12 +106,12 @@ export class RushStream<T = any> {
     }
   }
 
-  /** Emits an event to the output observer and broadcasts to subscribers */
+  /**
+   * Emits an event to the output observer and broadcasts to subscribers
+   */
   private emit(value: T): void {
     if (this.isPaused && this.buffer) {
-      if (this.buffer.length >= this.maxBufferSize!) {
-        this.buffer.shift();
-      }
+      if (this.buffer.length >= this.maxBufferSize!) this.buffer.shift();
       this.buffer.push(value);
     } else {
       this.outputObserver.next(value);
@@ -121,26 +121,31 @@ export class RushStream<T = any> {
     }
   }
 
-  /** Pauses the stream, buffering events if enabled */
+  /**
+   * Pauses the stream, buffering events if enabled
+   */
   pause(): this {
     this.isPaused = true;
     return this;
   }
 
-  /** Resumes the stream, flushing buffered events */
+  /**
+   * Resumes the stream, flushing buffered events
+   */
   resume(): this {
     this.isPaused = false;
     this.flushBuffer();
     return this;
   }
 
-  /** Flushes the buffer to emit all stored events */
+  /**
+   * Flushes the buffer to emit all stored events
+   */
   private flushBuffer(): void {
     if (!this.buffer || this.isPaused) return;
 
-    while (this.buffer!.length > 0 && !this.isPaused) {
-      this.processEvent(this.buffer!.shift()!);
-    }
+    while (this.buffer!.length > 0 && !this.isPaused)
+      this.processEvent(this.buffer.shift()!);
   }
 
   /**
@@ -153,12 +158,11 @@ export class RushStream<T = any> {
       this.outputObserver.onError(observer.error);
       this.sourceObserver.onError(observer.error);
     }
-    if (observer.complete) {
+    if (observer.complete)
       this.outputObserver.onComplete(() => {
         observer.complete!();
         this.subscribers.forEach((sub) => sub.complete());
       });
-    }
 
     if (!this.useHandler)
       this.sourceObserver.onNext((value: T) => {
@@ -198,7 +202,9 @@ export class RushStream<T = any> {
     return this;
   }
 
-  /** Broadcasts an event to all multicast subscribers */
+  /**
+   * Broadcasts an event to all multicast subscribers
+   */
   private broadcast(value: T): void {
     this.subscribers.forEach((sub) => sub.next(value));
   }
@@ -213,7 +219,7 @@ export class RushStream<T = any> {
     let middlewares: RushMiddleware<T, T>[] = [];
     let options: RushUseOption = {};
 
-    const { errorHandler = (error: unknown) => {} } = options;
+    const { errorHandler } = options;
 
     if (Array.isArray(args[0])) {
       middlewares = args[0];
@@ -226,7 +232,7 @@ export class RushStream<T = any> {
     }
 
     const errorHandlerWrapper = (error: unknown) => {
-      errorHandler(error);
+      errorHandler?.(error);
       this.outputObserver.error(error);
       if (this.debugHook) this.debugHook.onError?.(error);
     };
@@ -261,9 +267,9 @@ export class RushStream<T = any> {
       this.sourceObserver.destroy();
       this.outputObserver.destroy();
       this.subscribers.clear();
-      this.buffer = undefined;
       this.useHandler = false;
       this.isPaused = false;
+      this.buffer = undefined;
       this.debounceTemp = undefined;
       this.debounceMs = undefined;
       this.throttleMs = undefined;
@@ -286,7 +292,9 @@ export class RushStream<T = any> {
     return this;
   }
 
-  /** Set the debounce time in milliseconds  */
+  /**
+   * Set the debounce time in milliseconds
+   */
   debounce(ms: number): this {
     if (this.throttleMs) {
       console.warn(
@@ -302,7 +310,9 @@ export class RushStream<T = any> {
     return this;
   }
 
-  /** Set the throttle time in milliseconds  */
+  /**
+   * Set the throttle time in milliseconds
+   */
   throttle(ms: number): this {
     if (this.debounceMs) {
       console.warn(

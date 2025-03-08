@@ -25,45 +25,74 @@ export declare class RushSubscriber<T = any> extends RushObserver<T> {
      * @param options - Whether to continue on error
      */
     constructor(options?: RushOptions<T>);
-    /** Processes an event with debounce or throttle control */
+    /**
+     * Processes an event with debounce or throttle control
+     * @param value - The value to process
+     */
     private processEvent;
-    /** Emits an event to the output observer and broadcasts to subscribers */
+    /**
+     * Emits an event to the output observer and broadcasts to subscribers
+     * @param value - The value to emit
+     */
     private emit;
-    /** Emits a value to all chained 'next' handlers */
+    /**
+     * Emits a value to all chained 'next' handlers
+     * @param value - The value to emit
+     */
     next(value: T): void;
-    /** Signals an completion to 'complete' handlers */
+    /**
+     * Signals an completion to 'complete' handlers
+     */
     complete(): void;
     /**
      * Adds a handlers for 'next' events, chaining with existing handlers
      * @param handlers - The handlers to add
      */
     onNext(handler: (value: T) => void): this;
-    /** Add a handler for 'complete' events */
+    /**
+     * Add a handler for 'complete' events
+     */
     onComplete(handler: () => void): this;
-    /** Add a handler for 'error' events */
+    /**
+     * Add a handler for 'error' events
+     */
     onError(handler: (err: unknown) => void): this;
     /**
-     * Subscribes to a stream
+     * Subscribe a multicase subscriber to a stream
      * @param stream - Stream to subscribe
      */
     subscribe(stream: RushStream<T>): this;
     /**
      * Applies middleware to transform events with retry logic
-     * @param args - Middleware functions
+     * @param args - Middleware functions or array with options
      */
     use(...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushUseOption]): this;
-    /** Unsubscribes from the stream and clear buffer */
+    /**
+     * Unsubscribes from the stream and clear buffer
+     */
     unsubscribe(): this;
-    /** Pauses the subscriber, buffering events if enabled */
+    /**
+     * Pauses the subscriber, buffering events if enabled
+     */
     pause(): this;
-    /** Resumes the stream, flushing buffered events */
+    /**
+     * Resumes the stream, flushing buffered events
+     */
     resume(): this;
-    /** Flushes the buffer when resuming */
+    /**
+     * Flushes the buffer when resuming
+     */
     private flushBuffer;
-    /** Destroy the subscriber */
+    /**
+     * Destroy the subscriber
+     */
     destroy(): void;
-    /** Set the debounce time in milliseconds  */
+    /**
+     * Set the debounce time in milliseconds
+     */
     debounce(ms: number): this;
-    /** Set the throttle time in milliseconds  */
+    /**
+     * Set the throttle time in milliseconds
+     */
     throttle(ms: number): this;
 }

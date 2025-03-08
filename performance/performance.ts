@@ -3,7 +3,6 @@ import { RushStream } from "../dist/lib";
 
 const eventCount = 1_000_000_000;
 const transformsCount = [
-  2,
   5,
   10,
   20,
@@ -81,7 +80,7 @@ function testRxJSTransform(transformCount: number) {
   );
 
   piped(obs).subscribe({
-    next: (value) => { },
+    next: () => { },
     complete: () => { },
   });
 }

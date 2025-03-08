@@ -16,19 +16,27 @@ class RushObserver {
         this.continueOnError = false;
         this.continueOnError = !!options.continueOnError;
     }
-    /** Emits a value to all chained 'next' handlers */
+    /**
+     * Emits a value to all chained 'next' handlers
+     * @param value - The value to emit
+     */
     next(value) {
         if (this.nextHandler)
             this.nextHandler(value);
     }
-    /** Emits an error to 'error' handlers */
+    /**
+     * Emits an error to 'error' handlers
+     * @param err - The error to emit
+     */
     error(err) {
         if (this.errorHandler)
             this.errorHandler(err);
         if (!this.continueOnError)
             this.destroy();
     }
-    /** Signals completion to 'complete' handlers */
+    /**
+     * Signals completion to 'complete' handlers
+     */
     complete() {
         if (this.completeHandler)
             this.completeHandler();
@@ -65,11 +73,15 @@ class RushObserver {
     onComplete(handler) {
         this.completeHandler = handler;
     }
-    /** Destroys the observer, and clearing handlers */
+    /**
+     * Destroys the observer, and clearing handlers
+     */
     destroy() {
         this.cleanHandlers();
     }
-    /** Clears all event handlers to free resources */
+    /**
+     * Clears all event handlers to free resources
+     */
     cleanHandlers() {
         this.nextHandler = undefined;
         this.errorHandler = undefined;

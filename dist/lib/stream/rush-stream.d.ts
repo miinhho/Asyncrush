@@ -39,15 +39,25 @@ export declare class RushStream<T = any> {
      * @param options - Configuration options for buffering and error handling
      */
     constructor(producer: ((observer: RushObserver<T>) => void) | ((observer: RushObserver<T>) => () => void), options?: RushOptions<T>);
-    /** Processes an event with debounce or throttle control */
+    /**
+     * Processes an event with debounce or throttle control
+     */
     private processEvent;
-    /** Emits an event to the output observer and broadcasts to subscribers */
+    /**
+     * Emits an event to the output observer and broadcasts to subscribers
+     */
     private emit;
-    /** Pauses the stream, buffering events if enabled */
+    /**
+     * Pauses the stream, buffering events if enabled
+     */
     pause(): this;
-    /** Resumes the stream, flushing buffered events */
+    /**
+     * Resumes the stream, flushing buffered events
+     */
     resume(): this;
-    /** Flushes the buffer to emit all stored events */
+    /**
+     * Flushes the buffer to emit all stored events
+     */
     private flushBuffer;
     /**
      * Adds a listener to the stream
@@ -64,7 +74,9 @@ export declare class RushStream<T = any> {
      * @param subscriber - The subscriber to remove
      */
     unsubscribe(...subscribers: RushSubscriber<T>[]): this;
-    /** Broadcasts an event to all multicast subscribers */
+    /**
+     * Broadcasts an event to all multicast subscribers
+     */
     private broadcast;
     /**
      * Applies middleware to transform events with retry logic
@@ -76,8 +88,12 @@ export declare class RushStream<T = any> {
      * @param option - The option to stop the stream (default: `complete`)
      */
     unlisten(option?: 'destroy' | 'complete'): this;
-    /** Set the debounce time in milliseconds  */
+    /**
+     * Set the debounce time in milliseconds
+     */
     debounce(ms: number): this;
-    /** Set the throttle time in milliseconds  */
+    /**
+     * Set the throttle time in milliseconds
+     */
     throttle(ms: number): this;
 }

@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable @typescript-eslint/no-unused-vars */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RushSubscriber = void 0;
 const __1 = require("../");
@@ -20,7 +19,10 @@ class RushSubscriber extends __1.RushObserver {
         if (options.debugHook)
             this.debugHook = options.debugHook;
     }
-    /** Processes an event with debounce or throttle control */
+    /**
+     * Processes an event with debounce or throttle control
+     * @param value - The value to process
+     */
     processEvent(value) {
         if (this.debounceMs && this.debounceMs > 0) {
             this.debounceTemp = value;
@@ -46,13 +48,15 @@ class RushSubscriber extends __1.RushObserver {
             this.emit(value);
         }
     }
-    /** Emits an event to the output observer and broadcasts to subscribers */
+    /**
+     * Emits an event to the output observer and broadcasts to subscribers
+     * @param value - The value to emit
+     */
     emit(value) {
         var _a, _b;
         if (this.isPaused && this.buffer) {
-            if (this.buffer.length >= this.maxBufferSize) {
+            if (this.buffer.length >= this.maxBufferSize)
                 this.buffer.shift();
-            }
             this.buffer.push(value);
         }
         else {
@@ -61,12 +65,17 @@ class RushSubscriber extends __1.RushObserver {
                 (_b = (_a = this.debugHook).onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, value);
         }
     }
-    /** Emits a value to all chained 'next' handlers */
+    /**
+     * Emits a value to all chained 'next' handlers
+     * @param value - The value to emit
+     */
     next(value) {
         if (this.nextHandler)
             this.processEvent(value);
     }
-    /** Signals an completion to 'complete' handlers */
+    /**
+     * Signals an completion to 'complete' handlers
+     */
     complete() {
         var _a, _b;
         if (this.debugHook)
@@ -81,18 +90,22 @@ class RushSubscriber extends __1.RushObserver {
         super.onNext(handler);
         return this;
     }
-    /** Add a handler for 'complete' events */
+    /**
+     * Add a handler for 'complete' events
+     */
     onComplete(handler) {
         super.onComplete(handler);
         return this;
     }
-    /** Add a handler for 'error' events */
+    /**
+     * Add a handler for 'error' events
+     */
     onError(handler) {
         super.onError(handler);
         return this;
     }
     /**
-     * Subscribes to a stream
+     * Subscribe a multicase subscriber to a stream
      * @param stream - Stream to subscribe
      */
     subscribe(stream) {
@@ -107,12 +120,12 @@ class RushSubscriber extends __1.RushObserver {
     }
     /**
      * Applies middleware to transform events with retry logic
-     * @param args - Middleware functions
+     * @param args - Middleware functions or array with options
      */
     use(...args) {
         let middlewares = [];
         let options = {};
-        const { errorHandler = (error) => { } } = options;
+        const { errorHandler } = options;
         if (Array.isArray(args[0])) {
             middlewares = args[0];
             options =
@@ -125,7 +138,7 @@ class RushSubscriber extends __1.RushObserver {
         }
         const errorHandlerWrapper = (error) => {
             var _a, _b;
-            errorHandler(error);
+            errorHandler === null || errorHandler === void 0 ? void 0 : errorHandler(error);
             this.error(error);
             if (this.debugHook)
                 (_b = (_a = this.debugHook).onError) === null || _b === void 0 ? void 0 : _b.call(_a, error);
@@ -136,7 +149,9 @@ class RushSubscriber extends __1.RushObserver {
         });
         return this;
     }
-    /** Unsubscribes from the stream and clear buffer */
+    /**
+     * Unsubscribes from the stream and clear buffer
+     */
     unsubscribe() {
         var _a, _b, _c;
         if (this.buffer)
@@ -148,32 +163,38 @@ class RushSubscriber extends __1.RushObserver {
             (_c = (_b = this.debugHook).onUnsubscribe) === null || _c === void 0 ? void 0 : _c.call(_b, this);
         return this;
     }
-    /** Pauses the subscriber, buffering events if enabled */
+    /**
+     * Pauses the subscriber, buffering events if enabled
+     */
     pause() {
         this.isPaused = true;
         return this;
     }
-    /** Resumes the stream, flushing buffered events */
+    /**
+     * Resumes the stream, flushing buffered events
+     */
     resume() {
         this.isPaused = false;
         this.flushBuffer();
         return this;
     }
-    /** Flushes the buffer when resuming */
+    /**
+     * Flushes the buffer when resuming
+     */
     flushBuffer() {
         if (!this.buffer || this.isPaused)
             return;
-        while (this.buffer.length > 0 && !this.isPaused) {
+        while (this.buffer.length > 0 && !this.isPaused)
             this.processEvent(this.buffer.shift());
-        }
     }
-    /** Destroy the subscriber */
+    /**
+     * Destroy the subscriber
+     */
     destroy() {
         var _a, _b;
         this.unsubscribe();
         super.destroy();
-        if (this.buffer)
-            this.buffer = undefined;
+        this.buffer = undefined;
         this.debounceTemp = undefined;
         this.debounceMs = undefined;
         this.throttleMs = undefined;
@@ -188,7 +209,9 @@ class RushSubscriber extends __1.RushObserver {
         if (this.debugHook)
             (_b = (_a = this.debugHook).onUnlisten) === null || _b === void 0 ? void 0 : _b.call(_a, 'destroy');
     }
-    /** Set the debounce time in milliseconds  */
+    /**
+     * Set the debounce time in milliseconds
+     */
     debounce(ms) {
         if (this.throttleMs) {
             console.warn('[Asyncrush] - Debounce overrides existing throttle setting');
@@ -201,7 +224,9 @@ class RushSubscriber extends __1.RushObserver {
         this.debounceMs = ms;
         return this;
     }
-    /** Set the throttle time in milliseconds  */
+    /**
+     * Set the throttle time in milliseconds
+     */
     throttle(ms) {
         if (this.debounceMs) {
             console.warn('[Asyncrush] - Throttle overrides existing debounce setting');

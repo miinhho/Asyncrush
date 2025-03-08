@@ -1,7 +1,10 @@
 import { RushSubscriber } from '../';
 /**
  * Interface for the RushObserver
- * @param T - The type of values handled by the observer
+ * @param next - Emits the next value
+ * @param error - Emits an error
+ * @param complete - Emits the completion event
+ * @template T - The type of values handled by the observer
  */
 export interface RushObserverImpl<T> {
     /** Emits the next value */
@@ -19,7 +22,15 @@ export type RushObserveStream<T> = Partial<RushObserverImpl<T>>;
  * @template O - The output type of the middleware
  */
 export type RushMiddleware<I, O> = (value: I) => O | Promise<O>;
-/** Options for applying middlewares */
+/**
+ * Options for applying middlewares
+ * @param retries - Number of retries
+ * @param retryDelay - Delay between retries
+ * @param maxRetryDelay - Maximum delay between retries
+ * @param jitter - Randomization factor for retry delay
+ * @param delayFn - Function for setting delay time by attempt
+ * @param errorHandler - Error handler
+ */
 export interface RushUseOption {
     /** Retries while error resolved */
     readonly retries?: number;
@@ -36,6 +47,12 @@ export interface RushUseOption {
 }
 /**
  * Options for debugging stream lifecycle and event processing
+ * @param onEmit - Called when a value is emitted to the stream middlewares
+ * @param onSubscribe - Called when a subscriber is added to the stream
+ * @param onUnsubscribe - Called when a subscriber is removed from the stream
+ * @param onListen - Called when a new listener is attached to the stream
+ * @param onUnlisten - Called when the stream is stopped
+ * @param onError - Called when an error occurs in the stream
  * @template T - The type of values handled by the stream
  */
 export interface RushDebugHook<T = any> {
@@ -72,6 +89,9 @@ export interface RushDebugHook<T = any> {
 }
 /**
  * Constructor options for RushStream & RushSubscriber
+ * @param continueOnError - Whether to continue on error
+ * @param maxBufferSize - Maximum buffer size for the stream
+ * @param debugHook - Debugging hooks
  * @template T - The type of values handled by the stream
  */
 export type RushOptions<T = any> = {
