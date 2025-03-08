@@ -7,7 +7,7 @@ describe('middleware processing', () => {
     jest.clearAllTimers();
   });
 
-  test('should apply middleware transformations', () => {
+  test('should apply middleware transformations', async () => {
     const nextSpy = jest.fn();
     let sourceObserver: RushObserver<number>;
 
@@ -17,7 +17,7 @@ describe('middleware processing', () => {
 
     stream.use(
       (val) => val * 2,
-      (val) => val + 1
+      (val) => val + 1,
     );
 
     stream.listen({
@@ -29,32 +29,39 @@ describe('middleware processing', () => {
     expect(nextSpy).toHaveBeenCalledWith(11);
   });
 
-  test('should handle async middleware', () => {
-    const nextSpy = jest.fn();
-    let sourceObserver: RushObserver<number>;
-    const stream = new RushStream<number>((observer) => {
-      sourceObserver = observer;
+  test('should correctly process values through async middleware chain', async () => {
+    const resultSpy = jest.fn();
+
+    let observer: RushObserver<number>;
+    const stream = new RushStream<number>((obs) => {
+      observer = obs;
     });
 
     stream.use(
-      async (val) => {
-        return new Promise(resolve => {
-          setTimeout(() => resolve(val * 2), 1);
-        });
+      async (value) => {
+        return Promise.resolve().then(() => value * 2);
       },
-      async (val) => {
-        const num = await val;
-        return num + 1
+      async (value) => {
+        return (await value) + 1;
       }
     );
 
     stream.listen({
-      next: nextSpy
+      next: resultSpy
     });
 
-    sourceObserver!.next(5);
+    observer!.next(5);
 
-    expect(nextSpy).toHaveBeenCalledWith(11);
+    await jest.runAllTimersAsync();
+    expect(resultSpy).toHaveBeenCalledTimes(1);
+    expect(resultSpy).toHaveBeenCalledWith(11);
+
+    resultSpy.mockClear();
+    observer!.next(10);
+
+    await jest.runAllTimersAsync();
+
+    expect(resultSpy).toHaveBeenCalledWith(21);
   });
 
   test('should handle errors in middleware', () => {

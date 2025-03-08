@@ -215,10 +215,14 @@ class RushStream {
                 (_a = observer.error) === null || _a === void 0 ? void 0 : _a.call(observer, err);
                 (_c = (_b = this.debugHook) === null || _b === void 0 ? void 0 : _b.onError) === null || _c === void 0 ? void 0 : _c.call(_b, err);
             });
-            this.sourceObserver.onError(observer.error);
+            this.sourceObserver.onError((err) => {
+                var _a, _b, _c;
+                (_a = observer.error) === null || _a === void 0 ? void 0 : _a.call(observer, err);
+                (_c = (_b = this.debugHook) === null || _b === void 0 ? void 0 : _b.onError) === null || _c === void 0 ? void 0 : _c.call(_b, err);
+            });
         }
         if (observer.complete) {
-            this.outputObserver.onComplete(() => {
+            this.sourceObserver.onComplete(() => {
                 observer.complete();
                 this.subscribers.forEach((sub) => sub.complete());
             });

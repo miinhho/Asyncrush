@@ -64,24 +64,56 @@ export const createRetryWrapper = <T>(
   };
 
   /**
-   * Optimized synchronous middleware application
+   * Apply synchronous middleware chain
    * @param value Value to process
    * @param middlewareChain Array of middleware functions
-   * @param startIndex Index to start processing from
    * @returns Processed value
    */
   const applySyncMiddleware = (
     value: T,
-    middlewareChain: RushMiddleware<T, T>[],
-    startIndex: number = 0
+    middlewareChain: RushMiddleware<T, T>[]
   ): T => {
     let result = value;
 
-    for (let i = startIndex; i < middlewareChain.length; i++) {
+    for (let i = 0; i < middlewareChain.length; i++) {
       result = middlewareChain[i](result) as T;
     }
 
     return result;
+  };
+
+  /**
+   * Process middleware chain with proper promise handling
+   * @param value Initial value
+   * @param attempt Current retry attempt
+   * @returns Promise of processed value
+   */
+  const processAsyncMiddleware = async (value: T, attempt: number): Promise<T> => {
+    let currentValue = value;
+
+    for (let i = 0; i < middlewares.length; i++) {
+      try {
+        const result = middlewares[i](currentValue);
+        currentValue = await result;
+      } catch (error) {
+        if (attempt < retries) {
+          return scheduleRetry(attempt, value);
+        }
+        errorHandler(error);
+        throw error;
+      }
+    }
+
+    return currentValue;
+  };
+
+  /**
+   * Check if a value is a promise or promise-like object
+   * @param value Value to check
+   * @returns Whether the value is a promise
+   */
+  const isPromise = (value: any): boolean => {
+    return value && typeof value.then === 'function';
   };
 
   /**
@@ -91,58 +123,43 @@ export const createRetryWrapper = <T>(
    * @returns Processed value or Promise of processed value
    */
   const applyMiddleware = (value: T, attempt: number = 0): T | Promise<T> => {
-    if (retries === 0 && middlewares.length > 0) {
+    if (middlewares.length === 0) {
+      return value;
+    }
+
+    if (attempt === 0 && retries === 0) {
       try {
-        return applySyncMiddleware(value, middlewares);
+        let isAsync = false;
+        let currentValue = value;
+
+        for (let i = 0; i < middlewares.length && !isAsync; i++) {
+          const middleware = middlewares[i];
+          const result = middleware(currentValue);
+
+          if (isPromise(result)) {
+            isAsync = true;
+          } else {
+            currentValue = result as T;
+          }
+        }
+
+        if (!isAsync) {
+          return applySyncMiddleware(value, middlewares);
+        }
       } catch (error) {
         errorHandler(error);
         throw error;
       }
     }
-
-    if (middlewares.length === 0) {
-      return value;
-    }
-
-    let result: T | Promise<T> = value;
-
-    for (let i = 0; i < middlewares.length; i++) {
-      const middleware = middlewares[i];
-
-      if (result instanceof Promise) {
-        result = result
-          .then((val) => {
-            try {
-              return middleware(val);
-            } catch (error) {
-              if (attempt < retries) {
-                return scheduleRetry(attempt, value);
-              }
-              errorHandler(error);
-              throw error;
-            }
-          })
-          .catch((error) => {
-            if (attempt < retries) {
-              return scheduleRetry(attempt, value);
-            }
-            errorHandler(error);
-            throw error;
-          });
-      } else {
-        try {
-          result = middleware(result);
-        } catch (error) {
-          if (attempt < retries) {
-            return scheduleRetry(attempt, value);
-          }
-          errorHandler(error);
-          throw error;
-        }
+    try {
+      return processAsyncMiddleware(value, attempt);
+    } catch (error) {
+      if (attempt < retries) {
+        return scheduleRetry(attempt, value);
       }
+      errorHandler(error);
+      throw error;
     }
-
-    return result;
   };
 
   return { applyMiddleware };

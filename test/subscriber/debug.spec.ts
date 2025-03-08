@@ -13,13 +13,13 @@ describe('debugging', () => {
     const subscriber = new RushSubscriber<string>({
       debugHook,
       continueOnError: true
-    });
+    }).use(v => v);
 
     const stream = new RushStream<string>(() => {});
 
-    subscriber.subscribe(stream);
     subscriber.next('test');
     subscriber.error(new Error('Test error'));
+    subscriber.subscribe(stream);
     subscriber.unsubscribe();
     subscriber.destroy();
 

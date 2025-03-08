@@ -273,10 +273,13 @@ export class RushStream<T = any> {
         observer.error?.(err);
         this.debugHook?.onError?.(err);
       });
-      this.sourceObserver.onError(observer.error);
+      this.sourceObserver.onError((err) => {
+        observer.error?.(err);
+        this.debugHook?.onError?.(err);
+      });
     }
     if (observer.complete) {
-      this.outputObserver.onComplete(() => {
+      this.sourceObserver.onComplete(() => {
         observer.complete!();
         this.subscribers.forEach((sub) => sub.complete());
       });

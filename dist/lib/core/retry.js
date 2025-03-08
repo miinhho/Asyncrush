@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createRetryWrapper = void 0;
 /**
@@ -41,18 +50,48 @@ const createRetryWrapper = (middlewares, options, errorHandler) => {
         return new Promise((resolve) => setTimeout(() => resolve(applyMiddleware(value, attempt + 1)), delay));
     };
     /**
-     * Optimized synchronous middleware application
+     * Apply synchronous middleware chain
      * @param value Value to process
      * @param middlewareChain Array of middleware functions
-     * @param startIndex Index to start processing from
      * @returns Processed value
      */
-    const applySyncMiddleware = (value, middlewareChain, startIndex = 0) => {
+    const applySyncMiddleware = (value, middlewareChain) => {
         let result = value;
-        for (let i = startIndex; i < middlewareChain.length; i++) {
+        for (let i = 0; i < middlewareChain.length; i++) {
             result = middlewareChain[i](result);
         }
         return result;
+    };
+    /**
+     * Process middleware chain with proper promise handling
+     * @param value Initial value
+     * @param attempt Current retry attempt
+     * @returns Promise of processed value
+     */
+    const processAsyncMiddleware = (value, attempt) => __awaiter(void 0, void 0, void 0, function* () {
+        let currentValue = value;
+        for (let i = 0; i < middlewares.length; i++) {
+            try {
+                const result = middlewares[i](currentValue);
+                currentValue = yield result;
+            }
+            catch (error) {
+                if (attempt < retries) {
+                    return scheduleRetry(attempt, value);
+                }
+                errorHandler(error);
+                throw error;
+            }
+        }
+        return currentValue;
+    });
+    /**
+     * Check if a value is a promise or promise-like object
+     * @param value Value to check
+     * @returns Whether the value is a promise
+     */
+    const isPromise = (value) => {
+        return value && typeof value.then === 'function';
     };
     /**
      * Apply the middleware chain to a value with retry support
@@ -61,57 +100,42 @@ const createRetryWrapper = (middlewares, options, errorHandler) => {
      * @returns Processed value or Promise of processed value
      */
     const applyMiddleware = (value, attempt = 0) => {
-        if (retries === 0 && middlewares.length > 0) {
+        if (middlewares.length === 0) {
+            return value;
+        }
+        if (attempt === 0 && retries === 0) {
             try {
-                return applySyncMiddleware(value, middlewares);
+                let isAsync = false;
+                let currentValue = value;
+                for (let i = 0; i < middlewares.length && !isAsync; i++) {
+                    const middleware = middlewares[i];
+                    const result = middleware(currentValue);
+                    if (isPromise(result)) {
+                        isAsync = true;
+                    }
+                    else {
+                        currentValue = result;
+                    }
+                }
+                if (!isAsync) {
+                    return applySyncMiddleware(value, middlewares);
+                }
             }
             catch (error) {
                 errorHandler(error);
                 throw error;
             }
         }
-        if (middlewares.length === 0) {
-            return value;
+        try {
+            return processAsyncMiddleware(value, attempt);
         }
-        let result = value;
-        for (let i = 0; i < middlewares.length; i++) {
-            const middleware = middlewares[i];
-            if (result instanceof Promise) {
-                result = result
-                    .then((val) => {
-                    try {
-                        return middleware(val);
-                    }
-                    catch (error) {
-                        if (attempt < retries) {
-                            return scheduleRetry(attempt, value);
-                        }
-                        errorHandler(error);
-                        throw error;
-                    }
-                })
-                    .catch((error) => {
-                    if (attempt < retries) {
-                        return scheduleRetry(attempt, value);
-                    }
-                    errorHandler(error);
-                    throw error;
-                });
+        catch (error) {
+            if (attempt < retries) {
+                return scheduleRetry(attempt, value);
             }
-            else {
-                try {
-                    result = middleware(result);
-                }
-                catch (error) {
-                    if (attempt < retries) {
-                        return scheduleRetry(attempt, value);
-                    }
-                    errorHandler(error);
-                    throw error;
-                }
-            }
+            errorHandler(error);
+            throw error;
         }
-        return result;
     };
     return { applyMiddleware };
 };

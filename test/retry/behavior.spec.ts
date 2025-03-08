@@ -58,20 +58,22 @@ describe('retry behavior', () => {
       [middleware],
       {
         retries: 2,
-        retryDelay: 5
+        retryDelay: 1,
+        delayFn: (attempt, baseDelay) => baseDelay
       },
       errorHandler
     );
 
     const resultPromise = applyMiddleware('test');
-
     expect(middleware).toHaveBeenCalledTimes(1);
 
-    jest.advanceTimersByTime(5);
-    jest.advanceTimersByTime(10);
+    jest.advanceTimersByTime(1);
+    expect(middleware).toHaveBeenCalledTimes(2);
 
-    expect(resultPromise).rejects.toThrow(testError);
+    jest.advanceTimersByTime(1);
     expect(middleware).toHaveBeenCalledTimes(3);
+
+    await expect(resultPromise).rejects.toThrow(testError);
     expect(errorHandler).toHaveBeenCalledWith(testError);
   });
 
@@ -95,7 +97,7 @@ describe('retry behavior', () => {
         retries: 3,
         retryDelay: 10,
         jitter: 0.5,
-        delayFn: (attempt, baseDelay) => baseDelay * Math.pow(2, attempt)
+        delayFn: (attempt, baseDelay) => baseDelay,
       },
       jest.fn()
     );

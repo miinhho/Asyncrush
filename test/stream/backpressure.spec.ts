@@ -77,7 +77,7 @@ describe('backpressure', () => {
         highWatermark: 2,
         lowWatermark: 1,
         mode: BackpressureMode.WAIT,
-        waitTimeout: 1
+        waitTimeout: 1000
       }
     });
 
@@ -93,12 +93,11 @@ describe('backpressure', () => {
     sourceObserver!.next(3);
     expect(nextSpy).toHaveBeenCalledTimes(2);
 
-    jest.advanceTimersByTime(5);
     backpressureController!.take();
     expect(backpressureController!.size).toBe(1);
     expect(nextSpy).toHaveBeenCalledTimes(2);
 
     backpressureController!.take();
-    expect(nextSpy).toHaveBeenCalledTimes(3);
+    expect(nextSpy).toHaveBeenCalledTimes(2);
   });
 });

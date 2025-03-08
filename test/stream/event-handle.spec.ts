@@ -41,7 +41,9 @@ describe('event handling', () => {
     });
 
     stream.listen({
-      complete: completeSpy
+      complete: () => {
+        completeSpy();
+      }
     });
 
     expect(completeSpy).toHaveBeenCalledTimes(1);
