@@ -15,8 +15,7 @@ export class EventCleanupManager {
    * Maps listeners to their original functions (for wrapped listeners)
    * This helps match listeners during removal even if they were wrapped
    */
-  private readonly wrappedListeners: WeakMap<Function, Function> =
-    new WeakMap();
+  private readonly wrappedListeners: WeakMap<Function, Function> = new WeakMap();
 
   /**
    * Adds an event listener to a DOM target

@@ -12,8 +12,6 @@ class RushObserver {
      * @param options - Whether to continue on error
      */
     constructor(options = {}) {
-        /** Flag to enable error continuation */
-        this.continueOnError = false;
         /** Flag indicating if the observer is active */
         this.isActive = true;
         this.continueOnError = !!options.continueOnError;

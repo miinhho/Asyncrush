@@ -34,6 +34,7 @@ export class ObjectPool<T> {
     this.reset = options.reset;
 
     const initialSize = options.initialSize || 0;
+
     for (let i = 0; i < initialSize; i++) {
       this.pool.push(this.factory());
     }
@@ -84,19 +85,19 @@ export class ObjectPool<T> {
  */
 export class PoolableEvent<T = any> {
   /** Event type identifier */
-  type: string = '';
+  public type: string = '';
 
   /** Timestamp when the event was created */
-  timestamp: number = 0;
+  public timestamp: number = 0;
 
   /** Data payload carried by the event */
-  data?: T;
+  public data?: T;
 
   /** Source that generated the event */
-  source?: any;
+  public source?: any;
 
   /** Additional metadata for the event */
-  meta?: Record<string, any>;
+  public meta?: Record<string, any>;
 
   /**
    * Initializes or reinitializes the event with new data

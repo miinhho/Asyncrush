@@ -19,8 +19,6 @@ class RushStream {
         this.producer = producer;
         /** Flag indicating if middleware processing is enabled */
         this.useHandler = false;
-        /** Set of subscribers for multicast broadcasting */
-        this.subscribers = new Set();
         /** Flag to pause the stream */
         this.isPaused = false;
         /** Flag indicating if the stream is destroyed */
@@ -33,6 +31,7 @@ class RushStream {
         this.outputObserver = new rush_observer_1.RushObserver({
             continueOnError: options.continueOnError,
         });
+        this.subscribers = new Set();
         if (options.useObjectPool) {
             const { initialSize = 20, maxSize = 100 } = options.poolConfig || {};
             this.eventPool = (0, manager_1.createEventPool)(initialSize, maxSize);
@@ -276,9 +275,9 @@ class RushStream {
      * Broadcasts an event to all multicast subscribers
      */
     broadcast(value) {
+        if (this.isDestroyed)
+            return;
         for (const sub of this.subscribers) {
-            if (this.isDestroyed)
-                break;
             sub.next(value);
         }
     }

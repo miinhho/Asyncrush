@@ -16,7 +16,7 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
   protected completeHandler?: () => void;
 
   /** Flag to enable error continuation */
-  protected continueOnError: boolean = false;
+  protected continueOnError: boolean;
 
   /** Flag indicating if the observer is active */
   protected isActive: boolean = true;

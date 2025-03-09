@@ -33,7 +33,7 @@ export class RushStream<T = any> {
   private useHandler: boolean = false;
 
   /** Set of subscribers for multicast broadcasting */
-  public subscribers: Set<RushSubscriber<T>> = new Set();
+  public subscribers: Set<RushSubscriber<T>>;
 
   /** Cleanup function returned by the producer */
   private cleanup?: () => void;
@@ -42,7 +42,7 @@ export class RushStream<T = any> {
   private isPaused: boolean = false;
 
   /** Flag indicating if the stream is destroyed */
-  private isDestroyed: boolean = false;
+  private isDestroyed: boolean = false
 
   /** Event object pool for reusing event objects */
   private eventPool?: ObjectPool<PoolableEvent<T>>;
@@ -81,6 +81,7 @@ export class RushStream<T = any> {
     this.outputObserver = new RushObserver<T>({
       continueOnError: options.continueOnError,
     });
+    this.subscribers = new Set();
 
     if (options.useObjectPool) {
       const { initialSize = 20, maxSize = 100 } = options.poolConfig || {};
@@ -333,8 +334,9 @@ export class RushStream<T = any> {
    * Broadcasts an event to all multicast subscribers
    */
   private broadcast(value: T): void {
+    if (this.isDestroyed) return;
+
     for (const sub of this.subscribers) {
-      if (this.isDestroyed) break;
       sub.next(value);
     }
   }

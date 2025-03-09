@@ -39,35 +39,10 @@ const createRetryWrapper = (middlewares, options, errorHandler) => {
         jitter,
         delayFn,
     };
-    /**
-     * Schedule a retry after calculated delay
-     * @param attempt Current attempt number
-     * @param value Value to retry processing with
-     * @returns Promise resolving to processed value
-     */
     const scheduleRetry = (attempt, value) => {
         const delay = calculateRetryDelay(attempt, retryConfig);
         return new Promise((resolve) => setTimeout(() => resolve(applyMiddleware(value, attempt + 1)), delay));
     };
-    /**
-     * Apply synchronous middleware chain
-     * @param value Value to process
-     * @param middlewareChain Array of middleware functions
-     * @returns Processed value
-     */
-    const applySyncMiddleware = (value, middlewareChain) => {
-        let result = value;
-        for (let i = 0; i < middlewareChain.length; i++) {
-            result = middlewareChain[i](result);
-        }
-        return result;
-    };
-    /**
-     * Process middleware chain with proper promise handling
-     * @param value Initial value
-     * @param attempt Current retry attempt
-     * @returns Promise of processed value
-     */
     const processAsyncMiddleware = (value, attempt) => __awaiter(void 0, void 0, void 0, function* () {
         let currentValue = value;
         for (let i = 0; i < middlewares.length; i++) {
@@ -85,40 +60,27 @@ const createRetryWrapper = (middlewares, options, errorHandler) => {
         }
         return currentValue;
     });
-    /**
-     * Check if a value is a promise or promise-like object
-     * @param value Value to check
-     * @returns Whether the value is a promise
-     */
     const isPromise = (value) => {
         return value && typeof value.then === 'function';
     };
-    /**
-     * Apply the middleware chain to a value with retry support
-     * @param value Value to process
-     * @param attempt Current attempt number (0 for first try)
-     * @returns Processed value or Promise of processed value
-     */
     const applyMiddleware = (value, attempt = 0) => {
         if (middlewares.length === 0) {
             return value;
         }
         if (attempt === 0 && retries === 0) {
             try {
-                let isAsync = false;
-                let currentValue = value;
-                for (let i = 0; i < middlewares.length && !isAsync; i++) {
-                    const middleware = middlewares[i];
-                    const result = middleware(currentValue);
-                    if (isPromise(result)) {
-                        isAsync = true;
-                    }
-                    else {
+                const firstResult = middlewares[0](value);
+                if (!isPromise(firstResult)) {
+                    let currentValue = firstResult;
+                    for (let i = 1; i < middlewares.length; i++) {
+                        const result = middlewares[i](currentValue);
+                        if (isPromise(result)) {
+                            return Promise.resolve(firstResult)
+                                .then(() => processAsyncMiddleware(value, attempt));
+                        }
                         currentValue = result;
                     }
-                }
-                if (!isAsync) {
-                    return applySyncMiddleware(value, middlewares);
+                    return currentValue;
                 }
             }
             catch (error) {
@@ -126,16 +88,7 @@ const createRetryWrapper = (middlewares, options, errorHandler) => {
                 throw error;
             }
         }
-        try {
-            return processAsyncMiddleware(value, attempt);
-        }
-        catch (error) {
-            if (attempt < retries) {
-                return scheduleRetry(attempt, value);
-            }
-            errorHandler(error);
-            throw error;
-        }
+        return processAsyncMiddleware(value, attempt);
     };
     return { applyMiddleware };
 };
