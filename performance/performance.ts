@@ -5,12 +5,13 @@ import { RushStream } from "../dist/lib";
 
 const eventCount = 1_000_000_000;
 const transformsCount = [
-  5,
-  10,
-  25,
-  50,
-  100,
-  150
+  // 5,
+  // 10,
+  // 25,
+  // 50,
+  // 100,
+  // 150,
+  200,
 ];
 const iterationsPerTest = 3;
 
@@ -32,12 +33,9 @@ function measureResources(label: string, fn: () => void): ResourceUsage {
   // Calculate events per second (throughput)
   const eventsPerSecond = eventCount / duration;
 
-  // Calculate operations per second (4 operations per event as per original code)
-  const opsPerSecond = eventsPerSecond * 4;
-
   return {
-    ops: opsPerSecond.toFixed(0),
-    opsNumeric: opsPerSecond,
+    ops: eventsPerSecond.toFixed(0),
+    opsNumeric: eventsPerSecond,
     executionTimeSeconds: duration,
     eventsPerSecond: eventsPerSecond,
   };
