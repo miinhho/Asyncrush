@@ -9,15 +9,16 @@
   - [ ] Type
   - [ ] Utility Functions
 
-- [ ] Fix bugs in retry & stream & subscriber
 - [ ] Test for Utility functions
-- [ ] Performance test for version 3.0.0
 
 
 ### In Progress
 
 
 ### Done ✓
+
+- [x] Performance test for version 3.0.0
+- [x] Fix bugs in retry & stream & subscriber
 
 - [x] Setting up linter for contributors
   - [x] Eslint
