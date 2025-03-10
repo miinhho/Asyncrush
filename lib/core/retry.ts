@@ -57,7 +57,10 @@ export const createRetryWrapper = <T>(
     );
   };
 
-  const processAsyncMiddleware = async (value: T, attempt: number): Promise<T> => {
+  const processAsyncMiddleware = async (
+    value: T,
+    attempt: number
+  ): Promise<T> => {
     let currentValue = value;
 
     for (let i = 0; i < middlewares.length; i++) {
@@ -94,8 +97,9 @@ export const createRetryWrapper = <T>(
           for (let i = 1; i < middlewares.length; i++) {
             const result = middlewares[i](currentValue);
             if (isPromise(result)) {
-              return Promise.resolve(firstResult)
-                .then(() => processAsyncMiddleware(value, attempt));
+              return Promise.resolve(firstResult).then(() =>
+                processAsyncMiddleware(value, attempt)
+              );
             }
             currentValue = result as T;
           }

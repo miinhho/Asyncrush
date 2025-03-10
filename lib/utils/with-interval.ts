@@ -24,9 +24,11 @@ export function withInterval<T>(
     let counter = 0;
     const timer = setInterval(() => {
       try {
-        observer.next(generator(counter++));
+        const value = generator(counter);
+        observer.next(value);
+        counter += 1;
 
-        if (count !== undefined && counter >= count) {
+        if (count && counter >= count) {
           clearInterval(timer);
           observer.complete();
         }

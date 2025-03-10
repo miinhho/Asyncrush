@@ -14,12 +14,8 @@ export function createStream<T>(
     | ((observer: RushObserver<T>) => () => void),
   options: RushOptions<T> = {}
 ): RushStream<T> {
-  // Apply default optimization settings
   const enhancedOptions: RushOptions<T> = {
-    // Enable object pooling by default
     useObjectPool: options.useObjectPool ?? true,
-
-    // Configure object pool if enabled
     ...(options.useObjectPool !== false && {
       poolConfig: {
         initialSize: options.poolConfig?.initialSize ?? 20,
@@ -27,7 +23,6 @@ export function createStream<T>(
       },
     }),
 
-    // Configure backpressure if not explicitly disabled
     ...(options.backpressure !== null && {
       backpressure: {
         highWatermark: options.backpressure?.highWatermark ?? 1000,
@@ -37,7 +32,6 @@ export function createStream<T>(
       },
     }),
 
-    // Pass through other options
     continueOnError: options.continueOnError,
     maxBufferSize: options.maxBufferSize,
     debugHook: options.debugHook,

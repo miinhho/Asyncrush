@@ -17,7 +17,6 @@ function withDelay(source, delayMs, options = {}) {
             },
             error: (error) => observer.error(error),
             complete: () => {
-                // Delay completion to ensure all events are processed
                 setTimeout(() => observer.complete(), delayMs);
             },
         });

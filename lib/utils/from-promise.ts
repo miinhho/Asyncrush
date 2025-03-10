@@ -22,7 +22,5 @@ export function fromPromise<T>(
         observer.complete();
       })
       .catch((error) => observer.error(error));
-
-    // No cleanup needed for promises
   }, options);
 }

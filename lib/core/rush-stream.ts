@@ -42,7 +42,7 @@ export class RushStream<T = any> {
   private isPaused: boolean = false;
 
   /** Flag indicating if the stream is destroyed */
-  private isDestroyed: boolean = false
+  private isDestroyed: boolean = false;
 
   /** Event object pool for reusing event objects */
   private eventPool?: ObjectPool<PoolableEvent<T>>;

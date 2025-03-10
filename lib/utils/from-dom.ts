@@ -17,7 +17,6 @@ export function fromDOMEvent<T extends Event>(
   const { passive, capture, once, signal, ...streamOptions } = options;
   const listenerOptions = { passive, capture, once, signal };
 
-  // Add targets to eventTargets for automatic cleanup
   const targets = Array.isArray(target) ? target : [target];
   const enhancedOptions: RushOptions<T> = {
     ...streamOptions,
@@ -27,12 +26,10 @@ export function fromDOMEvent<T extends Event>(
   return createStream<T>((observer) => {
     const eventHandler = (event: Event) => observer.next(event as T);
 
-    // Add event listeners to all targets
     targets.forEach((target) => {
       target.addEventListener(eventName, eventHandler, listenerOptions);
     });
 
-    // Return cleanup function
     return () => {
       targets.forEach((target) => {
         target.removeEventListener(eventName, eventHandler, listenerOptions);

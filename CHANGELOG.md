@@ -2,11 +2,26 @@
 
 ## [3.0.0] (2025-03-06)
 
+### 👻 Utility patch!!  
+- `combineLatest`, `createStream`, `mergeStream`, `withBuffer`, `withDelay`, `withInterval` - for `RushStream`.  
+- `fromDomEvent`, `fromEmitter`, `fromPromise`, `fromValues` - for data streaming.  
+- `setBackpressure` - for handle Backpressure with ease.  
+- `createSubscriber` - for `RushSubscriber`.   
+
 ### 🛠️ Fix:  
+- Remove Jest test coverage number, because it is not very accurate.  
 
 ### ✨ New feature:
+- Backpressure.  
+- Object Pool.  
+- Bunch of utility functions to get / handle stream.  
 
 ### 🔧 Improvements:
+- Lot of test case added (159 Tests).  
+- Unpacked size changed to `128.5 kB`.  
+- Optimize `RushObserver`.  
+- Improve readability of code.  
+- Modify performance test to be more realistic.  
 
 ### Contributors
 - [miinhho](https://github.com/miinhho)

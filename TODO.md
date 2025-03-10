@@ -2,6 +2,19 @@
 
 ### Todo
 
+- [ ] Usage docs
+  - [ ] `RushStream` & `createStream`
+  - [ ] `RushMiddleware`
+  - [ ] `fromPromise`, `fromValues`
+  - [ ] `fromDomEvent`, `fromEmitter`
+  - [ ] Retry
+  - [ ] Debounce & Throttle
+  - [ ] Buffer & `withBuffer`
+  - [ ] Backpressure & `setBackpressure`
+  - [ ] `RushSubscriber` & `createSubscriber`
+  - [ ] `mergeStream`, `combineLatest`
+  - [ ] Debug
+
 - [ ] API docs  
   - [ ] RushObserver
   - [ ] RushStream
@@ -9,14 +22,13 @@
   - [ ] Type
   - [ ] Utility Functions
 
-- [ ] Test for Utility functions
-
 
 ### In Progress
 
 
 ### Done ✓
 
+- [x] Test for Utility functions
 - [x] Performance test for version 3.0.0
 - [x] Fix bugs in retry & stream & subscriber
 

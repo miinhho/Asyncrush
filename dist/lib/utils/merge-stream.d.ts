@@ -6,4 +6,4 @@ import { RushOptions } from '../types';
  * @param options Configuration options
  * @returns A stream that emits values from all source streams
  */
-export declare function mergeStreams<T>(streams: RushStream<T>[], options?: RushOptions<T>): RushStream<T>;
+export declare function mergeStream<T>(streams: RushStream<T>[], options?: RushOptions<T>): RushStream<T>;

@@ -8,7 +8,7 @@ import { createStream } from './create-stream';
  * @param options Configuration options
  * @returns A stream that emits values from all source streams
  */
-export function mergeStreams<T>(
+export function mergeStream<T>(
   streams: RushStream<T>[],
   options: RushOptions<T> = {}
 ): RushStream<T> {

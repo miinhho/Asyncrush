@@ -10,7 +10,6 @@ const create_stream_1 = require("./create-stream");
  * @returns A stream of emitter events
  */
 function fromEmitter(emitter, eventName, options = {}) {
-    // Add emitter to eventTargets for automatic cleanup
     const enhancedOptions = Object.assign(Object.assign({}, options), { eventTargets: [...(options.eventTargets || []), emitter] });
     return (0, create_stream_1.createStream)((observer) => {
         const eventHandler = (...args) => observer.next((args.length > 1 ? args : args[0]));
@@ -23,11 +22,9 @@ function fromEmitter(emitter, eventName, options = {}) {
         const endHandler = () => {
             observer.complete();
         };
-        // Attach event handlers
         emitter.on(eventName, eventHandler);
         emitter.on('error', errorHandler);
         emitter.on('end', endHandler);
-        // Return cleanup function
         return () => {
             emitter.off(eventName, eventHandler);
             emitter.off('error', errorHandler);

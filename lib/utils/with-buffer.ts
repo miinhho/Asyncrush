@@ -26,7 +26,6 @@ export function withBuffer<T>(
     let buffer: T[] = [];
     let timer: NodeJS.Timeout | null = null;
 
-    // Function to emit buffered values
     const flush = () => {
       if (buffer.length > 0) {
         observer.next([...buffer]);
@@ -34,7 +33,6 @@ export function withBuffer<T>(
       }
     };
 
-    // Set up timer if needed
     if (timeMs) {
       timer = setInterval(flush, timeMs);
     }
@@ -43,7 +41,6 @@ export function withBuffer<T>(
       next: (value) => {
         buffer.push(value);
 
-        // If count-based buffer is full, emit
         if (count && buffer.length >= count) {
           flush();
         }
@@ -55,7 +52,6 @@ export function withBuffer<T>(
       complete: () => {
         if (timer) clearInterval(timer);
 
-        // Emit any remaining buffered values
         if (flushOnComplete) {
           flush();
         }

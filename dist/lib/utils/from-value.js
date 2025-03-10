@@ -40,7 +40,6 @@ function fromValues(values, options = {}) {
             return () => clearInterval(timer);
         }
         else {
-            // Emit all values immediately
             values.forEach((value) => observer.next(value));
             observer.complete();
         }

@@ -14,7 +14,6 @@ export function fromEmitter<T>(
   eventName: string,
   options: RushOptions<T> = {}
 ): RushStream<T> {
-  // Add emitter to eventTargets for automatic cleanup
   const enhancedOptions: RushOptions<T> = {
     ...options,
     eventTargets: [...(options.eventTargets || []), emitter],
@@ -35,12 +34,10 @@ export function fromEmitter<T>(
       observer.complete();
     };
 
-    // Attach event handlers
     emitter.on(eventName, eventHandler);
     emitter.on('error', errorHandler);
     emitter.on('end', endHandler);
 
-    // Return cleanup function
     return () => {
       emitter.off(eventName, eventHandler);
       emitter.off('error', errorHandler);

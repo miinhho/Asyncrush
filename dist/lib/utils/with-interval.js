@@ -29,8 +29,10 @@ function withInterval(intervalMs, valueOrGenerator, options = {}) {
         let counter = 0;
         const timer = setInterval(() => {
             try {
-                observer.next(generator(counter++));
-                if (count !== undefined && counter >= count) {
+                const value = generator(counter);
+                observer.next(value);
+                counter += 1;
+                if (count && counter >= count) {
                     clearInterval(timer);
                     observer.complete();
                 }

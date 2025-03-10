@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mergeStreams = mergeStreams;
+exports.mergeStream = mergeStream;
 const create_stream_1 = require("./create-stream");
 /**
  * Creates a stream that merges multiple source streams
@@ -8,7 +8,7 @@ const create_stream_1 = require("./create-stream");
  * @param options Configuration options
  * @returns A stream that emits values from all source streams
  */
-function mergeStreams(streams, options = {}) {
+function mergeStream(streams, options = {}) {
     return (0, create_stream_1.createStream)((observer) => {
         if (streams.length === 0) {
             observer.complete();

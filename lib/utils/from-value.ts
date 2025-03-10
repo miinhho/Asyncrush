@@ -33,7 +33,6 @@ export function fromValues<T>(
 
       return () => clearInterval(timer);
     } else {
-      // Emit all values immediately
       values.forEach((value) => observer.next(value));
       observer.complete();
     }

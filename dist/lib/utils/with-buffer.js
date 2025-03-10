@@ -27,21 +27,18 @@ function withBuffer(source, options) {
     return (0, create_stream_1.createStream)((observer) => {
         let buffer = [];
         let timer = null;
-        // Function to emit buffered values
         const flush = () => {
             if (buffer.length > 0) {
                 observer.next([...buffer]);
                 buffer = [];
             }
         };
-        // Set up timer if needed
         if (timeMs) {
             timer = setInterval(flush, timeMs);
         }
         const subscription = source.listen({
             next: (value) => {
                 buffer.push(value);
-                // If count-based buffer is full, emit
                 if (count && buffer.length >= count) {
                     flush();
                 }
@@ -54,7 +51,6 @@ function withBuffer(source, options) {
             complete: () => {
                 if (timer)
                     clearInterval(timer);
-                // Emit any remaining buffered values
                 if (flushOnComplete) {
                     flush();
                 }

@@ -10,12 +10,8 @@ import { RushOptions } from '../types';
 export function createSubscriber<T>(
   options: RushOptions<T> = {}
 ): RushSubscriber<T> {
-  // Apply default optimization settings
   const enhancedOptions: RushOptions<T> = {
-    // Enable object pooling by default
     useObjectPool: options.useObjectPool ?? true,
-
-    // Configure object pool if enabled
     ...(options.useObjectPool !== false && {
       poolConfig: {
         initialSize: options.poolConfig?.initialSize ?? 10,
@@ -23,7 +19,6 @@ export function createSubscriber<T>(
       },
     }),
 
-    // Configure backpressure if not explicitly disabled
     ...(options.backpressure !== null && {
       backpressure: {
         highWatermark: options.backpressure?.highWatermark ?? 500,
@@ -33,7 +28,6 @@ export function createSubscriber<T>(
       },
     }),
 
-    // Pass through other options
     continueOnError: options.continueOnError,
     maxBufferSize: options.maxBufferSize,
     debugHook: options.debugHook,

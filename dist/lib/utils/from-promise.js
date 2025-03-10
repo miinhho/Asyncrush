@@ -17,6 +17,5 @@ function fromPromise(promiseOrFn, options = {}) {
             observer.complete();
         })
             .catch((error) => observer.error(error));
-        // No cleanup needed for promises
     }, options);
 }

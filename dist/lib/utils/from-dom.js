@@ -23,16 +23,13 @@ const create_stream_1 = require("./create-stream");
 function fromDOMEvent(target, eventName, options = {}) {
     const { passive, capture, once, signal } = options, streamOptions = __rest(options, ["passive", "capture", "once", "signal"]);
     const listenerOptions = { passive, capture, once, signal };
-    // Add targets to eventTargets for automatic cleanup
     const targets = Array.isArray(target) ? target : [target];
     const enhancedOptions = Object.assign(Object.assign({}, streamOptions), { eventTargets: [...(streamOptions.eventTargets || []), ...targets] });
     return (0, create_stream_1.createStream)((observer) => {
         const eventHandler = (event) => observer.next(event);
-        // Add event listeners to all targets
         targets.forEach((target) => {
             target.addEventListener(eventName, eventHandler, listenerOptions);
         });
-        // Return cleanup function
         return () => {
             targets.forEach((target) => {
                 target.removeEventListener(eventName, eventHandler, listenerOptions);

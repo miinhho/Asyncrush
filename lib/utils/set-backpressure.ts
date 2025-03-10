@@ -15,7 +15,6 @@ export function setBackpressure<T>(
     mode?: BackpressureMode;
   }
 ): RushStream<T> {
-  // Access internal backpressure controller if available
   const controller = (stream as any).getBackpressureController?.();
 
   if (controller) {

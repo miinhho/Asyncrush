@@ -126,13 +126,9 @@ describe('middleware processing', () => {
     expect(nextSpy).not.toHaveBeenCalled();
 
     jest.advanceTimersByTime(10);
-    await Promise.resolve();
-
     expect(middleware).toHaveBeenCalledTimes(2);
 
     jest.advanceTimersByTime(20);
-    await Promise.resolve();
-
     expect(middleware).toHaveBeenCalledTimes(3);
     expect(nextSpy).not.toHaveBeenCalled();
     expect(errorSpy).not.toHaveBeenCalled();
