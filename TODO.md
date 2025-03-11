@@ -7,8 +7,10 @@
 
 - [ ] API docs  
   - [ ] RushObserver
-  - [ ] RushStream
+  - [x] RushStream
   - [ ] RushSubscriber 
+  - [ ] BackpressureController
+  - [ ] EventCleanupManager
   - [x] Type
   - [ ] Utility Functions
 
