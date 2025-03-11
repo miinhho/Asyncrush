@@ -26,3 +26,16 @@ jobs:
     - run: npm ci
     - run: npm run build:linux --if-present
     - run: npm test
+
+  coverage:
+    name: Checking Coverage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+    - name: Coveralls GitHub Action
+      uses: coverallsapp/github-action@v2.3.6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
