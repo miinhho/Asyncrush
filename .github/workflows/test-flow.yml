@@ -1,20 +1,19 @@
 name: Test CI
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+on: ["push", "pull_request"]
+env:
+  CI: true
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: Node ${{ matrix.node-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: write
       id-token: write
     strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
+        os: [ubuntu-latest, windows-latest]
 
     steps:
     - uses: actions/checkout@v4
@@ -29,29 +28,25 @@ jobs:
     - name: build
       run: npm run build:linux --if-present
 
+    - name: lint
+      run: npm run lint
+
     - name: test
-      run: npm test
-
-  coverage:
-    name: Checking Coverage
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      id-token: write
-
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 22.x
-        cache: npm
-    - name: install
-      run: npm ci
-
-    - name: test with coverage
-      run: npm run test:cov
+      run: npm test:cov
 
     - name: Coveralls GitHub Action
-      uses: coverallsapp/github-action@v2.3.6
+      uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        flag-name: node-${{ matrix.node-version }}
+        parallel: true
+
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
