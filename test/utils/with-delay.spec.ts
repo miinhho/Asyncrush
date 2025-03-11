@@ -92,7 +92,9 @@ describe('withDelay', () => {
   });
 
   test('should pass options to the createStream function', () => {
-    const options = { maxBufferSize: 10 };
+    const options = {
+      continueOnError: true,
+    };
     withDelay(mockSource, 10, options);
 
     expect(createStream).toHaveBeenCalledWith(expect.any(Function), options);

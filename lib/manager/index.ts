@@ -10,7 +10,6 @@ import {
   createEventCleanup,
   EventCleanupManager,
 } from './clean-up';
-import { createEventPool, ObjectPool, PoolableEvent } from './object-pool';
 
 export {
   addDOMListener,
@@ -19,9 +18,6 @@ export {
   BackpressureMode,
   cleanupManager,
   createEventCleanup,
-  createEventPool,
   DEFAULT_BACKPRESSURE_OPTIONS,
   EventCleanupManager,
-  ObjectPool,
-  PoolableEvent,
 };

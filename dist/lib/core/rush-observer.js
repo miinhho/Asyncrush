@@ -17,7 +17,7 @@ class RushObserver {
         this.continueOnError = !!options.continueOnError;
     }
     /**
-     * Emits a value to all chained 'next' handlers
+     * Emits a value to 'next' handlers
      * @param value - The value to emit
      */
     next(value) {
@@ -68,7 +68,7 @@ class RushObserver {
         this.isActive = false;
     }
     /**
-     * Adds a handler for 'next' events, chaining with existing handlers
+     * Adds a handler for 'next' events
      * @param handler - The handler to add
      */
     onNext(handler) {

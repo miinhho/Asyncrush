@@ -1,22 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cleanupManager = exports.EventCleanupManager = void 0;
-exports.addDOMListener = addDOMListener;
-exports.addEmitterListener = addEmitterListener;
-exports.createEventCleanup = createEventCleanup;
+exports.createEventCleanup = exports.addEmitterListener = exports.addDOMListener = exports.cleanupManager = exports.EventCleanupManager = void 0;
 /**
- * Manages event listeners and their cleanup using WeakMap to prevent memory leaks
+ * Manages event listeners and their cleanup
  */
 class EventCleanupManager {
     constructor() {
         /**
          * Maps target objects to their event listeners
-         * Using WeakMap to automatically remove entries when targets are garbage collected
          */
         this.listenerMap = new WeakMap();
         /**
-         * Maps listeners to their original functions (for wrapped listeners)
-         * This helps match listeners during removal even if they were wrapped
+         * Maps listeners to their original functions
          */
         this.wrappedListeners = new WeakMap();
     }
@@ -194,24 +189,26 @@ exports.cleanupManager = new EventCleanupManager();
 /**
  * Helper function to add a DOM event listener with automatic cleanup
  */
-function addDOMListener(target, eventName, listener, options) {
+const addDOMListener = (target, eventName, listener, options) => {
     return exports.cleanupManager.addDOMListener(target, eventName, listener, options);
-}
+};
+exports.addDOMListener = addDOMListener;
 /**
  * Helper function to add an EventEmitter listener with automatic cleanup
  */
-function addEmitterListener(emitter, eventName, listener) {
+const addEmitterListener = (emitter, eventName, listener) => {
     return exports.cleanupManager.addEmitterListener(emitter, eventName, listener);
-}
+};
+exports.addEmitterListener = addEmitterListener;
 /**
  * Integration with the RushStream API for automatic listener cleanup
  * @param targets DOM elements or EventEmitters to watch
  * @returns Object with cleanup functions
  */
-function createEventCleanup(targets) {
+const createEventCleanup = (targets) => {
     const cleanupFunctions = [];
     const trackAddDOMListener = (target, eventName, listener, options) => {
-        const cleanup = addDOMListener(target, eventName, listener, options);
+        const cleanup = (0, exports.addDOMListener)(target, eventName, listener, options);
         cleanupFunctions.push(cleanup);
         return () => {
             cleanup();
@@ -222,7 +219,7 @@ function createEventCleanup(targets) {
         };
     };
     const trackAddEmitterListener = (emitter, eventName, listener) => {
-        const cleanup = addEmitterListener(emitter, eventName, listener);
+        const cleanup = (0, exports.addEmitterListener)(emitter, eventName, listener);
         cleanupFunctions.push(cleanup);
         return () => {
             cleanup();
@@ -249,4 +246,5 @@ function createEventCleanup(targets) {
         addDOMListener: trackAddDOMListener,
         addEmitterListener: trackAddEmitterListener,
     };
-}
+};
+exports.createEventCleanup = createEventCleanup;

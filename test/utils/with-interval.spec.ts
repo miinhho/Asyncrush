@@ -93,7 +93,9 @@ describe('withInterval', () => {
   });
 
   test('should pass stream options to createStream', () => {
-    const options = { maxBufferSize: 1 };
+    const options = {
+      continueOnError: true,
+    };
     withInterval(10, 'test', options);
 
     expect(createStream).toHaveBeenCalledWith(expect.any(Function), options);

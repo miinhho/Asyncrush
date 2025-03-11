@@ -16,6 +16,7 @@ describe('backpressure', () => {
     const backpressureController = subscriber.getBackpressureController();
     expect(backpressureController).toBeDefined();
 
+    subscriber.pause();
     subscriber.next(1);
     subscriber.next(2);
     subscriber.next(3);

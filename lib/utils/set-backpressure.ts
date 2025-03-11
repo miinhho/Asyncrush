@@ -7,14 +7,14 @@ import { BackpressureMode } from '../manager';
  * @param config Backpressure configuration
  * @returns The configured stream
  */
-export function setBackpressure<T>(
+export const setBackpressure = <T>(
   stream: RushStream<T>,
   config: {
     highWatermark?: number;
     lowWatermark?: number;
     mode?: BackpressureMode;
   }
-): RushStream<T> {
+): RushStream<T> => {
   const controller = (stream as any).getBackpressureController?.();
 
   if (controller) {
@@ -31,4 +31,4 @@ export function setBackpressure<T>(
   }
 
   return stream;
-}
+};

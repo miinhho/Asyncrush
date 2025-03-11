@@ -73,7 +73,7 @@ describe('fromPromise', () => {
   test('should pass options to createStream', () => {
     const promise = Promise.resolve('test-value');
     const options = {
-      maxBufferSize: 5
+      continueOnError: true,
     };
 
     fromPromise(promise, options);

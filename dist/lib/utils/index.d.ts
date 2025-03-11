@@ -7,7 +7,6 @@ import { fromPromise } from './from-promise';
 import { fromValues } from './from-value';
 import { mergeStream } from './merge-stream';
 import { setBackpressure } from './set-backpressure';
-import { withBuffer } from './with-buffer';
 import { withDelay } from './with-delay';
 import { withInterval } from './with-interval';
-export { combineLatest, createStream, createSubscriber, fromDOMEvent, fromEmitter, fromPromise, fromValues, mergeStream, setBackpressure, withBuffer, withDelay, withInterval, };
+export { combineLatest, createStream, createSubscriber, fromDOMEvent, fromEmitter, fromPromise, fromValues, mergeStream, setBackpressure, withDelay, withInterval, };

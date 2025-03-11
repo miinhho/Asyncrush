@@ -8,21 +8,13 @@ import { RushOptions } from '../types';
  * @param options Configuration options
  * @returns An optimized RushStream instance
  */
-export function createStream<T>(
+export const createStream = <T>(
   producer:
     | ((observer: RushObserver<T>) => void)
     | ((observer: RushObserver<T>) => () => void),
   options: RushOptions<T> = {}
-): RushStream<T> {
+): RushStream<T> => {
   const enhancedOptions: RushOptions<T> = {
-    useObjectPool: options.useObjectPool ?? true,
-    ...(options.useObjectPool !== false && {
-      poolConfig: {
-        initialSize: options.poolConfig?.initialSize ?? 20,
-        maxSize: options.poolConfig?.maxSize ?? 100,
-      },
-    }),
-
     ...(options.backpressure !== null && {
       backpressure: {
         highWatermark: options.backpressure?.highWatermark ?? 1000,
@@ -33,10 +25,9 @@ export function createStream<T>(
     }),
 
     continueOnError: options.continueOnError,
-    maxBufferSize: options.maxBufferSize,
     debugHook: options.debugHook,
     eventTargets: options.eventTargets,
   };
 
   return new RushStream<T>(producer, enhancedOptions);
-}
+};

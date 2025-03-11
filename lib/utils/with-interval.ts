@@ -9,11 +9,11 @@ import { createStream } from './create-stream';
  * @param options Configuration options including count limit
  * @returns A stream that emits at the specified interval
  */
-export function withInterval<T>(
+export const withInterval = <T>(
   intervalMs: number,
   valueOrGenerator: T | ((count: number) => T),
   options: RushOptions<T> & { count?: number } = {}
-): RushStream<T> {
+): RushStream<T> => {
   const { count, ...streamOptions } = options;
   const generator =
     typeof valueOrGenerator === 'function'
@@ -40,4 +40,4 @@ export function withInterval<T>(
 
     return () => clearInterval(timer);
   }, streamOptions);
-}
+};

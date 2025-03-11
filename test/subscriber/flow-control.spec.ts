@@ -18,11 +18,11 @@ describe('flow control', () => {
 
     subscriber.pause();
     subscriber.next('event2');
-    expect(nextSpy).toHaveBeenCalledTimes(2);
+    expect(nextSpy).toHaveBeenCalledTimes(1);
 
     subscriber.resume();
     subscriber.next('event3');
-    expect(nextSpy).toHaveBeenCalledTimes(3);
+    expect(nextSpy).toHaveBeenCalledTimes(2);
     expect(nextSpy).toHaveBeenLastCalledWith('event3');
   });
 
@@ -31,7 +31,7 @@ describe('flow control', () => {
     const nextSpy = jest.fn();
 
     subscriber.onNext(nextSpy);
-    subscriber.throttle(100);
+    subscriber.throttle(10);
 
     subscriber.next('event1');
     subscriber.next('event2');
@@ -39,7 +39,7 @@ describe('flow control', () => {
     expect(nextSpy).toHaveBeenCalledTimes(1);
     expect(nextSpy).toHaveBeenCalledWith('event1');
 
-    jest.advanceTimersByTime(100);
+    jest.advanceTimersByTime(10);
 
     subscriber.next('event3');
     expect(nextSpy).toHaveBeenCalledTimes(2);

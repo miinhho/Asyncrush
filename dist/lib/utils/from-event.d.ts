@@ -7,7 +7,7 @@ import { RushOptions } from '../types';
  * @param options Stream configuration options
  * @returns A stream of emitter events
  */
-export declare function fromEmitter<T>(emitter: {
+export declare const fromEmitter: <T>(emitter: {
     on: Function;
     off: Function;
-}, eventName: string, options?: RushOptions<T>): RushStream<T>;
+}, eventName: string, options?: RushOptions<T>) => RushStream<T>;

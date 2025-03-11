@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.withDelay = withDelay;
+exports.withDelay = void 0;
 const create_stream_1 = require("./create-stream");
 /**
  * Creates a timed delay between events in a stream
@@ -9,7 +9,7 @@ const create_stream_1 = require("./create-stream");
  * @param options Configuration options
  * @returns A stream with delayed events
  */
-function withDelay(source, delayMs, options = {}) {
+const withDelay = (source, delayMs, options = {}) => {
     return (0, create_stream_1.createStream)((observer) => {
         const subscription = source.listen({
             next: (value) => {
@@ -22,4 +22,5 @@ function withDelay(source, delayMs, options = {}) {
         });
         return () => subscription.unlisten();
     }, options);
-}
+};
+exports.withDelay = withDelay;

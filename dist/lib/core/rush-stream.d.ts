@@ -1,4 +1,4 @@
-import { BackpressureController, BackpressureMode, createEventCleanup, PoolableEvent } from '../manager';
+import { BackpressureController, BackpressureMode, createEventCleanup } from '../manager';
 import { RushMiddleware, RushObserveStream, RushOptions, RushUseOption } from '../types';
 import { RushObserver } from './rush-observer';
 import { RushSubscriber } from './rush-subscriber';
@@ -23,8 +23,6 @@ export declare class RushStream<T = any> {
     private isPaused;
     /** Flag indicating if the stream is destroyed */
     private isDestroyed;
-    /** Event object pool for reusing event objects */
-    private eventPool?;
     /** Backpressure controller for flow management */
     private backpressure?;
     /** Event cleanup utilities */
@@ -43,10 +41,6 @@ export declare class RushStream<T = any> {
      * Processes an event with debounce or throttle control and optimizations
      */
     private processEvent;
-    /**
-     * Processes a poolable event with special handling
-     */
-    private processPoolableEvent;
     /**
      * Emits an event to the output observer and broadcasts to subscribers
      * with backpressure control
@@ -101,19 +95,6 @@ export declare class RushStream<T = any> {
      * Clear time control settings and timers
      */
     private clearTimeControl;
-    /**
-     * Creates a poolable event that can be efficiently reused
-     * @param type Event type identifier
-     * @param data Event data payload
-     * @param source Event source
-     * @returns A poolable event instance
-     */
-    createEvent(type: string, data?: any, source?: any): PoolableEvent<T>;
-    /**
-     * Recycles a poolable event back to the pool
-     * @param event The event to recycle
-     */
-    recycleEvent(event: PoolableEvent<T>): void;
     /**
      * Gets the underlying backpressure controller
      */

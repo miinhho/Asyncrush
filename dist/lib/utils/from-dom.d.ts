@@ -7,4 +7,4 @@ import { RushOptions } from '../types';
  * @param options Listener and stream options
  * @returns A stream of DOM events
  */
-export declare function fromDOMEvent<T extends Event>(target: EventTarget | EventTarget[], eventName: string, options?: RushOptions<T> & AddEventListenerOptions): RushStream<T>;
+export declare const fromDOMEvent: <T extends Event>(target: EventTarget | EventTarget[], eventName: string, options?: RushOptions<T> & AddEventListenerOptions) => RushStream<T>;

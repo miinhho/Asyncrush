@@ -1,10 +1,9 @@
 /**
- * Manages event listeners and their cleanup using WeakMap to prevent memory leaks
+ * Manages event listeners and their cleanup
  */
 export class EventCleanupManager {
   /**
    * Maps target objects to their event listeners
-   * Using WeakMap to automatically remove entries when targets are garbage collected
    */
   private readonly listenerMap: WeakMap<
     EventTarget | object,
@@ -12,8 +11,7 @@ export class EventCleanupManager {
   > = new WeakMap();
 
   /**
-   * Maps listeners to their original functions (for wrapped listeners)
-   * This helps match listeners during removal even if they were wrapped
+   * Maps listeners to their original functions
    */
   private readonly wrappedListeners: WeakMap<Function, Function> =
     new WeakMap();
@@ -241,39 +239,39 @@ export const cleanupManager = new EventCleanupManager();
 /**
  * Helper function to add a DOM event listener with automatic cleanup
  */
-export function addDOMListener(
+export const addDOMListener = (
   target: EventTarget,
   eventName: string,
   listener: EventListener,
   options?: AddEventListenerOptions
-): () => void {
+): (() => void) => {
   return cleanupManager.addDOMListener(target, eventName, listener, options);
-}
+};
 
 /**
  * Helper function to add an EventEmitter listener with automatic cleanup
  */
-export function addEmitterListener(
+export const addEmitterListener = (
   emitter: { on: Function; off: Function },
   eventName: string,
   listener: Function
-): () => void {
+): (() => void) => {
   return cleanupManager.addEmitterListener(emitter, eventName, listener);
-}
+};
 
 /**
  * Integration with the RushStream API for automatic listener cleanup
  * @param targets DOM elements or EventEmitters to watch
  * @returns Object with cleanup functions
  */
-export function createEventCleanup(
+export const createEventCleanup = (
   targets: Array<EventTarget | { on: Function; off: Function }>
 ): {
   cleanup: () => void;
   count: () => number;
   addDOMListener: typeof addDOMListener;
   addEmitterListener: typeof addEmitterListener;
-} {
+} => {
   const cleanupFunctions: Array<() => void> = [];
 
   const trackAddDOMListener = (
@@ -330,4 +328,4 @@ export function createEventCleanup(
     addDOMListener: trackAddDOMListener,
     addEmitterListener: trackAddEmitterListener,
   };
-}
+};

@@ -7,4 +7,4 @@ import { RushOptions } from '../types';
  * @param options Configuration options
  * @returns A stream emitting combined values
  */
-export declare function combineLatest<T, R>(streams: RushStream<T>[], combiner: (...values: T[]) => R, options?: RushOptions<R>): RushStream<R>;
+export declare const combineLatest: <T, R>(streams: RushStream<T>[], combiner: (...values: T[]) => R, options?: RushOptions<R>) => RushStream<R>;

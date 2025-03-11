@@ -7,6 +7,6 @@ import { RushOptions } from '../types';
  * @param options Configuration options including count limit
  * @returns A stream that emits at the specified interval
  */
-export declare function withInterval<T>(intervalMs: number, valueOrGenerator: T | ((count: number) => T), options?: RushOptions<T> & {
+export declare const withInterval: <T>(intervalMs: number, valueOrGenerator: T | ((count: number) => T), options?: RushOptions<T> & {
     count?: number;
-}): RushStream<T>;
+}) => RushStream<T>;

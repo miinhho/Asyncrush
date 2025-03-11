@@ -1,15 +1,13 @@
 /**
- * Manages event listeners and their cleanup using WeakMap to prevent memory leaks
+ * Manages event listeners and their cleanup
  */
 export declare class EventCleanupManager {
     /**
      * Maps target objects to their event listeners
-     * Using WeakMap to automatically remove entries when targets are garbage collected
      */
     private readonly listenerMap;
     /**
-     * Maps listeners to their original functions (for wrapped listeners)
-     * This helps match listeners during removal even if they were wrapped
+     * Maps listeners to their original functions
      */
     private readonly wrappedListeners;
     /**
@@ -85,23 +83,23 @@ export declare const cleanupManager: EventCleanupManager;
 /**
  * Helper function to add a DOM event listener with automatic cleanup
  */
-export declare function addDOMListener(target: EventTarget, eventName: string, listener: EventListener, options?: AddEventListenerOptions): () => void;
+export declare const addDOMListener: (target: EventTarget, eventName: string, listener: EventListener, options?: AddEventListenerOptions) => (() => void);
 /**
  * Helper function to add an EventEmitter listener with automatic cleanup
  */
-export declare function addEmitterListener(emitter: {
+export declare const addEmitterListener: (emitter: {
     on: Function;
     off: Function;
-}, eventName: string, listener: Function): () => void;
+}, eventName: string, listener: Function) => (() => void);
 /**
  * Integration with the RushStream API for automatic listener cleanup
  * @param targets DOM elements or EventEmitters to watch
  * @returns Object with cleanup functions
  */
-export declare function createEventCleanup(targets: Array<EventTarget | {
+export declare const createEventCleanup: (targets: Array<EventTarget | {
     on: Function;
     off: Function;
-}>): {
+}>) => {
     cleanup: () => void;
     count: () => number;
     addDOMListener: typeof addDOMListener;

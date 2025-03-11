@@ -1,5 +1,6 @@
+import { EventEmitter } from "stream";
 import { RushStream } from "../../lib";
-import { MockEventTarget } from "../mock-object";
+import { MockEventEmitter, MockEventTarget } from "../mock-object";
 
 describe('event targets', () => {
   test('should manage DOM event listeners', () => {
@@ -25,6 +26,37 @@ describe('event targets', () => {
       target as unknown as EventTarget,
       'mouseover',
       jest.fn() as unknown as EventListener
+    );
+
+    expect(target.getListenerCount()).toBe(1);
+
+    stream.unlisten();
+    expect(target.getListenerCount()).toBe(0);
+  });
+
+  test('should manage EventEmitter event listeners', () => {
+    const target = new MockEventEmitter();
+
+    const stream = new RushStream(() => {}, {
+      eventTargets: [target as unknown as EventEmitter]
+    });
+
+    const listener = jest.fn();
+    const cleanup = stream.addEmitterListener(
+      target as unknown as EventEmitter,
+      'click',
+      listener
+    );
+
+    expect(target.getListenerCount()).toBe(1);
+
+    cleanup();
+    expect(target.getListenerCount()).toBe(0);
+
+    stream.addEmitterListener(
+      target as unknown as EventEmitter,
+      'mouseover',
+      jest.fn()
     );
 
     expect(target.getListenerCount()).toBe(1);

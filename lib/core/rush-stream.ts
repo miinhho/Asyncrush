@@ -2,9 +2,6 @@ import {
   BackpressureController,
   BackpressureMode,
   createEventCleanup,
-  createEventPool,
-  ObjectPool,
-  PoolableEvent,
 } from '../manager';
 import {
   RushDebugHook,
@@ -44,9 +41,6 @@ export class RushStream<T = any> {
   /** Flag indicating if the stream is destroyed */
   private isDestroyed: boolean = false;
 
-  /** Event object pool for reusing event objects */
-  private eventPool?: ObjectPool<PoolableEvent<T>>;
-
   /** Backpressure controller for flow management */
   private backpressure?: BackpressureController<T>;
 
@@ -83,11 +77,6 @@ export class RushStream<T = any> {
     });
     this.subscribers = new Set();
 
-    if (options.useObjectPool) {
-      const { initialSize = 20, maxSize = 100 } = options.poolConfig || {};
-      this.eventPool = createEventPool<T>(initialSize, maxSize);
-    }
-
     if (options.backpressure) {
       this.backpressure = new BackpressureController<T>(options.backpressure);
 
@@ -118,11 +107,6 @@ export class RushStream<T = any> {
   private processEvent(value: T): void {
     if (this.isDestroyed) return;
 
-    if (this.eventPool && value instanceof PoolableEvent) {
-      this.processPoolableEvent(value as PoolableEvent<T>);
-      return;
-    }
-
     const { type, ms, timeout } = this.timeControl;
 
     if (type && ms && ms > 0) {
@@ -150,96 +134,45 @@ export class RushStream<T = any> {
   }
 
   /**
-   * Processes a poolable event with special handling
-   */
-  private processPoolableEvent(event: PoolableEvent<T>): void {
-    if (!this.eventPool) {
-      this.processEvent(event as unknown as T);
-      return;
-    }
-
-    const pooledEvent = this.eventPool.acquire();
-    pooledEvent.init(event.type, event.data, event.source);
-
-    try {
-      const { type, ms, timeout } = this.timeControl;
-
-      if (type && ms && ms > 0) {
-        if (type === 'debounce') {
-          if (this.timeControl.temp instanceof PoolableEvent) {
-            this.eventPool.release(this.timeControl.temp as PoolableEvent<T>);
-          }
-
-          this.timeControl.temp = pooledEvent as unknown as T;
-
-          if (timeout) clearTimeout(timeout);
-
-          this.timeControl.timeout = setTimeout(() => {
-            if (this.timeControl.temp !== undefined) {
-              this.emit(this.timeControl.temp);
-              this.timeControl.temp = undefined;
-            }
-            this.timeControl.timeout = undefined;
-          }, ms);
-        } else if (type === 'throttle' && !timeout) {
-          this.emit(pooledEvent as unknown as T);
-
-          this.timeControl.timeout = setTimeout(() => {
-            this.timeControl.timeout = undefined;
-          }, ms);
-        } else {
-          this.eventPool.release(pooledEvent);
-        }
-      } else {
-        this.emit(pooledEvent as unknown as T);
-      }
-    } catch (err) {
-      this.eventPool.release(pooledEvent);
-      throw err;
-    }
-  }
-
-  /**
    * Emits an event to the output observer and broadcasts to subscribers
    * with backpressure control
    */
   private emit(value: T): void {
     if (this.isDestroyed) return;
 
-    if (this.backpressure) {
-      const result = this.backpressure.push(value);
+    if (this.isPaused) {
+      if (this.backpressure) {
+        const result = this.backpressure.push(value);
 
-      if (result.accepted) {
-        this.outputObserver.next(result.value as T);
-        this.broadcast(result.value as T);
+        if (result.accepted) {
+          this.outputObserver.next(result.value as T);
+          this.broadcast(result.value as T);
 
-        this.debugHook?.onEmit?.(result.value as T);
-      } else if (result.waitPromise) {
-        result.waitPromise
-          .then(() => {
-            if (!this.isDestroyed) {
-              this.outputObserver.next(value);
-              this.broadcast(value);
+          this.debugHook?.onEmit?.(result.value as T);
+        } else if (result.waitPromise) {
+          result.waitPromise
+            .then(() => {
+              if (!this.isDestroyed) {
+                this.outputObserver.next(value);
+                this.broadcast(value);
 
-              this.debugHook?.onEmit?.(value);
-            }
-          })
-          .catch((err) => {
-            if (!this.isDestroyed) {
-              this.outputObserver.error(err);
-              this.debugHook?.onError?.(err);
-            }
-          });
+                this.debugHook?.onEmit?.(value);
+              }
+            })
+            .catch((err) => {
+              if (!this.isDestroyed) {
+                this.outputObserver.error(err);
+                this.debugHook?.onError?.(err);
+              }
+            });
+        }
+        return;
       }
-      return;
+    } else {
+      this.outputObserver.next(value);
+      this.broadcast(value);
+      this.debugHook?.onEmit?.(value);
     }
-
-    if (this.isPaused) return;
-
-    this.outputObserver.next(value);
-    this.broadcast(value);
-
-    this.debugHook?.onEmit?.(value);
   }
 
   /**
@@ -426,7 +359,6 @@ export class RushStream<T = any> {
     }
 
     if (this.backpressure) this.backpressure.clear();
-    if (this.eventPool) this.eventPool.clear();
     if (this.eventCleanup) this.eventCleanup.cleanup();
 
     this.debugHook?.onUnlisten?.(option);
@@ -469,43 +401,7 @@ export class RushStream<T = any> {
       clearTimeout(this.timeControl.timeout);
     }
 
-    if (this.eventPool && this.timeControl.temp instanceof PoolableEvent) {
-      this.eventPool.release(this.timeControl.temp as PoolableEvent<T>);
-    }
-
     this.timeControl = {};
-  }
-
-  /**
-   * Creates a poolable event that can be efficiently reused
-   * @param type Event type identifier
-   * @param data Event data payload
-   * @param source Event source
-   * @returns A poolable event instance
-   */
-  createEvent(type: string, data?: any, source?: any): PoolableEvent<T> {
-    if (!this.eventPool) {
-      throw new Error(
-        '[Asyncrush] Object pooling is not enabled for this stream'
-      );
-    }
-
-    const event = this.eventPool.acquire();
-    return event.init(type, data, source);
-  }
-
-  /**
-   * Recycles a poolable event back to the pool
-   * @param event The event to recycle
-   */
-  recycleEvent(event: PoolableEvent<T>): void {
-    if (!this.eventPool) {
-      throw new Error(
-        '[Asyncrush] Object pooling is not enabled for this stream'
-      );
-    }
-
-    this.eventPool.release(event);
   }
 
   /**

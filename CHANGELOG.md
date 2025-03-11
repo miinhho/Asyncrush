@@ -1,6 +1,26 @@
 # Change Log
 
-## [3.0.0] (2025-03-06)
+## [3.1.0] (2025-03-11)
+
+### 🛠️ Fix:  
+- Remove `withBuffer` function.  
+  - It creates unstable buffer - use backpressure instead.  
+- Remove `maxBufferSize` option.  
+  - Replaced to Backpressure.  
+- Remove Object Pooling.  
+- Fix resume / pause bug in `RushStream` & `RushSubscriber`.  
+
+### ✨ New feature:
+
+### 🔧 Improvements:
+- Change all utility function to arrow function.  
+
+### Contributors
+- [miinhho](https://github.com/miinhho)
+
+<br>
+
+## [3.0.0] (2025-03-10)
 
 ### 👻 Utility patch!!  
 - `combineLatest`, `createStream`, `mergeStream`, `withBuffer`, `withDelay`, `withInterval` - for `RushStream`.  

@@ -8,10 +8,10 @@ import { createStream } from './create-stream';
  * @param options Configuration options including interval timing
  * @returns A stream that emits the provided values
  */
-export function fromValues<T>(
+export const fromValues = <T>(
   values: T[],
   options: RushOptions<T> & { interval?: number } = {}
-): RushStream<T> {
+): RushStream<T> => {
   const { interval, ...streamOptions } = options;
 
   return createStream<T>((observer) => {
@@ -37,4 +37,4 @@ export function fromValues<T>(
       observer.complete();
     }
   }, streamOptions);
-}
+};

@@ -81,7 +81,7 @@ describe('fromValues', () => {
   test('should pass options to createStream', () => {
     const values = [1, 2, 3];
     const options = {
-      maxBufferSize: 5
+      continueOnError: true,
     };
 
     fromValues(values, options);

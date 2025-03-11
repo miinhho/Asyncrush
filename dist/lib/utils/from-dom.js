@@ -11,7 +11,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fromDOMEvent = fromDOMEvent;
+exports.fromDOMEvent = void 0;
 const create_stream_1 = require("./create-stream");
 /**
  * Creates a stream from DOM events
@@ -20,7 +20,7 @@ const create_stream_1 = require("./create-stream");
  * @param options Listener and stream options
  * @returns A stream of DOM events
  */
-function fromDOMEvent(target, eventName, options = {}) {
+const fromDOMEvent = (target, eventName, options = {}) => {
     const { passive, capture, once, signal } = options, streamOptions = __rest(options, ["passive", "capture", "once", "signal"]);
     const listenerOptions = { passive, capture, once, signal };
     const targets = Array.isArray(target) ? target : [target];
@@ -36,4 +36,5 @@ function fromDOMEvent(target, eventName, options = {}) {
             });
         };
     }, enhancedOptions);
-}
+};
+exports.fromDOMEvent = fromDOMEvent;

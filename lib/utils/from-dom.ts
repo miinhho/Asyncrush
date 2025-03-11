@@ -9,11 +9,11 @@ import { createStream } from './create-stream';
  * @param options Listener and stream options
  * @returns A stream of DOM events
  */
-export function fromDOMEvent<T extends Event>(
+export const fromDOMEvent = <T extends Event>(
   target: EventTarget | EventTarget[],
   eventName: string,
   options: RushOptions<T> & AddEventListenerOptions = {}
-): RushStream<T> {
+): RushStream<T> => {
   const { passive, capture, once, signal, ...streamOptions } = options;
   const listenerOptions = { passive, capture, once, signal };
 
@@ -36,4 +36,4 @@ export function fromDOMEvent<T extends Event>(
       });
     };
   }, enhancedOptions);
-}
+};

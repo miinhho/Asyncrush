@@ -6,4 +6,4 @@ import { RushOptions } from '../types';
  * @param options Configuration options
  * @returns A stream that emits the resolved value
  */
-export declare function fromPromise<T>(promiseOrFn: Promise<T> | (() => Promise<T>), options?: RushOptions<T>): RushStream<T>;
+export declare const fromPromise: <T>(promiseOrFn: Promise<T> | (() => Promise<T>), options?: RushOptions<T>) => RushStream<T>;

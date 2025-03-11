@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.withInterval = exports.withDelay = exports.withBuffer = exports.setBackpressure = exports.mergeStream = exports.fromValues = exports.fromPromise = exports.fromEmitter = exports.fromDOMEvent = exports.createSubscriber = exports.createStream = exports.combineLatest = void 0;
+exports.withInterval = exports.withDelay = exports.setBackpressure = exports.mergeStream = exports.fromValues = exports.fromPromise = exports.fromEmitter = exports.fromDOMEvent = exports.createSubscriber = exports.createStream = exports.combineLatest = void 0;
 const combine_last_1 = require("./combine-last");
 Object.defineProperty(exports, "combineLatest", { enumerable: true, get: function () { return combine_last_1.combineLatest; } });
 const create_stream_1 = require("./create-stream");
@@ -19,8 +19,6 @@ const merge_stream_1 = require("./merge-stream");
 Object.defineProperty(exports, "mergeStream", { enumerable: true, get: function () { return merge_stream_1.mergeStream; } });
 const set_backpressure_1 = require("./set-backpressure");
 Object.defineProperty(exports, "setBackpressure", { enumerable: true, get: function () { return set_backpressure_1.setBackpressure; } });
-const with_buffer_1 = require("./with-buffer");
-Object.defineProperty(exports, "withBuffer", { enumerable: true, get: function () { return with_buffer_1.withBuffer; } });
 const with_delay_1 = require("./with-delay");
 Object.defineProperty(exports, "withDelay", { enumerable: true, get: function () { return with_delay_1.withDelay; } });
 const with_interval_1 = require("./with-interval");

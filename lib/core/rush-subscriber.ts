@@ -1,10 +1,4 @@
-import {
-  BackpressureController,
-  BackpressureMode,
-  ObjectPool,
-  PoolableEvent,
-  createEventPool,
-} from '../manager';
+import { BackpressureController, BackpressureMode } from '../manager';
 import {
   RushDebugHook,
   RushMiddleware,
@@ -29,9 +23,6 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
   /** Backpressure controller for flow management */
   private backpressure?: BackpressureController<T>;
 
-  /** Event object pool for reusing event objects */
-  private eventPool?: ObjectPool<PoolableEvent<T>>;
-
   /** Time control configuration */
   private timeControl: {
     type?: 'debounce' | 'throttle';
@@ -49,11 +40,6 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
    */
   constructor(options: RushOptions<T> = {}) {
     super(options);
-
-    if (options.useObjectPool) {
-      const { initialSize = 20, maxSize = 100 } = options.poolConfig || {};
-      this.eventPool = createEventPool<T>(initialSize, maxSize);
-    }
 
     if (options.backpressure) {
       this.backpressure = new BackpressureController<T>(options.backpressure);
@@ -93,10 +79,6 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
     }
 
     if (type === 'debounce') {
-      if (this.eventPool && this.timeControl.temp instanceof PoolableEvent) {
-        this.eventPool.release(this.timeControl.temp as PoolableEvent<T>);
-      }
-
       this.timeControl.temp = value;
       if (timeout) clearTimeout(timeout);
 
@@ -123,53 +105,31 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
   private emit(value: T): void {
     if (!this.isActive) return;
 
-    if (this.backpressure) {
-      const result = this.backpressure.push(value);
+    if (this.isPaused) {
+      if (this.backpressure) {
+        const result = this.backpressure.push(value);
 
-      if (result.accepted) {
-        if (this.nextHandler) {
-          this.nextHandler(result.value as T);
+        if (result.accepted) {
+          if (this.nextHandler) {
+            this.nextHandler(result.value as T);
+          }
+        } else if (result.waitPromise) {
+          result.waitPromise
+            .then(() => {
+              if (this.nextHandler && !this.isActive) {
+                this.nextHandler(value);
+              }
+            })
+            .catch((err) => {
+              if (!this.isActive) {
+                this.error(err);
+              }
+            });
         }
-      } else if (result.waitPromise) {
-        result.waitPromise
-          .then(() => {
-            if (this.nextHandler && !this.isActive) {
-              this.nextHandler(value);
-            }
-          })
-          .catch((err) => {
-            if (!this.isActive) {
-              this.error(err);
-            }
-          });
       }
     } else if (this.nextHandler) {
       this.nextHandler(value);
-    }
-
-    if (this.debugHook && !this.isPaused) {
-      this.debugHook.onEmit?.(value);
-    }
-  }
-
-  /**
-   * Processes a poolable event
-   * @param event The event to process
-   */
-  private processPoolableEvent(event: PoolableEvent<T>): void {
-    if (!this.eventPool) {
-      this.processEvent(event as unknown as T);
-      return;
-    }
-
-    const pooledEvent = this.eventPool.acquire();
-    pooledEvent.init(event.type, event.data, event.source);
-
-    try {
-      this.processEvent(pooledEvent as unknown as T);
-    } catch (err) {
-      this.eventPool.release(pooledEvent);
-      throw err;
+      this.debugHook?.onEmit?.(value);
     }
   }
 
@@ -180,11 +140,7 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
   override next(value: T): void {
     if (!this.isActive || !this.nextHandler) return;
 
-    if (value instanceof PoolableEvent && this.eventPool) {
-      this.processPoolableEvent(value as PoolableEvent<T>);
-    } else {
-      this.processEvent(value);
-    }
+    this.processEvent(value);
   }
 
   /**
@@ -208,7 +164,7 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
   }
 
   /**
-   * Adds a handler for 'next' events, chaining with existing handlers
+   * Adds a handler for 'next' events
    * @param handler The handler to add
    */
   override onNext(handler: (value: T) => void): this {
@@ -345,7 +301,6 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
 
     this.clearTimeControl();
     if (this.backpressure) this.backpressure.clear();
-    if (this.eventPool) this.eventPool.clear();
     this.debugHook?.onUnlisten?.('destroy');
   }
 
@@ -387,43 +342,7 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
       clearTimeout(this.timeControl.timeout);
     }
 
-    if (this.eventPool && this.timeControl.temp instanceof PoolableEvent) {
-      this.eventPool.release(this.timeControl.temp as PoolableEvent<T>);
-    }
-
     this.timeControl = {};
-  }
-
-  /**
-   * Creates a poolable event that can be efficiently reused
-   * @param type Event type identifier
-   * @param data Event data payload
-   * @param source Event source
-   * @returns A poolable event instance
-   */
-  createEvent(type: string, data?: any, source?: any): PoolableEvent<T> {
-    if (!this.eventPool) {
-      throw new Error(
-        '[Asyncrush] Object pooling is not enabled for this subscriber'
-      );
-    }
-
-    const event = this.eventPool.acquire();
-    return event.init(type, data, source);
-  }
-
-  /**
-   * Recycles a poolable event back to the pool
-   * @param event The event to recycle
-   */
-  recycleEvent(event: PoolableEvent<T>): void {
-    if (!this.eventPool) {
-      throw new Error(
-        '[Asyncrush] Object pooling is not enabled for this subscriber'
-      );
-    }
-
-    this.eventPool.release(event);
   }
 
   /**

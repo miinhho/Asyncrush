@@ -1,4 +1,4 @@
-import { BackpressureMode, PoolableEvent, RushSubscriber } from "../../lib";
+import { BackpressureMode, RushSubscriber } from "../../lib";
 
 describe('initialization', () => {
   test('should create with default options', () => {
@@ -18,22 +18,5 @@ describe('initialization', () => {
 
     const controller = subscriber.getBackpressureController();
     expect(controller).toBeDefined();
-  });
-
-  test('should create with object pool', () => {
-    const subscriber = new RushSubscriber({
-      useObjectPool: true,
-      poolConfig: {
-        initialSize: 2,
-        maxSize: 5
-      }
-    });
-
-    const event = subscriber.createEvent('test', { value: 42 });
-    expect(event).toBeInstanceOf(PoolableEvent);
-    expect(event.type).toBe('test');
-    expect(event.data).toEqual({ value: 42 });
-
-    subscriber.recycleEvent(event);
   });
 });

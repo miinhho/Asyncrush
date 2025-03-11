@@ -1,4 +1,4 @@
-import { BackpressureController, BackpressureMode, PoolableEvent } from '../manager';
+import { BackpressureController, BackpressureMode } from '../manager';
 import { RushMiddleware, RushOptions, RushUseOption } from '../types';
 import { RushObserver } from './rush-observer';
 import { RushStream } from './rush-stream';
@@ -13,8 +13,6 @@ export declare class RushSubscriber<T = any> extends RushObserver<T> {
     private isPaused;
     /** Backpressure controller for flow management */
     private backpressure?;
-    /** Event object pool for reusing event objects */
-    private eventPool?;
     /** Time control configuration */
     private timeControl;
     /** Debugging hooks */
@@ -35,11 +33,6 @@ export declare class RushSubscriber<T = any> extends RushObserver<T> {
      */
     private emit;
     /**
-     * Processes a poolable event
-     * @param event The event to process
-     */
-    private processPoolableEvent;
-    /**
      * Emits a value to all chained 'next' handlers
      * @param value The value to emit
      */
@@ -54,7 +47,7 @@ export declare class RushSubscriber<T = any> extends RushObserver<T> {
      */
     complete(): void;
     /**
-     * Adds a handler for 'next' events, chaining with existing handlers
+     * Adds a handler for 'next' events
      * @param handler The handler to add
      */
     onNext(handler: (value: T) => void): this;
@@ -106,19 +99,6 @@ export declare class RushSubscriber<T = any> extends RushObserver<T> {
      * Clear time control settings and timers
      */
     private clearTimeControl;
-    /**
-     * Creates a poolable event that can be efficiently reused
-     * @param type Event type identifier
-     * @param data Event data payload
-     * @param source Event source
-     * @returns A poolable event instance
-     */
-    createEvent(type: string, data?: any, source?: any): PoolableEvent<T>;
-    /**
-     * Recycles a poolable event back to the pool
-     * @param event The event to recycle
-     */
-    recycleEvent(event: PoolableEvent<T>): void;
     /**
      * Gets the underlying backpressure controller
      */

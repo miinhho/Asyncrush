@@ -19,7 +19,13 @@ export interface RushObserverImpl<T> {
   readonly complete: () => void;
 }
 
-/** Partial type for observer's stream options */
+/**
+ * Partial type for observer's stream options
+ * @param next - Emits the next value
+ * @param error - Emits an error
+ * @param complete - Emits the completion event
+ * @template T - The type of values handled by the observer
+ */
 export type RushObserveStream<T> = Partial<RushObserverImpl<T>>;
 
 /**
@@ -56,23 +62,6 @@ export interface RushUseOption {
 
   /** Error handler */
   readonly errorHandler?: (error: unknown) => void;
-}
-
-/**
- * Configuration options for backpressure
- */
-export interface BackpressureOptions {
-  /** Maximum buffer size before applying backpressure */
-  highWatermark: number;
-
-  /** Buffer level at which to resume normal flow */
-  lowWatermark: number;
-
-  /** How to handle backpressure when buffer is full */
-  mode: BackpressureMode;
-
-  /** Timeout in ms for wait mode (prevents infinite blocking) */
-  waitTimeout?: number;
 }
 
 /**
@@ -126,28 +115,17 @@ export interface RushDebugHook<T = any> {
 /**
  * Constructor options for RushStream & RushSubscriber
  * @param continueOnError - Whether to continue on error
- * @param maxBufferSize - Maximum buffer size for the stream
  * @param debugHook - Debugging hooks
+ * @param backpressure - Config for backpressure
+ * @param eventTargets - targets that should be tracked for cleanup
  * @template T - The type of values handled by the stream
  */
 export type RushOptions<T = any> = {
   /** Whether continue on error */
   continueOnError?: boolean;
 
-  /** Maximum buffer size for the stream */
-  maxBufferSize?: number;
-
   /** Debugging hooks */
   debugHook?: RushDebugHook<T>;
-
-  /** Enable object pooling for event objects */
-  useObjectPool?: boolean;
-
-  /** Configuration for the object pool */
-  poolConfig?: {
-    initialSize?: number;
-    maxSize?: number;
-  };
 
   /** Configuration for backpressure support */
   backpressure?: Partial<BackpressureOptions>;
@@ -157,7 +135,31 @@ export type RushOptions<T = any> = {
 };
 
 /**
+ * Configuration options for backpressure
+ * @param highWatermark - Maximum buffer size
+ * @param lowWatermark - Buffer level at which to resume normal flow
+ * @param mode - How to handle backpressure when buffer is full
+ * @param waitTimeout - Timeout in ms for wait mode
+ */
+export interface BackpressureOptions {
+  /** Maximum buffer size */
+  highWatermark: number;
+
+  /** Buffer level at which to resume normal flow */
+  lowWatermark: number;
+
+  /** How to handle backpressure when buffer is full */
+  mode: BackpressureMode;
+
+  /** Timeout in ms for wait mode (prevents infinite blocking) */
+  waitTimeout?: number;
+}
+
+/**
  * Result of a backpressure operation
+ * @param accepted - Whether the value was accepted
+ * @param value - The value, if it was accepted
+ * @param waitPromise - Promise to wait on if in WAIT mode
  */
 export interface BackpressureResult<T> {
   /** Whether the value was accepted */

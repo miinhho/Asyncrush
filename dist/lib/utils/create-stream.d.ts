@@ -6,4 +6,4 @@ import { RushOptions } from '../types';
  * @param options Configuration options
  * @returns An optimized RushStream instance
  */
-export declare function createStream<T>(producer: ((observer: RushObserver<T>) => void) | ((observer: RushObserver<T>) => () => void), options?: RushOptions<T>): RushStream<T>;
+export declare const createStream: <T>(producer: ((observer: RushObserver<T>) => void) | ((observer: RushObserver<T>) => () => void), options?: RushOptions<T>) => RushStream<T>;

@@ -18,11 +18,8 @@ import {
   BackpressureMode,
   cleanupManager,
   createEventCleanup,
-  createEventPool,
   DEFAULT_BACKPRESSURE_OPTIONS,
   EventCleanupManager,
-  ObjectPool,
-  PoolableEvent,
 } from './manager';
 
 import {
@@ -35,7 +32,6 @@ import {
   fromValues,
   mergeStream,
   setBackpressure,
-  withBuffer,
   withDelay,
   withInterval,
 } from './utils';
@@ -48,7 +44,6 @@ export {
   cleanupManager,
   combineLatest,
   createEventCleanup,
-  createEventPool,
   createStream,
   createSubscriber,
   DEFAULT_BACKPRESSURE_OPTIONS,
@@ -58,13 +53,10 @@ export {
   fromPromise,
   fromValues,
   mergeStream,
-  ObjectPool,
-  PoolableEvent,
   RushObserver,
   RushStream,
   RushSubscriber,
   setBackpressure,
-  withBuffer,
   withDelay,
   withInterval,
 };

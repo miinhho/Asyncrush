@@ -17,10 +17,10 @@ var BackpressureMode;
  * Default backpressure options
  */
 exports.DEFAULT_BACKPRESSURE_OPTIONS = {
-    highWatermark: 1000,
-    lowWatermark: 200,
+    highWatermark: 100,
+    lowWatermark: 20,
     mode: BackpressureMode.NOTIFY,
-    waitTimeout: 30000,
+    waitTimeout: 3000,
 };
 /**
  * Manages backpressure for streams

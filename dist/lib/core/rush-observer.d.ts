@@ -23,7 +23,7 @@ export declare class RushObserver<T = any> implements RushObserverImpl<T> {
         continueOnError?: boolean;
     });
     /**
-     * Emits a value to all chained 'next' handlers
+     * Emits a value to 'next' handlers
      * @param value - The value to emit
      */
     next(value: T): void;
@@ -37,7 +37,7 @@ export declare class RushObserver<T = any> implements RushObserverImpl<T> {
      */
     complete(): void;
     /**
-     * Adds a handler for 'next' events, chaining with existing handlers
+     * Adds a handler for 'next' events
      * @param handler - The handler to add
      */
     onNext(handler: (value: T) => void): void;

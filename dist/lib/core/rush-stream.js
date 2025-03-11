@@ -32,10 +32,6 @@ class RushStream {
             continueOnError: options.continueOnError,
         });
         this.subscribers = new Set();
-        if (options.useObjectPool) {
-            const { initialSize = 20, maxSize = 100 } = options.poolConfig || {};
-            this.eventPool = (0, manager_1.createEventPool)(initialSize, maxSize);
-        }
         if (options.backpressure) {
             this.backpressure = new manager_1.BackpressureController(options.backpressure);
             this.backpressure.onPause(() => {
@@ -64,10 +60,6 @@ class RushStream {
     processEvent(value) {
         if (this.isDestroyed)
             return;
-        if (this.eventPool && value instanceof manager_1.PoolableEvent) {
-            this.processPoolableEvent(value);
-            return;
-        }
         const { type, ms, timeout } = this.timeControl;
         if (type && ms && ms > 0) {
             if (type === 'debounce') {
@@ -94,53 +86,6 @@ class RushStream {
         }
     }
     /**
-     * Processes a poolable event with special handling
-     */
-    processPoolableEvent(event) {
-        if (!this.eventPool) {
-            this.processEvent(event);
-            return;
-        }
-        const pooledEvent = this.eventPool.acquire();
-        pooledEvent.init(event.type, event.data, event.source);
-        try {
-            const { type, ms, timeout } = this.timeControl;
-            if (type && ms && ms > 0) {
-                if (type === 'debounce') {
-                    if (this.timeControl.temp instanceof manager_1.PoolableEvent) {
-                        this.eventPool.release(this.timeControl.temp);
-                    }
-                    this.timeControl.temp = pooledEvent;
-                    if (timeout)
-                        clearTimeout(timeout);
-                    this.timeControl.timeout = setTimeout(() => {
-                        if (this.timeControl.temp !== undefined) {
-                            this.emit(this.timeControl.temp);
-                            this.timeControl.temp = undefined;
-                        }
-                        this.timeControl.timeout = undefined;
-                    }, ms);
-                }
-                else if (type === 'throttle' && !timeout) {
-                    this.emit(pooledEvent);
-                    this.timeControl.timeout = setTimeout(() => {
-                        this.timeControl.timeout = undefined;
-                    }, ms);
-                }
-                else {
-                    this.eventPool.release(pooledEvent);
-                }
-            }
-            else {
-                this.emit(pooledEvent);
-            }
-        }
-        catch (err) {
-            this.eventPool.release(pooledEvent);
-            throw err;
-        }
-    }
-    /**
      * Emits an event to the output observer and broadcasts to subscribers
      * with backpressure control
      */
@@ -148,38 +93,40 @@ class RushStream {
         var _a, _b, _c, _d;
         if (this.isDestroyed)
             return;
-        if (this.backpressure) {
-            const result = this.backpressure.push(value);
-            if (result.accepted) {
-                this.outputObserver.next(result.value);
-                this.broadcast(result.value);
-                (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, result.value);
+        if (this.isPaused) {
+            if (this.backpressure) {
+                const result = this.backpressure.push(value);
+                if (result.accepted) {
+                    this.outputObserver.next(result.value);
+                    this.broadcast(result.value);
+                    (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, result.value);
+                }
+                else if (result.waitPromise) {
+                    result.waitPromise
+                        .then(() => {
+                        var _a, _b;
+                        if (!this.isDestroyed) {
+                            this.outputObserver.next(value);
+                            this.broadcast(value);
+                            (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, value);
+                        }
+                    })
+                        .catch((err) => {
+                        var _a, _b;
+                        if (!this.isDestroyed) {
+                            this.outputObserver.error(err);
+                            (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onError) === null || _b === void 0 ? void 0 : _b.call(_a, err);
+                        }
+                    });
+                }
+                return;
             }
-            else if (result.waitPromise) {
-                result.waitPromise
-                    .then(() => {
-                    var _a, _b;
-                    if (!this.isDestroyed) {
-                        this.outputObserver.next(value);
-                        this.broadcast(value);
-                        (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, value);
-                    }
-                })
-                    .catch((err) => {
-                    var _a, _b;
-                    if (!this.isDestroyed) {
-                        this.outputObserver.error(err);
-                        (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onError) === null || _b === void 0 ? void 0 : _b.call(_a, err);
-                    }
-                });
-            }
-            return;
         }
-        if (this.isPaused)
-            return;
-        this.outputObserver.next(value);
-        this.broadcast(value);
-        (_d = (_c = this.debugHook) === null || _c === void 0 ? void 0 : _c.onEmit) === null || _d === void 0 ? void 0 : _d.call(_c, value);
+        else {
+            this.outputObserver.next(value);
+            this.broadcast(value);
+            (_d = (_c = this.debugHook) === null || _c === void 0 ? void 0 : _c.onEmit) === null || _d === void 0 ? void 0 : _d.call(_c, value);
+        }
     }
     /**
      * Pauses the stream, buffering events if enabled
@@ -356,8 +303,6 @@ class RushStream {
         }
         if (this.backpressure)
             this.backpressure.clear();
-        if (this.eventPool)
-            this.eventPool.clear();
         if (this.eventCleanup)
             this.eventCleanup.cleanup();
         (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onUnlisten) === null || _b === void 0 ? void 0 : _b.call(_a, option);
@@ -396,34 +341,7 @@ class RushStream {
         if (this.timeControl.timeout) {
             clearTimeout(this.timeControl.timeout);
         }
-        if (this.eventPool && this.timeControl.temp instanceof manager_1.PoolableEvent) {
-            this.eventPool.release(this.timeControl.temp);
-        }
         this.timeControl = {};
-    }
-    /**
-     * Creates a poolable event that can be efficiently reused
-     * @param type Event type identifier
-     * @param data Event data payload
-     * @param source Event source
-     * @returns A poolable event instance
-     */
-    createEvent(type, data, source) {
-        if (!this.eventPool) {
-            throw new Error('[Asyncrush] Object pooling is not enabled for this stream');
-        }
-        const event = this.eventPool.acquire();
-        return event.init(type, data, source);
-    }
-    /**
-     * Recycles a poolable event back to the pool
-     * @param event The event to recycle
-     */
-    recycleEvent(event) {
-        if (!this.eventPool) {
-            throw new Error('[Asyncrush] Object pooling is not enabled for this stream');
-        }
-        this.eventPool.release(event);
     }
     /**
      * Gets the underlying backpressure controller

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fromEmitter = fromEmitter;
+exports.fromEmitter = void 0;
 const create_stream_1 = require("./create-stream");
 /**
  * Creates a stream from Node.js EventEmitter events
@@ -9,7 +9,7 @@ const create_stream_1 = require("./create-stream");
  * @param options Stream configuration options
  * @returns A stream of emitter events
  */
-function fromEmitter(emitter, eventName, options = {}) {
+const fromEmitter = (emitter, eventName, options = {}) => {
     const enhancedOptions = Object.assign(Object.assign({}, options), { eventTargets: [...(options.eventTargets || []), emitter] });
     return (0, create_stream_1.createStream)((observer) => {
         const eventHandler = (...args) => observer.next((args.length > 1 ? args : args[0]));
@@ -31,4 +31,5 @@ function fromEmitter(emitter, eventName, options = {}) {
             emitter.off('end', endHandler);
         };
     }, enhancedOptions);
-}
+};
+exports.fromEmitter = fromEmitter;

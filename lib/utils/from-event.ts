@@ -9,11 +9,11 @@ import { createStream } from './create-stream';
  * @param options Stream configuration options
  * @returns A stream of emitter events
  */
-export function fromEmitter<T>(
+export const fromEmitter = <T>(
   emitter: { on: Function; off: Function },
   eventName: string,
   options: RushOptions<T> = {}
-): RushStream<T> {
+): RushStream<T> => {
   const enhancedOptions: RushOptions<T> = {
     ...options,
     eventTargets: [...(options.eventTargets || []), emitter],
@@ -44,4 +44,4 @@ export function fromEmitter<T>(
       emitter.off('end', endHandler);
     };
   }, enhancedOptions);
-}
+};

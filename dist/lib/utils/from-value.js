@@ -11,7 +11,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fromValues = fromValues;
+exports.fromValues = void 0;
 const create_stream_1 = require("./create-stream");
 /**
  * Creates a stream from an array of values
@@ -19,7 +19,7 @@ const create_stream_1 = require("./create-stream");
  * @param options Configuration options including interval timing
  * @returns A stream that emits the provided values
  */
-function fromValues(values, options = {}) {
+const fromValues = (values, options = {}) => {
     const { interval } = options, streamOptions = __rest(options, ["interval"]);
     return (0, create_stream_1.createStream)((observer) => {
         if (!values.length) {
@@ -44,4 +44,5 @@ function fromValues(values, options = {}) {
             observer.complete();
         }
     }, streamOptions);
-}
+};
+exports.fromValues = fromValues;

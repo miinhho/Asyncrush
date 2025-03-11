@@ -7,4 +7,4 @@ import { RushOptions } from '../types';
  * @param options Configuration options
  * @returns A stream with delayed events
  */
-export declare function withDelay<T>(source: RushStream<T>, delayMs: number, options?: RushOptions<T>): RushStream<T>;
+export declare const withDelay: <T>(source: RushStream<T>, delayMs: number, options?: RushOptions<T>) => RushStream<T>;

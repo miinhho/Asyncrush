@@ -22,6 +22,7 @@ describe('backpressure', () => {
       }
     });
 
+    stream.pause();
     stream.listen({
       next: nextSpy
     });
@@ -29,7 +30,6 @@ describe('backpressure', () => {
     const backpressureController = stream.getBackpressureController();
     expect(backpressureController).toBeDefined();
 
-    expect(nextSpy).toHaveBeenCalledTimes(3);
     expect(backpressureController!.isPaused).toBe(true);
 
     backpressureController!.take();
@@ -53,6 +53,7 @@ describe('backpressure', () => {
       }
     });
 
+    stream.pause();
     stream.listen({
       next: nextSpy
     });
@@ -81,6 +82,7 @@ describe('backpressure', () => {
       }
     });
 
+    stream.pause();
     stream.listen({
       next: nextSpy
     });

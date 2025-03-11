@@ -18,10 +18,10 @@ export enum BackpressureMode {
  * Default backpressure options
  */
 export const DEFAULT_BACKPRESSURE_OPTIONS: BackpressureOptions = {
-  highWatermark: 1000,
-  lowWatermark: 200,
+  highWatermark: 100,
+  lowWatermark: 20,
   mode: BackpressureMode.NOTIFY,
-  waitTimeout: 30000,
+  waitTimeout: 3000,
 };
 
 /**

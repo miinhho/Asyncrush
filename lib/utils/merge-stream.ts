@@ -8,10 +8,10 @@ import { createStream } from './create-stream';
  * @param options Configuration options
  * @returns A stream that emits values from all source streams
  */
-export function mergeStream<T>(
+export const mergeStream = <T>(
   streams: RushStream<T>[],
   options: RushOptions<T> = {}
-): RushStream<T> {
+): RushStream<T> => {
   return createStream<T>((observer) => {
     if (streams.length === 0) {
       observer.complete();
@@ -36,4 +36,4 @@ export function mergeStream<T>(
       subscriptions.forEach((subscription) => subscription.unlisten());
     };
   }, options);
-}
+};

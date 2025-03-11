@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.withInterval = exports.withDelay = exports.withBuffer = exports.setBackpressure = exports.RushSubscriber = exports.RushStream = exports.RushObserver = exports.PoolableEvent = exports.ObjectPool = exports.mergeStream = exports.fromValues = exports.fromPromise = exports.fromEmitter = exports.fromDOMEvent = exports.EventCleanupManager = exports.DEFAULT_BACKPRESSURE_OPTIONS = exports.createSubscriber = exports.createStream = exports.createEventPool = exports.createEventCleanup = exports.combineLatest = exports.cleanupManager = exports.BackpressureMode = exports.BackpressureController = exports.addEmitterListener = exports.addDOMListener = void 0;
+exports.withInterval = exports.withDelay = exports.setBackpressure = exports.RushSubscriber = exports.RushStream = exports.RushObserver = exports.mergeStream = exports.fromValues = exports.fromPromise = exports.fromEmitter = exports.fromDOMEvent = exports.EventCleanupManager = exports.DEFAULT_BACKPRESSURE_OPTIONS = exports.createSubscriber = exports.createStream = exports.createEventCleanup = exports.combineLatest = exports.cleanupManager = exports.BackpressureMode = exports.BackpressureController = exports.addEmitterListener = exports.addDOMListener = void 0;
 const core_1 = require("./core");
 Object.defineProperty(exports, "RushObserver", { enumerable: true, get: function () { return core_1.RushObserver; } });
 Object.defineProperty(exports, "RushStream", { enumerable: true, get: function () { return core_1.RushStream; } });
@@ -12,11 +12,8 @@ Object.defineProperty(exports, "BackpressureController", { enumerable: true, get
 Object.defineProperty(exports, "BackpressureMode", { enumerable: true, get: function () { return manager_1.BackpressureMode; } });
 Object.defineProperty(exports, "cleanupManager", { enumerable: true, get: function () { return manager_1.cleanupManager; } });
 Object.defineProperty(exports, "createEventCleanup", { enumerable: true, get: function () { return manager_1.createEventCleanup; } });
-Object.defineProperty(exports, "createEventPool", { enumerable: true, get: function () { return manager_1.createEventPool; } });
 Object.defineProperty(exports, "DEFAULT_BACKPRESSURE_OPTIONS", { enumerable: true, get: function () { return manager_1.DEFAULT_BACKPRESSURE_OPTIONS; } });
 Object.defineProperty(exports, "EventCleanupManager", { enumerable: true, get: function () { return manager_1.EventCleanupManager; } });
-Object.defineProperty(exports, "ObjectPool", { enumerable: true, get: function () { return manager_1.ObjectPool; } });
-Object.defineProperty(exports, "PoolableEvent", { enumerable: true, get: function () { return manager_1.PoolableEvent; } });
 const utils_1 = require("./utils");
 Object.defineProperty(exports, "combineLatest", { enumerable: true, get: function () { return utils_1.combineLatest; } });
 Object.defineProperty(exports, "createStream", { enumerable: true, get: function () { return utils_1.createStream; } });
@@ -27,6 +24,5 @@ Object.defineProperty(exports, "fromPromise", { enumerable: true, get: function 
 Object.defineProperty(exports, "fromValues", { enumerable: true, get: function () { return utils_1.fromValues; } });
 Object.defineProperty(exports, "mergeStream", { enumerable: true, get: function () { return utils_1.mergeStream; } });
 Object.defineProperty(exports, "setBackpressure", { enumerable: true, get: function () { return utils_1.setBackpressure; } });
-Object.defineProperty(exports, "withBuffer", { enumerable: true, get: function () { return utils_1.withBuffer; } });
 Object.defineProperty(exports, "withDelay", { enumerable: true, get: function () { return utils_1.withDelay; } });
 Object.defineProperty(exports, "withInterval", { enumerable: true, get: function () { return utils_1.withInterval; } });

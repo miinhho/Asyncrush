@@ -7,18 +7,10 @@ import { RushOptions } from '../types';
  * @param options Configuration options
  * @returns An optimized RushSubscriber instance
  */
-export function createSubscriber<T>(
+export const createSubscriber = <T>(
   options: RushOptions<T> = {}
-): RushSubscriber<T> {
+): RushSubscriber<T> => {
   const enhancedOptions: RushOptions<T> = {
-    useObjectPool: options.useObjectPool ?? true,
-    ...(options.useObjectPool !== false && {
-      poolConfig: {
-        initialSize: options.poolConfig?.initialSize ?? 10,
-        maxSize: options.poolConfig?.maxSize ?? 50,
-      },
-    }),
-
     ...(options.backpressure !== null && {
       backpressure: {
         highWatermark: options.backpressure?.highWatermark ?? 500,
@@ -29,9 +21,8 @@ export function createSubscriber<T>(
     }),
 
     continueOnError: options.continueOnError,
-    maxBufferSize: options.maxBufferSize,
     debugHook: options.debugHook,
   };
 
   return new RushSubscriber<T>(enhancedOptions);
-}
+};

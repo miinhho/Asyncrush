@@ -8,10 +8,10 @@ import { createStream } from './create-stream';
  * @param options Configuration options
  * @returns A stream that emits the resolved value
  */
-export function fromPromise<T>(
+export const fromPromise = <T>(
   promiseOrFn: Promise<T> | (() => Promise<T>),
   options: RushOptions<T> = {}
-): RushStream<T> {
+): RushStream<T> => {
   return createStream<T>((observer) => {
     const promise =
       typeof promiseOrFn === 'function' ? promiseOrFn() : promiseOrFn;
@@ -23,4 +23,4 @@ export function fromPromise<T>(
       })
       .catch((error) => observer.error(error));
   }, options);
-}
+};
