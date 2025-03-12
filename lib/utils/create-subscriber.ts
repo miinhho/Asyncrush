@@ -13,10 +13,10 @@ export const createSubscriber = <T>(
   const enhancedOptions: RushOptions<T> = {
     ...(options.backpressure !== null && {
       backpressure: {
-        highWatermark: options.backpressure?.highWatermark ?? 500,
-        lowWatermark: options.backpressure?.lowWatermark ?? 100,
+        highWatermark: options.backpressure?.highWatermark ?? 50,
+        lowWatermark: options.backpressure?.lowWatermark ?? 10,
         mode: options.backpressure?.mode ?? BackpressureMode.WAIT,
-        waitTimeout: options.backpressure?.waitTimeout ?? 30000,
+        waitTimeout: options.backpressure?.waitTimeout ?? 3000,
       },
     }),
 
