@@ -2,6 +2,9 @@
 
 ### Todo
 
+- [ ] Test
+  - [ ] Add destroy or active check test
+  - [ ] Add more nested error check test
 
 ### In Progress
 

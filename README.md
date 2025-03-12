@@ -1,5 +1,6 @@
 # Asyncrush
 
+[![Coverage Status](https://coveralls.io/repos/github/miinhho/Asyncrush/badge.svg?branch=main)](https://coveralls.io/github/miinhho/Asyncrush?branch=main)
 ![Test Workflow](https://github.com/miinhho/Asyncrush/actions/workflows/test-flow.yml/badge.svg)
 [![npm version](https://badge.fury.io/js/asyncrush.svg?v=3.0.0)](https://www.npmjs.com/package/asyncrush)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

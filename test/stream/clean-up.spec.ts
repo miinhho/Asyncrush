@@ -77,4 +77,13 @@ describe('cleanup', () => {
     sourceObserver!.next(2);
     expect(nextSpy).not.toHaveBeenCalled();
   });
+
+  test('should not subscribe when stream is destroyed', () => {
+    const stream = new RushStream<number>(() => { });
+    const sub = new RushSubscriber();
+
+    stream.subscribe(sub);
+    stream.unlisten('destroy');
+    expect(stream.subscribers.size).toBe(0);
+  });
 });

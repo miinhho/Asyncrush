@@ -27,10 +27,7 @@ export function createStream<T>(
   const enhancedOptions: RushOptions<T> = {
     ...(options.backpressure !== null && {
       backpressure: {
-        highWatermark: options.backpressure?.highWatermark ?? 100,
-        lowWatermark: options.backpressure?.lowWatermark ?? 20,
         mode: options.backpressure?.mode ?? BackpressureMode.NOTIFY,
-        waitTimeout: options.backpressure?.waitTimeout ?? 3000,
       },
     }),
 
