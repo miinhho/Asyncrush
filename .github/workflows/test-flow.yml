@@ -15,27 +15,44 @@ jobs:
         node-version: [18.x, 20.x, 22.x]
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: npm
-    - name: install
+
+    - name: Install dependencies
       run: npm ci
 
-    - name: build
+    - name: Build
       run: npm run build:linux --if-present
 
-    - name: lint
+    - name: Lint
       run: npm run lint
 
-    - name: test
+    - name: Test with coverage
       run: npm run test:cov
+
+    - name: Check coverage file
+      run: |
+        if [ -f "coverage/lcov.info" ]; then
+          echo "Coverage file found at coverage/lcov.info"
+        elif [ -f "coverage/Icov.info" ]; then
+          echo "Coverage file found at coverage/Icov.info"
+          cp coverage/Icov.info coverage/lcov.info
+        else
+          echo "No coverage file found! Check your Jest configuration."
+          exit 1
+        fi
 
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: coverage/lcov.info
         flag-name: node-${{ matrix.node-version }}
         parallel: true
 
