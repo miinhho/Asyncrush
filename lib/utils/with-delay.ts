@@ -9,11 +9,11 @@ import { createStream } from './create-stream';
  * @param options Configuration options
  * @returns A stream with delayed events
  */
-export const withDelay = <T>(
+export function withDelay<T>(
   source: RushStream<T>,
   delayMs: number,
   options: RushOptions<T> = {}
-): RushStream<T> => {
+): RushStream<T> {
   return createStream<T>((observer) => {
     const subscription = source.listen({
       next: (value) => {
@@ -27,4 +27,4 @@ export const withDelay = <T>(
 
     return () => subscription.unlisten();
   }, options);
-};
+}

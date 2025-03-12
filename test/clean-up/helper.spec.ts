@@ -1,5 +1,5 @@
 import { addDOMListener, addEmitterListener, createEventCleanup } from '../../lib';
-import { MockEventEmitter, MockEventTarget } from '../mock-object';
+import { MockEventEmitter, MockEventTarget } from '../mock';
 
 describe('Helper functions', () => {
   let target: MockEventTarget;

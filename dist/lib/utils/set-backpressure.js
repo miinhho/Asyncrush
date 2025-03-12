@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setBackpressure = void 0;
+exports.setBackpressure = setBackpressure;
 /**
  * Sets backpressure configuration directly on a stream
  * @param stream Stream to configure
  * @param config Backpressure configuration
  * @returns The configured stream
  */
-const setBackpressure = (stream, config) => {
+function setBackpressure(stream, config) {
     var _a, _b;
     const controller = (_b = (_a = stream).getBackpressureController) === null || _b === void 0 ? void 0 : _b.call(_a);
     if (controller) {
@@ -20,5 +20,4 @@ const setBackpressure = (stream, config) => {
         }
     }
     return stream;
-};
-exports.setBackpressure = setBackpressure;
+}

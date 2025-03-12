@@ -6,8 +6,8 @@ import { BackpressureMode } from '../manager';
  * @param config Backpressure configuration
  * @returns The configured stream
  */
-export declare const setBackpressure: <T>(stream: RushStream<T>, config: {
+export declare function setBackpressure<T>(stream: RushStream<T>, config: {
     highWatermark?: number;
     lowWatermark?: number;
     mode?: BackpressureMode;
-}) => RushStream<T>;
+}): RushStream<T>;

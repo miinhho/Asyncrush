@@ -11,7 +11,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.withInterval = void 0;
+exports.withInterval = withInterval;
 const create_stream_1 = require("./create-stream");
 /**
  * Creates a stream that emits values at fixed time intervals
@@ -20,7 +20,7 @@ const create_stream_1 = require("./create-stream");
  * @param options Configuration options including count limit
  * @returns A stream that emits at the specified interval
  */
-const withInterval = (intervalMs, valueOrGenerator, options = {}) => {
+function withInterval(intervalMs, valueOrGenerator, options = {}) {
     const { count } = options, streamOptions = __rest(options, ["count"]);
     const generator = typeof valueOrGenerator === 'function'
         ? valueOrGenerator
@@ -44,5 +44,4 @@ const withInterval = (intervalMs, valueOrGenerator, options = {}) => {
         }, intervalMs);
         return () => clearInterval(timer);
     }, streamOptions);
-};
-exports.withInterval = withInterval;
+}

@@ -6,6 +6,6 @@ import { RushOptions } from '../types';
  * @param options Configuration options including interval timing
  * @returns A stream that emits the provided values
  */
-export declare const fromValues: <T>(values: T[], options?: RushOptions<T> & {
+export declare function fromValues<T>(values: T[], options?: RushOptions<T> & {
     interval?: number;
-}) => RushStream<T>;
+}): RushStream<T>;

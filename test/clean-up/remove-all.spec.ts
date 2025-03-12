@@ -1,5 +1,5 @@
 import { EventCleanupManager } from '../../lib';
-import { MockEventEmitter, MockEventTarget } from '../mock-object';
+import { MockEventEmitter, MockEventTarget } from '../mock';
 
 describe('removeAllListeners', () => {
   let manager: EventCleanupManager;

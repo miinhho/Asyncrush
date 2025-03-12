@@ -5,4 +5,4 @@ import { RushOptions } from '../types';
  * @param options Configuration options
  * @returns An optimized RushSubscriber instance
  */
-export declare const createSubscriber: <T>(options?: RushOptions<T>) => RushSubscriber<T>;
+export declare function createSubscriber<T>(options?: RushOptions<T>): RushSubscriber<T>;

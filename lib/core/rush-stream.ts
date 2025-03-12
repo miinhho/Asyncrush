@@ -81,15 +81,13 @@ export class RushStream<T = any> {
       this.backpressure = new BackpressureController<T>(options.backpressure);
 
       this.backpressure.onPause(() => {
-        this.isPaused = true;
+        this.pause();
         this.debugHook?.onEmit?.({ type: 'backpressure:pause' } as any);
       });
 
       this.backpressure.onResume(() => {
-        if (this.isPaused) {
-          this.isPaused = false;
-          this.debugHook?.onEmit?.({ type: 'backpressure:resume' } as any);
-        }
+        this.resume();
+        this.debugHook?.onEmit?.({ type: 'backpressure:resume' } as any);
       });
     }
 
@@ -103,6 +101,7 @@ export class RushStream<T = any> {
 
   /**
    * Processes an event with debounce or throttle control and optimizations
+   * @param value - The value to process
    */
   private processEvent(value: T): void {
     if (this.isDestroyed) return;
@@ -136,37 +135,14 @@ export class RushStream<T = any> {
   /**
    * Emits an event to the output observer and broadcasts to subscribers
    * with backpressure control
+   * @param value - The value to emit
    */
   private emit(value: T): void {
     if (this.isDestroyed) return;
 
     if (this.isPaused) {
       if (this.backpressure) {
-        const result = this.backpressure.push(value);
-
-        if (result.accepted) {
-          this.outputObserver.next(result.value as T);
-          this.broadcast(result.value as T);
-
-          this.debugHook?.onEmit?.(result.value as T);
-        } else if (result.waitPromise) {
-          result.waitPromise
-            .then(() => {
-              if (!this.isDestroyed) {
-                this.outputObserver.next(value);
-                this.broadcast(value);
-
-                this.debugHook?.onEmit?.(value);
-              }
-            })
-            .catch((err) => {
-              if (!this.isDestroyed) {
-                this.outputObserver.error(err);
-                this.debugHook?.onError?.(err);
-              }
-            });
-        }
-        return;
+        this.backpressure.push(value);
       }
     } else {
       this.outputObserver.next(value);
@@ -179,6 +155,7 @@ export class RushStream<T = any> {
    * Pauses the stream, buffering events if enabled
    */
   pause(): this {
+    if (this.isDestroyed) return this;
     this.isPaused = true;
     return this;
   }
@@ -189,6 +166,13 @@ export class RushStream<T = any> {
   resume(): this {
     if (this.isDestroyed) return this;
     this.isPaused = false;
+
+    if (this.backpressure && !this.backpressure.isEmpty) {
+      while (!this.backpressure.isEmpty && !this.isPaused) {
+        const value = this.backpressure.take();
+        if (value) this.processEvent(value);
+      }
+    }
     return this;
   }
 
@@ -337,13 +321,13 @@ export class RushStream<T = any> {
     if (this.isDestroyed) return this;
 
     this.isDestroyed = true;
+    this.clearTimeControl();
     if (option === 'destroy') {
       this.sourceObserver.destroy();
       this.outputObserver.destroy();
       this.subscribers.clear();
       this.useHandler = false;
       this.isPaused = false;
-      this.clearTimeControl();
     } else {
       this.sourceObserver.complete();
       this.outputObserver.complete();

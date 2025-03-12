@@ -1,5 +1,20 @@
 # Change Log
 
+## [3.1.1] (2025-03-13)
+
+### 🛠️ Fix:  
+- Backpressure bug when resume flow & push values.  
+- Backpressure bug when edit watermark.  
+
+### ✨ New feature:
+
+### 🔧 Improvements:
+- Function overloading for utility functions.  
+- Fix test coverage issue.  
+
+### Contributors
+- [miinhho](https://github.com/miinhho)
+
 ## [3.1.0] (2025-03-11)
 
 ### 🛠️ Fix:  

@@ -2,6 +2,18 @@ import { RushStream } from '../core';
 import { RushOptions } from '../types';
 import { createStream } from './create-stream';
 
+export function withInterval<T>(
+  intervalMs: number,
+  valueOrGenerator: T,
+  options?: RushOptions<T> & { count?: number }
+): RushStream<T>;
+
+export function withInterval<T>(
+  intervalMs: number,
+  valueOrGenerator: (count: number) => T,
+  options?: RushOptions<T> & { count?: number }
+): RushStream<T>;
+
 /**
  * Creates a stream that emits values at fixed time intervals
  * @param intervalMs Interval in milliseconds
@@ -9,11 +21,11 @@ import { createStream } from './create-stream';
  * @param options Configuration options including count limit
  * @returns A stream that emits at the specified interval
  */
-export const withInterval = <T>(
+export function withInterval<T>(
   intervalMs: number,
   valueOrGenerator: T | ((count: number) => T),
   options: RushOptions<T> & { count?: number } = {}
-): RushStream<T> => {
+): RushStream<T> {
   const { count, ...streamOptions } = options;
   const generator =
     typeof valueOrGenerator === 'function'
@@ -40,4 +52,4 @@ export const withInterval = <T>(
 
     return () => clearInterval(timer);
   }, streamOptions);
-};
+}

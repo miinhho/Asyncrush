@@ -1,4 +1,4 @@
-import { RushStream, RushSubscriber } from "../../lib";
+import { RushObserver, RushStream, RushSubscriber } from "../../lib";
 
 describe('cleanup', () => {
   test('should clean up resources on unlisten', () => {
@@ -58,5 +58,23 @@ describe('cleanup', () => {
     );
 
     consoleErrorSpy.mockRestore();
+  });
+
+  test('should not emit events when stream is destroyed', () => {
+    const nextSpy = jest.fn();
+    let sourceObserver: RushObserver<number>;
+
+    const stream = new RushStream<number>((observer) => {
+      sourceObserver = observer;
+    });
+
+    stream.listen({
+      next: nextSpy
+    });
+    stream.unlisten('destroy');
+
+    sourceObserver!.next(1);
+    sourceObserver!.next(2);
+    expect(nextSpy).not.toHaveBeenCalled();
   });
 });

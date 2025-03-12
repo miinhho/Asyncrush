@@ -1,6 +1,29 @@
-import { RushStream, RushSubscriber } from '../../lib';
+import { RushObserver, RushStream, RushSubscriber } from '../../lib';
 
 describe('multicasting', () => {
+  test('should not resubscribe an already subscribed subscriber', () => {
+    const stream = new RushStream<string>(() => {});
+    const sub = new RushSubscriber<string>();
+
+    stream.subscribe(sub);
+    expect(stream.subscribers.size).toBe(1);
+
+    stream.subscribe(sub);
+    expect(stream.subscribers.size).toBe(1);
+  });
+
+  test('should not unsubscribe a non-subscribed subscriber', () => {
+    const stream = new RushStream<string>(() => {});
+    const sub = new RushSubscriber<string>();
+    const otherSub = new RushSubscriber<string>();
+
+    stream.subscribe(sub);
+    expect(stream.subscribers.size).toBe(1);
+
+    stream.unsubscribe(otherSub);
+    expect(stream.subscribers.size).toBe(1);
+  });
+
   test('should broadcast events to subscribers', async () => {
     const sub1NextSpy = jest.fn();
     const sub2NextSpy = jest.fn();
@@ -69,5 +92,35 @@ describe('multicasting', () => {
     expect(completeSpy).toHaveBeenCalledTimes(1);
     expect(sub1CompleteSpy).toHaveBeenCalledTimes(1);
     expect(sub2CompleteSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test('should propagate errors to all subscribers', () => {
+    const sub1ErrorSpy = jest.fn();
+    const sub2ErrorSpy = jest.fn();
+    const streamErrorSpy = jest.fn();
+    const testError = new Error('Test error');
+
+    const sub1 = new RushSubscriber<string>();
+    sub1.onError(sub1ErrorSpy);
+
+    const sub2 = new RushSubscriber<string>();
+    sub2.onError(sub2ErrorSpy);
+
+    let sourceObserver: RushObserver<string>;
+    const stream = new RushStream<string>((observer) => {
+      sourceObserver = observer;
+    });
+
+    stream.subscribe(sub1, sub2);
+
+    stream.listen({
+      error: streamErrorSpy
+    });
+
+    sourceObserver!.error(testError);
+    expect(streamErrorSpy).toHaveBeenCalledWith(testError);
+
+    expect(sub1ErrorSpy).not.toHaveBeenCalledWith(testError);
+    expect(sub2ErrorSpy).not.toHaveBeenCalledWith(testError);
   });
 });

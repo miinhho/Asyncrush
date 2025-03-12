@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.combineLatest = void 0;
+exports.combineLatest = combineLatest;
 const create_stream_1 = require("./create-stream");
 /**
  * Creates a stream that combines latest values from multiple streams
@@ -9,7 +9,7 @@ const create_stream_1 = require("./create-stream");
  * @param options Configuration options
  * @returns A stream emitting combined values
  */
-const combineLatest = (streams, combiner, options = {}) => {
+function combineLatest(streams, combiner, options = {}) {
     return (0, create_stream_1.createStream)((observer) => {
         if (streams.length === 0) {
             observer.complete();
@@ -43,5 +43,4 @@ const combineLatest = (streams, combiner, options = {}) => {
             subscriptions.forEach((subscription) => subscription.unlisten());
         };
     }, options);
-};
-exports.combineLatest = combineLatest;
+}

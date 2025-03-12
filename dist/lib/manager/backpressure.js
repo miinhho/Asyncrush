@@ -169,7 +169,9 @@ class BackpressureController {
                 }
             }
         }
-        this.buffer.push(value);
+        else {
+            this.buffer.push(value);
+        }
         return { accepted: true, value };
     }
     /**
@@ -268,10 +270,10 @@ class BackpressureController {
         }
         this.highWatermark = highWatermark;
         this.lowWatermark = lowWatermark;
-        if (this.buffer.length >= this.highWatermark && !this.paused) {
+        if (this.buffer.length > highWatermark && !this.paused) {
             this.notifyPause();
         }
-        else if (this.buffer.length <= this.lowWatermark && this.paused) {
+        else if (this.buffer.length <= highWatermark && this.paused) {
             this.notifyResume();
         }
     }

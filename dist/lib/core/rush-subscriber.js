@@ -23,12 +23,12 @@ class RushSubscriber extends rush_observer_1.RushObserver {
             this.backpressure = new manager_1.BackpressureController(options.backpressure);
             this.backpressure.onPause(() => {
                 var _a, _b;
-                this.isPaused = true;
+                this.pause();
                 (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, { type: 'backpressure:pause' });
             });
             this.backpressure.onResume(() => {
                 var _a, _b;
-                this.isPaused = false;
+                this.resume();
                 (_b = (_a = this.debugHook) === null || _a === void 0 ? void 0 : _a.onEmit) === null || _b === void 0 ? void 0 : _b.call(_a, { type: 'backpressure:resume' });
             });
             this.backpressure.onDrop((value) => {
@@ -42,7 +42,7 @@ class RushSubscriber extends rush_observer_1.RushObserver {
     }
     /**
      * Processes an event with debounce or throttle control
-     * @param value The value to process
+     * @param value - The value to process
      */
     processEvent(value) {
         if (!this.isActive)
@@ -73,7 +73,7 @@ class RushSubscriber extends rush_observer_1.RushObserver {
     }
     /**
      * Emits an event to the output observer with backpressure control
-     * @param value The value to emit
+     * @param value - The value to emit
      */
     emit(value) {
         var _a, _b;
@@ -81,25 +81,7 @@ class RushSubscriber extends rush_observer_1.RushObserver {
             return;
         if (this.isPaused) {
             if (this.backpressure) {
-                const result = this.backpressure.push(value);
-                if (result.accepted) {
-                    if (this.nextHandler) {
-                        this.nextHandler(result.value);
-                    }
-                }
-                else if (result.waitPromise) {
-                    result.waitPromise
-                        .then(() => {
-                        if (this.nextHandler && !this.isActive) {
-                            this.nextHandler(value);
-                        }
-                    })
-                        .catch((err) => {
-                        if (!this.isActive) {
-                            this.error(err);
-                        }
-                    });
-                }
+                this.backpressure.push(value);
             }
         }
         else if (this.nextHandler) {
@@ -112,7 +94,7 @@ class RushSubscriber extends rush_observer_1.RushObserver {
      * @param value The value to emit
      */
     next(value) {
-        if (!this.isActive || !this.nextHandler)
+        if (!this.isActive)
             return;
         this.processEvent(value);
     }
@@ -249,6 +231,13 @@ class RushSubscriber extends rush_observer_1.RushObserver {
         if (!this.isActive)
             return this;
         this.isPaused = false;
+        if (this.backpressure && !this.backpressure.isEmpty) {
+            while (!this.backpressure.isEmpty && !this.isPaused) {
+                const value = this.backpressure.take();
+                if (value)
+                    this.processEvent(value);
+            }
+        }
         return this;
     }
     /**

@@ -45,12 +45,12 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
       this.backpressure = new BackpressureController<T>(options.backpressure);
 
       this.backpressure.onPause(() => {
-        this.isPaused = true;
+        this.pause();
         this.debugHook?.onEmit?.({ type: 'backpressure:pause' } as any);
       });
 
       this.backpressure.onResume(() => {
-        this.isPaused = false;
+        this.resume();
         this.debugHook?.onEmit?.({ type: 'backpressure:resume' } as any);
       });
 
@@ -66,7 +66,7 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
 
   /**
    * Processes an event with debounce or throttle control
-   * @param value The value to process
+   * @param value - The value to process
    */
   private processEvent(value: T): void {
     if (!this.isActive) return;
@@ -100,32 +100,14 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
 
   /**
    * Emits an event to the output observer with backpressure control
-   * @param value The value to emit
+   * @param value - The value to emit
    */
   private emit(value: T): void {
     if (!this.isActive) return;
 
     if (this.isPaused) {
       if (this.backpressure) {
-        const result = this.backpressure.push(value);
-
-        if (result.accepted) {
-          if (this.nextHandler) {
-            this.nextHandler(result.value as T);
-          }
-        } else if (result.waitPromise) {
-          result.waitPromise
-            .then(() => {
-              if (this.nextHandler && !this.isActive) {
-                this.nextHandler(value);
-              }
-            })
-            .catch((err) => {
-              if (!this.isActive) {
-                this.error(err);
-              }
-            });
-        }
+        this.backpressure.push(value);
       }
     } else if (this.nextHandler) {
       this.nextHandler(value);
@@ -138,7 +120,7 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
    * @param value The value to emit
    */
   override next(value: T): void {
-    if (!this.isActive || !this.nextHandler) return;
+    if (!this.isActive) return;
 
     this.processEvent(value);
   }
@@ -286,6 +268,13 @@ export class RushSubscriber<T = any> extends RushObserver<T> {
   resume(): this {
     if (!this.isActive) return this;
     this.isPaused = false;
+
+    if (this.backpressure && !this.backpressure.isEmpty) {
+      while (!this.backpressure.isEmpty && !this.isPaused) {
+        const value = this.backpressure.take();
+        if (value) this.processEvent(value);
+      }
+    }
     return this;
   }
 

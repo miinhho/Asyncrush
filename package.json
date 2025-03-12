@@ -1,6 +1,6 @@
 {
   "name": "asyncrush",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "A lightweight, flexible library for streaming and processing asynchronous events with ease",
   "license": "MIT",
   "author": "miinhho <mjang6988@gmail.com>",
@@ -28,7 +28,7 @@
     "test": "jest",
     "test:cov": "jest --coverage --no-cache",
     "lint": "prettier lib --write && eslint lib/**",
-    "build:clear": "rmdir /s /q dist",
+    "build:clear-windows": "rmdir /s /q dist && npm run build:windows",
     "build:windows": "tsc -p tsconfig.json",
     "build:linux": "rm -rf dist && tsc -p tsconfig.json"
   },

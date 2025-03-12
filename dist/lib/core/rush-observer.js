@@ -44,7 +44,7 @@ class RushObserver {
                 this.errorHandler(err);
             }
             catch (nestedError) {
-                console.error('Error in error handler:', nestedError);
+                console.error('[Asyncrush] Error in error handler:', nestedError);
             }
         }
         if (!this.continueOnError)
@@ -61,7 +61,7 @@ class RushObserver {
                 this.completeHandler();
             }
             catch (err) {
-                console.error('Error in complete handler:', err);
+                console.error('[Asyncrush] Error in complete handler:', err);
             }
         }
         this.cleanHandlers();

@@ -39,11 +39,13 @@ export declare class RushStream<T = any> {
     constructor(producer: ((observer: RushObserver<T>) => void) | ((observer: RushObserver<T>) => () => void), options?: RushOptions<T>);
     /**
      * Processes an event with debounce or throttle control and optimizations
+     * @param value - The value to process
      */
     private processEvent;
     /**
      * Emits an event to the output observer and broadcasts to subscribers
      * with backpressure control
+     * @param value - The value to emit
      */
     private emit;
     /**

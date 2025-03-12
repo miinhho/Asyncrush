@@ -46,7 +46,7 @@ describe('error handling', () => {
     observer.error(new Error('Original error'));
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Error in error handler:',
+      '[Asyncrush] Error in error handler:',
       expect.any(Error)
     );
 
@@ -64,7 +64,7 @@ describe('error handling', () => {
     observer.complete();
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Error in complete handler:',
+      '[Asyncrush] Error in complete handler:',
       expect.any(Error)
     );
 

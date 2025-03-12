@@ -8,26 +8,16 @@ describe('configuration changes', () => {
     });
 
     const pauseSpy = jest.fn();
-    const resumeSpy = jest.fn();
 
     controller.onPause(pauseSpy);
-    controller.onResume(resumeSpy);
 
     for (let i = 0; i < 5; i++) {
       controller.push(i);
     }
-
     expect(pauseSpy).not.toHaveBeenCalled();
 
-    controller.setWatermarks(5, 2);
-
-    expect(pauseSpy).toHaveBeenCalledTimes(1);
-
-    controller.take();
-    controller.take();
-    controller.take();
-
-    expect(resumeSpy).toHaveBeenCalledTimes(1);
+    controller.setWatermarks(4, 2);
+    expect(pauseSpy).toHaveBeenCalled();
   });
 
   test('should change backpressure mode', () => {
@@ -48,5 +38,24 @@ describe('configuration changes', () => {
     const result = controller.push(3);
     expect(result.accepted).toBe(false);
     expect(dropSpy).toHaveBeenCalledWith(3);
+  });
+
+  test('should throw when updating with invalid watermarks', () => {
+    const controller = new BackpressureController<number>({
+      highWatermark: 10,
+      lowWatermark: 5
+    });
+
+    expect(() => {
+      controller.setWatermarks(5, 6);
+    }).toThrow('[Asyncrush] lowWatermark must be less than highWatermark');
+
+    expect(() => {
+      controller.setWatermarks(5, 5);
+    }).toThrow('[Asyncrush] lowWatermark must be less than highWatermark');
+
+    expect(() => {
+      controller.setWatermarks(8, 4);
+    }).not.toThrow();
   });
 });

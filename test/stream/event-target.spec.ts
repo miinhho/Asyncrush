@@ -1,8 +1,18 @@
 import { EventEmitter } from "stream";
 import { RushStream } from "../../lib";
-import { MockEventEmitter, MockEventTarget } from "../mock-object";
+import { MockEventEmitter, MockEventTarget } from "../mock";
 
 describe('event targets', () => {
+  test('should create cleanup for event', () => {
+    const target = new MockEventTarget();
+
+    const stream = new RushStream(() => {}, {
+      eventTargets: [target as unknown as EventTarget]
+    });
+
+    expect(stream.getEventCleanup).toBeDefined();
+  });
+
   test('should manage DOM event listeners', () => {
     const target = new MockEventTarget();
 

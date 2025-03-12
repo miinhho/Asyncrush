@@ -7,9 +7,9 @@ import { RushOptions } from '../types';
  * @param options Configuration options
  * @returns An optimized RushSubscriber instance
  */
-export const createSubscriber = <T>(
+export function createSubscriber<T>(
   options: RushOptions<T> = {}
-): RushSubscriber<T> => {
+): RushSubscriber<T> {
   const enhancedOptions: RushOptions<T> = {
     ...(options.backpressure !== null && {
       backpressure: {
@@ -25,4 +25,4 @@ export const createSubscriber = <T>(
   };
 
   return new RushSubscriber<T>(enhancedOptions);
-};
+}

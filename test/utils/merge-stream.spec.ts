@@ -28,6 +28,17 @@ describe("mergeStream", () => {
     expect(nextSpy).toHaveBeenCalledTimes(2);
   });
 
+  test("should complete when no stream is in array", () => {
+    const completeSpy = jest.fn();
+
+    mergeStream([])
+      .listen({
+        complete: completeSpy
+      });
+
+    expect(completeSpy).toHaveBeenCalled();
+  });
+
   test("should complete when every stream completed", () => {
     const completeSpy = jest.fn();
 

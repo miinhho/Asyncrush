@@ -1,5 +1,5 @@
 import { EventCleanupManager } from '../../lib';
-import { MockEventTarget } from '../mock-object';
+import { MockEventTarget } from '../mock';
 
 describe('DOM listeners', () => {
   let manager: EventCleanupManager;

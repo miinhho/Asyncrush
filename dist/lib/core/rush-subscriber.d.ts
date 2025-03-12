@@ -24,12 +24,12 @@ export declare class RushSubscriber<T = any> extends RushObserver<T> {
     constructor(options?: RushOptions<T>);
     /**
      * Processes an event with debounce or throttle control
-     * @param value The value to process
+     * @param value - The value to process
      */
     private processEvent;
     /**
      * Emits an event to the output observer with backpressure control
-     * @param value The value to emit
+     * @param value - The value to emit
      */
     private emit;
     /**

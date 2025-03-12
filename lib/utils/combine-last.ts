@@ -9,11 +9,11 @@ import { createStream } from './create-stream';
  * @param options Configuration options
  * @returns A stream emitting combined values
  */
-export const combineLatest = <T, R>(
+export function combineLatest<T, R>(
   streams: RushStream<T>[],
   combiner: (...values: T[]) => R,
   options: RushOptions<R> = {}
-): RushStream<R> => {
+): RushStream<R> {
   return createStream<R>((observer) => {
     if (streams.length === 0) {
       observer.complete();
@@ -52,4 +52,4 @@ export const combineLatest = <T, R>(
       subscriptions.forEach((subscription) => subscription.unlisten());
     };
   }, options);
-};
+}

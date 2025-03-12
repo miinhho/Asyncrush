@@ -56,7 +56,7 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
       try {
         this.errorHandler(err);
       } catch (nestedError) {
-        console.error('Error in error handler:', nestedError);
+        console.error('[Asyncrush] Error in error handler:', nestedError);
       }
     }
 
@@ -73,7 +73,7 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
       try {
         this.completeHandler();
       } catch (err) {
-        console.error('Error in complete handler:', err);
+        console.error('[Asyncrush] Error in complete handler:', err);
       }
     }
 
