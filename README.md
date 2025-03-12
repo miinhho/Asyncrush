@@ -32,6 +32,9 @@ yarn add asyncrush
 ```bash
 pnpm add asyncrush
 ```
+```bash
+bun install asyncrush
+```
 
 <br>
 
