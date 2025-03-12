@@ -60,6 +60,19 @@ stream.use(
 
 ## ⏱️ Benchmark
 
+(10,000,000 events vs RxJS)
+| Transforms | ops/sec      | How much faster            |
+|------------|--------------|----------------------------|
+| 200        | 612,033      | **+49%** ( > 409,546)      |
+| 150        | 818,150      | **+52%** ( > 538,197)      |
+| 100        | 1,205,331    | **+89%** ( > 636,078)      |
+| 50         | 2,335,202    | **+60%** ( > 1,463,261)    |
+| 25         | 4,535,603    | **+28%** ( > 3,547,165)    |
+| 10         | 12,049,110   | **+32%** ( > 9,138,667)    |
+| 5          | 20,226,773   | **+16%** ( > 17,410,811)   |
+
+<br>
+
 (1,000,000,000 events vs RxJS)
 | Transforms | ops/sec      | How much faster             |
 |------------|--------------|-----------------------------|
@@ -72,7 +85,7 @@ stream.use(
 | 5          | 76,309,147   | **+14%** ( > 66,908,963)    |
 
 Tested with randomly selected operators/middleware processes,
-processing 1,000,000 batches from a total of 1 billion events,
+processing 1,000,000 batches from a total of 1 billion events, 10 million events
 with operator selection based on `Math.random` values.
 
 For reference, running the same operators/middleware repeatedly
