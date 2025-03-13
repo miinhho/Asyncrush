@@ -1,13 +1,13 @@
 import { RushObserver } from '../../lib';
 
 describe('error handling', () => {
-  test('should destroy observer on error by default', () => {
+  it('should destroy observer on error by default', () => {
     const observer = new RushObserver();
     observer.error(new Error('Test error'));
     expect(observer.isDestroyed()).toBe(true);
   });
 
-  test('should continue after error when configured', () => {
+  it('should continue after error when configured', () => {
     const observer = new RushObserver({ continueOnError: true });
     const nextSpy = jest.fn();
 
@@ -20,7 +20,7 @@ describe('error handling', () => {
     expect(nextSpy).toHaveBeenCalledWith('test');
   });
 
-  test('should catch errors in next handlers', () => {
+  it('should catch errors in next handlers', () => {
     const observer = new RushObserver();
     const errorSpy = jest.fn();
     const testError = new Error('Handler error');
@@ -35,7 +35,7 @@ describe('error handling', () => {
     expect(errorSpy).toHaveBeenCalledWith(testError);
   });
 
-  test('should handle errors in error handlers', () => {
+  it('should handle errors in error handlers', () => {
     const observer = new RushObserver();
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
@@ -53,7 +53,7 @@ describe('error handling', () => {
     consoleErrorSpy.mockRestore();
   });
 
-  test('should handle errors in complete handlers', () => {
+  it('should handle errors in complete handlers', () => {
     const observer = new RushObserver();
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 

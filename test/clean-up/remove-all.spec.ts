@@ -12,7 +12,7 @@ describe('removeAllListeners', () => {
     emitter = new MockEventEmitter();
   });
 
-  test('should remove all listeners for a specific event', () => {
+  it('should remove all listeners for a specific event', () => {
     const listener1 = jest.fn();
     const listener2 = jest.fn();
     const listener3 = jest.fn();
@@ -29,7 +29,7 @@ describe('removeAllListeners', () => {
     expect(target.getListenerCount('mouseover')).toBe(1);
   });
 
-  test('should remove all listeners for all events', () => {
+  it('should remove all listeners for all events', () => {
     const listener1 = jest.fn();
     const listener2 = jest.fn();
 

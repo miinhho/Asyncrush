@@ -1,7 +1,7 @@
 import { BackpressureController, BackpressureMode } from '../../lib';
 
 describe('backpressure modes', () => {
-  test('should return correct push result for NOTIFY mode', () => {
+  it('should return correct push result for NOTIFY mode', () => {
     const notifyController = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1,
@@ -18,7 +18,7 @@ describe('backpressure modes', () => {
     expect(notifyResult3.value).toBe(3);
   });
 
-  test('should return correct push result for DROP mode', () => {
+  it('should return correct push result for DROP mode', () => {
     const dropController = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1,
@@ -35,7 +35,7 @@ describe('backpressure modes', () => {
     expect(dropResult3.value).toBeUndefined();
   });
 
-  test('should return correct push result for WAIT mode', () => {
+  it('should return correct push result for WAIT mode', () => {
     const waitController = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1,
@@ -53,7 +53,7 @@ describe('backpressure modes', () => {
     expect(waitResult3.value).toBeUndefined();
   });
 
-  test('NOTIFY mode should update pause state', () => {
+  it('NOTIFY mode should update pause state', () => {
     const controller = new BackpressureController<number>({
       highWatermark: 3,
       lowWatermark: 1,
@@ -82,7 +82,7 @@ describe('backpressure modes', () => {
     expect(controller.isPaused).toBe(false);
   });
 
-  test('DROP mode should drop values when buffer is full', () => {
+  it('DROP mode should drop values when buffer is full', () => {
     const controller = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1,
@@ -101,7 +101,7 @@ describe('backpressure modes', () => {
     expect(dropSpy).toHaveBeenCalledWith(3);
   });
 
-  test('WAIT mode should return waitPromise when buffer is full', async () => {
+  it('WAIT mode should return waitPromise when buffer is full', async () => {
     const controller = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1,
@@ -122,7 +122,7 @@ describe('backpressure modes', () => {
     expect(controller.size).toBe(2);
   });
 
-  test('WAIT mode should timeout if buffer remains full', async () => {
+  it('WAIT mode should timeout if buffer remains full', async () => {
     const controller = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1,
@@ -139,7 +139,7 @@ describe('backpressure modes', () => {
     await expect(result.waitPromise).rejects.toThrow('[Asyncrush] Backpressure wait timeout exceeded');
   });
 
-  test('should resolve waiters in correct order', async () => {
+  it('should resolve waiters in correct order', async () => {
     const controller = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1,
@@ -169,7 +169,7 @@ describe('backpressure modes', () => {
     expect(controller.take()).toBe(5);
   });
 
-  test('should handle multiple resolves with takeMany', async () => {
+  it('should handle multiple resolves with takeMany', async () => {
     const controller = new BackpressureController<number>({
       highWatermark: 3,
       lowWatermark: 1,
@@ -190,7 +190,7 @@ describe('backpressure modes', () => {
     expect(controller.take()).toBe(5);
   });
 
-  test('should handle immediate clear while waiting', async () => {
+  it('should handle immediate clear while waiting', async () => {
     const controller = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1,

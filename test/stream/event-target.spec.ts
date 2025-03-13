@@ -3,7 +3,7 @@ import { RushStream } from "../../lib";
 import { MockEventEmitter, MockEventTarget } from "../mock";
 
 describe('event targets', () => {
-  test('should create cleanup for event', () => {
+  it('should create cleanup for event', () => {
     const target = new MockEventTarget();
 
     const stream = new RushStream(() => {}, {
@@ -13,7 +13,7 @@ describe('event targets', () => {
     expect(stream.getEventCleanup).toBeDefined();
   });
 
-  test('should manage DOM event listeners', () => {
+  it('should manage DOM event listeners', () => {
     const target = new MockEventTarget();
 
     const stream = new RushStream(() => {}, {
@@ -44,7 +44,7 @@ describe('event targets', () => {
     expect(target.getListenerCount()).toBe(0);
   });
 
-  test('should manage EventEmitter event listeners', () => {
+  it('should manage EventEmitter event listeners', () => {
     const target = new MockEventEmitter();
 
     const stream = new RushStream(() => {}, {
@@ -75,7 +75,7 @@ describe('event targets', () => {
     expect(target.getListenerCount()).toBe(0);
   });
 
-  test('should throw when event cleanup not enabled', () => {
+  it('should throw when event cleanup not enabled', () => {
     const stream = new RushStream(() => {});
 
     expect(() => {

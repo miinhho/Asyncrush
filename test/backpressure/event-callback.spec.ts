@@ -1,7 +1,7 @@
 import { BackpressureController, BackpressureMode } from '../../lib';
 
 describe('event callbacks', () => {
-  test('should notify all pause callbacks', () => {
+  it('should notify all pause callbacks', () => {
     const controller = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1
@@ -24,7 +24,7 @@ describe('event callbacks', () => {
     expect(pauseSpy3).toHaveBeenCalledTimes(1);
   });
 
-  test('should notify all resume callbacks', () => {
+  it('should notify all resume callbacks', () => {
     const controller = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1
@@ -46,7 +46,7 @@ describe('event callbacks', () => {
     expect(resumeSpy2).toHaveBeenCalledTimes(1);
   });
 
-  test('should notify all drop callbacks', () => {
+  it('should notify all drop callbacks', () => {
     const controller = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1,
@@ -67,7 +67,7 @@ describe('event callbacks', () => {
     expect(dropSpy2).toHaveBeenCalledWith(3);
   });
 
-  test('should unregister pause callback', () => {
+  it('should unregister pause callback', () => {
     const controller = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1
@@ -92,7 +92,7 @@ describe('event callbacks', () => {
     expect(pauseSpy).not.toHaveBeenCalled();
   });
 
-  test('should unregister resume callback', () => {
+  it('should unregister resume callback', () => {
     const controller = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1
@@ -119,7 +119,7 @@ describe('event callbacks', () => {
     expect(resumeSpy).not.toHaveBeenCalled();
   });
 
-  test('should unregister drop callback', () => {
+  it('should unregister drop callback', () => {
     const controller = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1,
@@ -142,7 +142,7 @@ describe('event callbacks', () => {
     expect(dropSpy).not.toHaveBeenCalled();
   });
 
-  test('should handle errors in event callbacks', () => {
+  it('should handle errors in event callbacks', () => {
     const controller = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1

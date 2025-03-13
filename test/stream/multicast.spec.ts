@@ -1,7 +1,7 @@
 import { RushObserver, RushStream, RushSubscriber } from '../../lib';
 
 describe('multicasting', () => {
-  test('should not resubscribe an already subscribed subscriber', () => {
+  it('should not resubscribe an already subscribed subscriber', () => {
     const stream = new RushStream<string>(() => {});
     const sub = new RushSubscriber<string>();
 
@@ -12,7 +12,7 @@ describe('multicasting', () => {
     expect(stream.subscribers.size).toBe(1);
   });
 
-  test('should not unsubscribe a non-subscribed subscriber', () => {
+  it('should not unsubscribe a non-subscribed subscriber', () => {
     const stream = new RushStream<string>(() => {});
     const sub = new RushSubscriber<string>();
     const otherSub = new RushSubscriber<string>();
@@ -24,7 +24,7 @@ describe('multicasting', () => {
     expect(stream.subscribers.size).toBe(1);
   });
 
-  test('should broadcast events to subscribers', async () => {
+  it('should broadcast events to subscribers', async () => {
     const sub1NextSpy = jest.fn();
     const sub2NextSpy = jest.fn();
 
@@ -46,7 +46,7 @@ describe('multicasting', () => {
     expect(sub2NextSpy).toHaveBeenCalledWith('event1');
   });
 
-  test('should manage subscriber lifecycle', async () => {
+  it('should manage subscriber lifecycle', async () => {
     const stream = new RushStream<string>((observer) => {
       observer.next('hello');
     });
@@ -68,7 +68,7 @@ describe('multicasting', () => {
     expect(stream.subscribers.size).toBe(0);
   });
 
-  test('should complete subscribers on stream completion', async () => {
+  it('should complete subscribers on stream completion', async () => {
     const sub1CompleteSpy = jest.fn();
     const sub2CompleteSpy = jest.fn();
     const completeSpy = jest.fn();
@@ -94,7 +94,7 @@ describe('multicasting', () => {
     expect(sub2CompleteSpy).toHaveBeenCalledTimes(1);
   });
 
-  test('should propagate errors to all subscribers', () => {
+  it('should propagate errors to all subscribers', () => {
     const sub1ErrorSpy = jest.fn();
     const sub2ErrorSpy = jest.fn();
     const streamErrorSpy = jest.fn();

@@ -10,7 +10,7 @@ describe('buffers', () => {
     });
   });
 
-  test('should add and remove items from buffer', () => {
+  it('should add and remove items from buffer', () => {
     controller.push(1);
     controller.push(2);
     controller.push(3);
@@ -27,7 +27,7 @@ describe('buffers', () => {
     expect(controller.isEmpty).toBe(true);
   });
 
-  test('takeMany should not take more than available', () => {
+  it('takeMany should not take more than available', () => {
     controller.push(1);
     controller.push(2);
 
@@ -36,11 +36,11 @@ describe('buffers', () => {
     expect(controller.isEmpty).toBe(true);
   });
 
-  test('take should return undefined when buffer is empty', () => {
+  it('take should return undefined when buffer is empty', () => {
     expect(controller.take()).toBeUndefined();
   });
 
-  test('should correctly handle interleaved push and take operations', () => {
+  it('should correctly handle interleaved push and take operations', () => {
     const controller = new BackpressureController<number>({
       highWatermark: 3,
       lowWatermark: 1

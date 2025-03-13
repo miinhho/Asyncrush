@@ -81,16 +81,18 @@ export declare class RushStream<T = any> {
      */
     use(...args: RushMiddleware<T, T>[] | [RushMiddleware<T, T>[], RushUseOption]): this;
     /**
-     * Stops the stream and emits an event with options
+     * Stops the stream and clear objects with options
      * @param option - The option to stop the stream (default: `complete`)
      */
     unlisten(option?: 'destroy' | 'complete'): this;
     /**
      * Set the debounce time in milliseconds
+     * @param ms - Milliseconds to debounce
      */
     debounce(ms: number): this;
     /**
      * Set the throttle time in milliseconds
+     * @param ms - Milliseconds to throttle
      */
     throttle(ms: number): this;
     /**
@@ -107,7 +109,7 @@ export declare class RushStream<T = any> {
     getEventCleanup(): ReturnType<typeof createEventCleanup> | undefined;
     /**
      * Sets the backpressure mode dynamically
-     * @param mode The backpressure mode to use
+     * @param mode  The backpressure mode to use
      */
     setBackpressureMode(mode: BackpressureMode): this;
     /**

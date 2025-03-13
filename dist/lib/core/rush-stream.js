@@ -94,6 +94,7 @@ class RushStream {
         if (this.isDestroyed)
             return;
         if (this.isPaused) {
+            // Push value to backpressure if paused
             if (this.backpressure) {
                 this.backpressure.push(value);
             }
@@ -120,6 +121,8 @@ class RushStream {
         if (this.isDestroyed)
             return this;
         this.isPaused = false;
+        // If stream using backpressure & backpressure is not empty,
+        // Take values from buffer and process event
         if (this.backpressure && !this.backpressure.isEmpty) {
             while (!this.backpressure.isEmpty && !this.isPaused) {
                 const value = this.backpressure.take();
@@ -141,6 +144,7 @@ class RushStream {
             this.outputObserver.onNext(observer.next);
         }
         if (observer.error) {
+            // Handle errors in output & source
             this.outputObserver.onError((err) => {
                 var _a, _b, _c;
                 (_a = observer.error) === null || _a === void 0 ? void 0 : _a.call(observer, err);
@@ -153,6 +157,7 @@ class RushStream {
             });
         }
         if (observer.complete) {
+            // Complete event handled in source observer
             this.sourceObserver.onComplete(() => {
                 observer.complete();
                 this.subscribers.forEach((sub) => sub.complete());
@@ -177,6 +182,8 @@ class RushStream {
         var _a, _b;
         if (this.isDestroyed)
             return this;
+        // Modify subscribers to subscribe stream
+        // * Only for subscribers that didn't subscribed any stream
         for (const sub of subscribers) {
             if (this.subscribers.has(sub))
                 continue;
@@ -194,6 +201,8 @@ class RushStream {
         var _a, _b;
         if (this.isDestroyed)
             return this;
+        // Modify subscribers to unsubscribe stream
+        // * Only unsubscribing subscribers that registered in this stream
         for (const sub of subscribers) {
             if (!this.subscribers.has(sub))
                 continue;
@@ -222,6 +231,7 @@ class RushStream {
             return this;
         let middlewares = [];
         let options = {};
+        // Set option by determining whether argument is an array or not.
         if (Array.isArray(args[0])) {
             middlewares = args[0];
             options = args[1] && typeof args[1] === 'object' ? args[1] : {};
@@ -231,13 +241,15 @@ class RushStream {
         }
         if (middlewares.length === 0)
             return this;
+        // Handle error with source observer & error handler option
         const errorHandlerWrapper = (error) => {
             var _a, _b, _c;
             (_a = options.errorHandler) === null || _a === void 0 ? void 0 : _a.call(options, error);
-            this.outputObserver.error(error);
+            this.sourceObserver.error(error);
             (_c = (_b = this.debugHook) === null || _b === void 0 ? void 0 : _b.onError) === null || _c === void 0 ? void 0 : _c.call(_b, error);
         };
         const { applyMiddleware } = (0, retry_1.createRetryWrapper)(middlewares, options, errorHandlerWrapper);
+        // New handler for source observer
         const newHandler = (value) => {
             try {
                 const result = applyMiddleware(value);
@@ -257,7 +269,7 @@ class RushStream {
         return this;
     }
     /**
-     * Stops the stream and emits an event with options
+     * Stops the stream and clear objects with options
      * @param option - The option to stop the stream (default: `complete`)
      */
     unlisten(option) {
@@ -265,6 +277,7 @@ class RushStream {
         if (this.isDestroyed)
             return this;
         this.isDestroyed = true;
+        // Time control cleared regardless of the options
         this.clearTimeControl();
         if (option === 'destroy') {
             this.sourceObserver.destroy();
@@ -295,10 +308,12 @@ class RushStream {
     }
     /**
      * Set the debounce time in milliseconds
+     * @param ms - Milliseconds to debounce
      */
     debounce(ms) {
         if (this.isDestroyed)
             return this;
+        // * Clears time control to prevent debounce & throttle duplicated
         this.clearTimeControl();
         this.timeControl = {
             type: 'debounce',
@@ -308,10 +323,12 @@ class RushStream {
     }
     /**
      * Set the throttle time in milliseconds
+     * @param ms - Milliseconds to throttle
      */
     throttle(ms) {
         if (this.isDestroyed)
             return this;
+        // * Clears time control to prevent debounce & throttle duplicated
         this.clearTimeControl();
         this.timeControl = {
             type: 'throttle',
@@ -342,7 +359,7 @@ class RushStream {
     }
     /**
      * Sets the backpressure mode dynamically
-     * @param mode The backpressure mode to use
+     * @param mode  The backpressure mode to use
      */
     setBackpressureMode(mode) {
         if (this.backpressure) {
@@ -369,6 +386,7 @@ class RushStream {
      * @param options Event listener options
      */
     addDOMListener(target, eventName, listener, options) {
+        // * Only added when event cleanup is enabled
         if (!this.eventCleanup) {
             throw new Error('[Asyncrush] Event cleanup is not enabled for this stream');
         }
@@ -381,6 +399,7 @@ class RushStream {
      * @param listener Event handler
      */
     addEmitterListener(emitter, eventName, listener) {
+        // * Only added when event cleanup is enabled
         if (!this.eventCleanup) {
             throw new Error('[Asyncrush] Event cleanup is not enabled for this stream');
         }

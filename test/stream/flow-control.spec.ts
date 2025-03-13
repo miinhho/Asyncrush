@@ -7,7 +7,7 @@ describe('flow control', () => {
     jest.clearAllTimers();
   });
 
-  test('should pause and resume', () => {
+  it('should pause and resume', () => {
     const nextSpy = jest.fn();
     let sourceObserver: RushObserver<number>;
 
@@ -32,7 +32,7 @@ describe('flow control', () => {
     expect(nextSpy).toHaveBeenCalledWith(3);
   });
 
-  test('should throttle events', () => {
+  it('should throttle events', () => {
     const nextSpy = jest.fn();
     let sourceObserver: RushObserver<number>;
 
@@ -59,7 +59,7 @@ describe('flow control', () => {
 
   });
 
-  test('should debounce events', () => {
+  it('should debounce events', () => {
     const nextSpy = jest.fn();
     let sourceObserver: RushObserver<number>;
 
@@ -84,7 +84,7 @@ describe('flow control', () => {
     expect(nextSpy).toHaveBeenCalledWith(2);
   });
 
-  test('should handle switching from throttle to debounce', () => {
+  it('should handle switching from throttle to debounce', () => {
     const nextSpy = jest.fn();
     let sourceObserver: RushObserver<number>;
 
@@ -113,7 +113,7 @@ describe('flow control', () => {
     expect(nextSpy).toHaveBeenLastCalledWith(4);
   });
 
-  test('should clear timers when unlisten is called', () => {
+  it('should clear timers when unlisten is called', () => {
     const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
     const nextSpy = jest.fn();
     let sourceObserver: RushObserver<number>;

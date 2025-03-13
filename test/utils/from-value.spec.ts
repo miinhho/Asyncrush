@@ -23,7 +23,7 @@ describe('fromValues', () => {
     });
   });
 
-  test('should emit values immediately when no interval is specified', () => {
+  it('should emit values immediately when no interval is specified', () => {
     const values = [1, 2, 3];
 
     fromValues(values);
@@ -37,7 +37,7 @@ describe('fromValues', () => {
     expect(observer.complete).toHaveBeenCalled();
   });
 
-  test('should emit values at specified interval', () => {
+  it('should emit values at specified interval', () => {
     const values = [1, 2, 3];
     const interval = 1;
 
@@ -67,7 +67,7 @@ describe('fromValues', () => {
     expect(observer.next).toHaveBeenCalledTimes(3);
   });
 
-  test('should complete immediately for empty array', () => {
+  it('should complete immediately for empty array', () => {
     const values: number[] = [];
 
     fromValues(values);
@@ -78,7 +78,7 @@ describe('fromValues', () => {
     expect(observer.complete).toHaveBeenCalled();
   });
 
-  test('should pass options to createStream', () => {
+  it('should pass options to createStream', () => {
     const values = [1, 2, 3];
     const options = {
       continueOnError: true,
@@ -92,7 +92,7 @@ describe('fromValues', () => {
     );
   });
 
-  test('should ignore zero interval', () => {
+  it('should ignore zero interval', () => {
     const valuesZero = [1, 2, 3];
     fromValues(valuesZero, { interval: 0 });
     const observerZero = mockCreateStream.mock.results[0].value.observer;
@@ -101,7 +101,7 @@ describe('fromValues', () => {
     expect(observerZero.complete).toHaveBeenCalled();
   });
 
-  test('should ignore negative interval', () => {
+  it('should ignore negative interval', () => {
     const valuesNegative = [1, 2, 3];
 
     fromValues(valuesNegative, { interval: -100 });

@@ -7,7 +7,7 @@ describe('middleware processing', () => {
     jest.clearAllTimers();
   });
 
-  test('should apply middleware transformations', async () => {
+  it('should apply middleware transformations', async () => {
     const nextSpy = jest.fn();
     let sourceObserver: RushObserver<number>;
 
@@ -29,7 +29,7 @@ describe('middleware processing', () => {
     expect(nextSpy).toHaveBeenCalledWith(11);
   });
 
-  test('should correctly process values through async middleware chain', async () => {
+  it('should correctly process values through async middleware chain', async () => {
     const resultSpy = jest.fn();
 
     let observer: RushObserver<number>;
@@ -64,7 +64,7 @@ describe('middleware processing', () => {
     expect(resultSpy).toHaveBeenCalledWith(21);
   });
 
-  test('should handle errors in middleware', () => {
+  it('should handle errors in middleware', () => {
     const nextSpy = jest.fn();
     const errorSpy = jest.fn();
     const testError = new Error('Middleware error');
@@ -89,7 +89,7 @@ describe('middleware processing', () => {
     expect(errorSpy).toHaveBeenCalledWith(testError);
   });
 
-  test('should support retry options for middleware', async () => {
+  it('should support retry options for middleware', async () => {
     let attempts = 0;
     const middleware = jest.fn().mockImplementation((val: number) => {
       attempts++;

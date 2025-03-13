@@ -1,7 +1,7 @@
 import { BackpressureController, BackpressureMode } from '../../lib';
 
 describe('configuration changes', () => {
-  test('should update watermark levels', () => {
+  it('should update watermark levels', () => {
     const controller = new BackpressureController<number>({
       highWatermark: 10,
       lowWatermark: 5
@@ -20,7 +20,7 @@ describe('configuration changes', () => {
     expect(pauseSpy).toHaveBeenCalled();
   });
 
-  test('should change backpressure mode', () => {
+  it('should change backpressure mode', () => {
     const controller = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1,
@@ -40,7 +40,7 @@ describe('configuration changes', () => {
     expect(dropSpy).toHaveBeenCalledWith(3);
   });
 
-  test('should throw when updating with invalid watermarks', () => {
+  it('should throw when updating with invalid watermarks', () => {
     const controller = new BackpressureController<number>({
       highWatermark: 10,
       lowWatermark: 5

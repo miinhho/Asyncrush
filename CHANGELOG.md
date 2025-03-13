@@ -1,5 +1,21 @@
 # Change Log
 
+## [3.2.0] (2025-03-13)
+
+### 🛠️ Fix:  
+
+### ✨ New feature:
+- `RushSubject` to handle `RushStream` without producer.  
+
+### 🔧 Improvements:
+
+### Contributors
+- [miinhho](https://github.com/miinhho)
+- [dariomannu](https://github.com/dariomannu)
+  - Created a prototype for `RushSubject`.   
+
+<br>
+
 ## [3.1.1] (2025-03-13)
 
 ### 🛠️ Fix:  
@@ -14,6 +30,8 @@
 
 ### Contributors
 - [miinhho](https://github.com/miinhho)
+
+<br>
 
 ## [3.1.0] (2025-03-11)
 

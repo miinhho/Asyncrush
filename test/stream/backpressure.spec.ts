@@ -7,7 +7,7 @@ describe('backpressure', () => {
     jest.clearAllTimers();
   });
 
-  test('should trigger pause and resume callbacks', () => {
+  it('should trigger pause and resume callbacks', () => {
     const pauseSpy = jest.fn();
     const resumeSpy = jest.fn();
     const nextSpy = jest.fn();
@@ -45,7 +45,7 @@ describe('backpressure', () => {
     expect(resumeSpy).toHaveBeenCalledTimes(1);
   });
 
-  test('should apply backpressure in NOTIFY mode', () => {
+  it('should apply backpressure in NOTIFY mode', () => {
     const nextSpy = jest.fn();
 
     const stream = new RushStream<number>((observer) => {
@@ -76,7 +76,7 @@ describe('backpressure', () => {
     expect(backpressureController!.isPaused).toBe(false);
   });
 
-  test('should apply backpressure in DROP mode', () => {
+  it('should apply backpressure in DROP mode', () => {
     const nextSpy = jest.fn();
 
     const stream = new RushStream<number>((observer) => {
@@ -105,7 +105,7 @@ describe('backpressure', () => {
     stream.setBackpressureWatermarks(3, 1);
   });
 
-  test('should apply backpressure in WAIT mode', async () => {
+  it('should apply backpressure in WAIT mode', async () => {
     const nextSpy = jest.fn();
     let sourceObserver: RushObserver<number>;
 
@@ -139,7 +139,7 @@ describe('backpressure', () => {
     expect(nextSpy).toHaveBeenCalledTimes(1);
   });
 
-  test('should handle setting backpressure watermarks dynamically', () => {
+  it('should handle setting backpressure watermarks dynamically', () => {
     let sourceObserver: RushObserver<number>;
     const stream = new RushStream<number>((observer) => {
       sourceObserver = observer;

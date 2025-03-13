@@ -1,7 +1,7 @@
 import { RushObserver, RushStream, RushSubscriber } from "../../lib";
 
 describe('cleanup', () => {
-  test('should clean up resources on unlisten', () => {
+  it('should clean up resources on unlisten', () => {
     const cleanupSpy = jest.fn();
     const stream = new RushStream(() => cleanupSpy);
 
@@ -11,7 +11,7 @@ describe('cleanup', () => {
     expect(cleanupSpy).toHaveBeenCalledTimes(1);
   });
 
-  test('should complete stream', () => {
+  it('should complete stream', () => {
     const completeSpy = jest.fn();
     const stream = new RushStream(() => {});
 
@@ -27,7 +27,7 @@ describe('cleanup', () => {
     expect(subCompleteSpy).toHaveBeenCalledTimes(1);
   });
 
-  test('should destroy stream', () => {
+  it('should destroy stream', () => {
     const completeSpy = jest.fn();
     const stream = new RushStream(() => {});
 
@@ -40,7 +40,7 @@ describe('cleanup', () => {
     expect(completeSpy).not.toHaveBeenCalled();
   });
 
-  test('should handle errors in cleanup function', () => {
+  it('should handle errors in cleanup function', () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
     const stream = new RushStream(() => {
@@ -60,7 +60,7 @@ describe('cleanup', () => {
     consoleErrorSpy.mockRestore();
   });
 
-  test('should not emit events when stream is destroyed', () => {
+  it('should not emit events when stream is destroyed', () => {
     const nextSpy = jest.fn();
     let sourceObserver: RushObserver<number>;
 
@@ -78,7 +78,7 @@ describe('cleanup', () => {
     expect(nextSpy).not.toHaveBeenCalled();
   });
 
-  test('should not subscribe when stream is destroyed', () => {
+  it('should not subscribe when stream is destroyed', () => {
     const stream = new RushStream<number>(() => { });
     const sub = new RushSubscriber();
 

@@ -1,7 +1,7 @@
 import { RushStream } from '../../lib';
 
 describe('event handling', () => {
-  test('should emit events to listeners', () => {
+  it('should emit events to listeners', () => {
     const nextSpy = jest.fn();
 
     const stream = new RushStream<string>((observer) => {
@@ -18,7 +18,7 @@ describe('event handling', () => {
     expect(nextSpy).toHaveBeenNthCalledWith(2, 'event2');
   });
 
-  test('should handle errors from producer', () => {
+  it('should handle errors from producer', () => {
     const errorSpy = jest.fn();
     const testError = new Error('Test error');
 
@@ -33,7 +33,7 @@ describe('event handling', () => {
     expect(errorSpy).toHaveBeenCalledWith(testError);
   });
 
-  test('should handle completion from producer', () => {
+  it('should handle completion from producer', () => {
     const completeSpy = jest.fn();
 
     const stream = new RushStream<string>((observer) => {

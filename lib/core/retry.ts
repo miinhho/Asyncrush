@@ -49,6 +49,7 @@ export const createRetryWrapper = <T>(
     delayFn,
   };
 
+  // Calcaulate delay with config and return promise for that
   const scheduleRetry = (attempt: number, value: T): Promise<T> => {
     const delay = calculateRetryDelay(attempt, retryConfig);
 
@@ -57,6 +58,8 @@ export const createRetryWrapper = <T>(
     );
   };
 
+  // Asynchronous middleware processing function
+  // Processing all middleware asynchronously can decrease performance.
   const processAsyncMiddleware = async (
     value: T,
     attempt: number

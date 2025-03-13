@@ -39,10 +39,13 @@ const createRetryWrapper = (middlewares, options, errorHandler) => {
         jitter,
         delayFn,
     };
+    // Calcaulate delay with config and return promise for that
     const scheduleRetry = (attempt, value) => {
         const delay = calculateRetryDelay(attempt, retryConfig);
         return new Promise((resolve) => setTimeout(() => resolve(applyMiddleware(value, attempt + 1)), delay));
     };
+    // Asynchronous middleware processing function
+    // Processing all middleware asynchronously can decrease performance.
     const processAsyncMiddleware = (value, attempt) => __awaiter(void 0, void 0, void 0, function* () {
         let currentValue = value;
         for (let i = 0; i < middlewares.length; i++) {

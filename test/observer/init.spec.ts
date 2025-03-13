@@ -1,12 +1,12 @@
 import { RushObserver } from '../../lib';
 
 describe('initialization', () => {
-  test('should create with default options', () => {
+  it('should create with default options', () => {
     const observer = new RushObserver();
     expect(observer.isDestroyed()).toBe(false);
   });
 
-  test('should set continueOnError from options', () => {
+  it('should set continueOnError from options', () => {
     const observer = new RushObserver({ continueOnError: true });
     const errorSpy = jest.fn();
 

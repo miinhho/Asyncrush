@@ -1,7 +1,7 @@
 import { RushStream, RushSubscriber } from "../../lib";
 
 describe('stream subscription', () => {
-  test('should subscribe to stream', () => {
+  it('should subscribe to stream', () => {
     const stream = new RushStream<string>(() => {});
     const subscriber = new RushSubscriber<string>();
 
@@ -11,7 +11,7 @@ describe('stream subscription', () => {
     expect(stream.subscribers.has(subscriber)).toBe(true);
   });
 
-  test('should unsubscribe from previous stream when subscribing to new one', () => {
+  it('should unsubscribe from previous stream when subscribing to new one', () => {
     const stream1 = new RushStream<string>(() => {});
     const stream2 = new RushStream<string>(() => {});
     const subscriber = new RushSubscriber<string>();
@@ -24,7 +24,7 @@ describe('stream subscription', () => {
     expect(stream2.subscribers.has(subscriber)).toBe(true);
   });
 
-  test('should unsubscribe from stream', () => {
+  it('should unsubscribe from stream', () => {
     const stream = new RushStream<string>(() => {});
     const subscriber = new RushSubscriber<string>();
 
@@ -35,7 +35,7 @@ describe('stream subscription', () => {
     expect(stream.subscribers.has(subscriber)).toBe(false);
   });
 
-  test('should not affect stream when destroyed', () => {
+  it('should not affect stream when destroyed', () => {
     const stream = new RushStream<string>(() => {});
     const subscriber = new RushSubscriber<string>();
 

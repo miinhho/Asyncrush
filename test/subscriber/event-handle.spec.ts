@@ -1,7 +1,7 @@
 import { RushSubscriber } from "../../lib";
 
 describe('event handling', () => {
-  test('should call next handlers with value', () => {
+  it('should call next handlers with value', () => {
     const subscriber = new RushSubscriber<string>();
     const nextSpy = jest.fn();
 
@@ -11,7 +11,7 @@ describe('event handling', () => {
     expect(nextSpy).toHaveBeenCalledWith('test-event');
   });
 
-  test('should call error handlers with error', () => {
+  it('should call error handlers with error', () => {
     const subscriber = new RushSubscriber();
     const errorSpy = jest.fn();
     const testError = new Error('Test error');
@@ -22,7 +22,7 @@ describe('event handling', () => {
     expect(errorSpy).toHaveBeenCalledWith(testError);
   });
 
-  test('should call complete handlers', () => {
+  it('should call complete handlers', () => {
     const subscriber = new RushSubscriber();
     const completeSpy = jest.fn();
 
@@ -33,7 +33,7 @@ describe('event handling', () => {
     expect(subscriber.isDestroyed()).toBe(true);
   });
 
-  test('should not call handlers after destroy', () => {
+  it('should not call handlers after destroy', () => {
     const subscriber = new RushSubscriber<string>();
     const nextSpy = jest.fn();
     const errorSpy = jest.fn();

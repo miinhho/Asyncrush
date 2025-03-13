@@ -1,7 +1,7 @@
 import { BackpressureController, BackpressureMode } from '../../lib';
 
 describe('cleanup', () => {
-  test('should clear buffer and resume flow', () => {
+  it('should clear buffer and resume flow', () => {
     const controller = new BackpressureController<number>({
       highWatermark: 3,
       lowWatermark: 1,
@@ -30,7 +30,7 @@ describe('cleanup', () => {
     expect(controller.isPaused).toBe(false);
   });
 
-  test('should resolve waiters on clear', async () => {
+  it('should resolve waiters on clear', async () => {
     const controller = new BackpressureController<number>({
       highWatermark: 2,
       lowWatermark: 1,

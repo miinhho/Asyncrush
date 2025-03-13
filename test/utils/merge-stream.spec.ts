@@ -11,7 +11,7 @@ describe("mergeStream", () => {
     stream2 = new RushStream((observer) => { source2 = observer });
   });
 
-  test("should merge stream", () => {
+  it("should merge stream", () => {
     const nextSpy = jest.fn();
 
     mergeStream([stream1, stream2])
@@ -28,7 +28,7 @@ describe("mergeStream", () => {
     expect(nextSpy).toHaveBeenCalledTimes(2);
   });
 
-  test("should complete when no stream is in array", () => {
+  it("should complete when no stream is in array", () => {
     const completeSpy = jest.fn();
 
     mergeStream([])
@@ -39,7 +39,7 @@ describe("mergeStream", () => {
     expect(completeSpy).toHaveBeenCalled();
   });
 
-  test("should complete when every stream completed", () => {
+  it("should complete when every stream completed", () => {
     const completeSpy = jest.fn();
 
     mergeStream([stream1, stream2])
@@ -55,7 +55,7 @@ describe("mergeStream", () => {
     expect(completeSpy).toHaveBeenCalled();
   });
 
-  test("should catch error in streams", () => {
+  it("should catch error in streams", () => {
     const errorSpy = jest.fn();
     const testError = new Error("test error");
 

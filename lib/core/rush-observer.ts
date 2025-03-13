@@ -87,6 +87,8 @@ export class RushObserver<T = any> implements RushObserverImpl<T> {
    */
   onNext(handler: (value: T) => void): void {
     if (!this.isActive) return;
+
+    // Register middleware in only one place
     this.nextHandler = handler;
   }
 

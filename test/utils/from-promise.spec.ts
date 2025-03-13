@@ -19,7 +19,7 @@ describe('fromPromise', () => {
     });
   });
 
-  test('should create a stream from a resolved promise', async () => {
+  it('should create a stream from a resolved promise', async () => {
     const resolution = 'test-value';
     const promise = Promise.resolve(resolution);
 
@@ -33,7 +33,7 @@ describe('fromPromise', () => {
     expect(observer.complete).toHaveBeenCalled();
   });
 
-  test('should create a stream from a function returning a promise', async () => {
+  it('should create a stream from a function returning a promise', async () => {
     const resolution = 'test-value';
     const promiseFn = jest.fn().mockResolvedValue(resolution);
 
@@ -48,7 +48,7 @@ describe('fromPromise', () => {
     expect(observer.complete).toHaveBeenCalled();
   });
 
-  test('should handle promise rejection', async () => {
+  it('should handle promise rejection', async () => {
     const error = new Error('Test error');
     const promise = Promise.reject(error);
     promise.catch(() => {});
@@ -70,7 +70,7 @@ describe('fromPromise', () => {
     expect(observer.complete).not.toHaveBeenCalled();
   });
 
-  test('should pass options to createStream', () => {
+  it('should pass options to createStream', () => {
     const promise = Promise.resolve('test-value');
     const options = {
       continueOnError: true,

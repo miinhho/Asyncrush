@@ -74,6 +74,7 @@ class RushObserver {
     onNext(handler) {
         if (!this.isActive)
             return;
+        // Register middleware in only one place
         this.nextHandler = handler;
     }
     /**

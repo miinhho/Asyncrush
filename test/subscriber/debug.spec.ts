@@ -1,7 +1,7 @@
 import { RushStream, RushSubscriber } from "../../lib";
 
 describe('debugging', () => {
-  test('should call debug hooks on events', () => {
+  it('should call debug hooks on events', () => {
     const debugHook = {
       onEmit: jest.fn(),
       onError: jest.fn(),

@@ -10,7 +10,7 @@ describe('DOM listeners', () => {
     target = new MockEventTarget();
   });
 
-  test('should add and remove DOM event listeners', () => {
+  it('should add and remove DOM event listeners', () => {
     const listener = jest.fn();
     const options = { capture: true };
 
@@ -33,7 +33,7 @@ describe('DOM listeners', () => {
     expect(listener).toHaveBeenCalledTimes(1);
   });
 
-  test('should track listeners correctly', () => {
+  it('should track listeners correctly', () => {
     const listener1 = jest.fn();
     const listener2 = jest.fn();
 

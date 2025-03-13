@@ -10,7 +10,7 @@ describe('Wrapped listeners', () => {
     target = new MockEventTarget();
   });
 
-  test('should handle wrapped listeners', () => {
+  it('should handle wrapped listeners', () => {
     const originalListener = jest.fn();
 
     const wrappedListener = manager.createWrappedListener(

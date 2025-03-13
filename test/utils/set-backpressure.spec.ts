@@ -16,7 +16,7 @@ describe('setBackpressure', () => {
     } as unknown as RushStream<any>;
   });
 
-  test('should set mode when provided', () => {
+  it('should set mode when provided', () => {
     const result = setBackpressure(mockStream, {
       mode: BackpressureMode.DROP
     });
@@ -25,7 +25,7 @@ describe('setBackpressure', () => {
     expect(result).toBe(mockStream);
   });
 
-  test('should set watermarks when both high and low are provided', () => {
+  it('should set watermarks when both high and low are provided', () => {
     const highWatermark = 100;
     const lowWatermark = 50;
 
@@ -38,7 +38,7 @@ describe('setBackpressure', () => {
     expect(result).toBe(mockStream);
   });
 
-  test('should set both mode and watermarks when all are provided', () => {
+  it('should set both mode and watermarks when all are provided', () => {
     const highWatermark = 200;
     const lowWatermark = 100;
     const mode = BackpressureMode.NOTIFY;
@@ -54,17 +54,17 @@ describe('setBackpressure', () => {
     expect(result).toBe(mockStream);
   });
 
-  test('should not call setWatermarks when only highWatermark is provided', () => {
+  it('should not call setWatermarks when only highWatermark is provided', () => {
     setBackpressure(mockStream, { highWatermark: 100 });
     expect(mockController.setWatermarks).not.toHaveBeenCalled();
   });
 
-  test('should not call setWatermarks when only lowWatermark is provided', () => {
+  it('should not call setWatermarks when only lowWatermark is provided', () => {
     setBackpressure(mockStream, { lowWatermark: 50 });
     expect(mockController.setWatermarks).not.toHaveBeenCalled();
   });
 
-  test('should handle streams without backpressure controller', () => {
+  it('should handle streams without backpressure controller', () => {
     const streamWithoutController = {
       listen: jest.fn(),
       getBackpressureController: undefined

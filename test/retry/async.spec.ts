@@ -1,7 +1,7 @@
 import { createRetryWrapper } from '../../lib/core/retry';
 
 describe('asynchronous middleware', () => {
-  test('should properly handle resolved promises in middleware chain', async () => {
+  it('should properly handle resolved promises in middleware chain', async () => {
     const initialValue = 'test';
     const successfulResult = 'transformed value';
 
@@ -18,7 +18,7 @@ describe('asynchronous middleware', () => {
     expect(errorHandler).not.toHaveBeenCalled();
   });
 
-  test('should properly handle multiple async middleware functions in chain', async () => {
+  it('should properly handle multiple async middleware functions in chain', async () => {
     const initialValue = 5;
 
     const middlewares = [
@@ -36,7 +36,7 @@ describe('asynchronous middleware', () => {
     expect(errorHandler).not.toHaveBeenCalled();
   });
 
-  test('should handle mixed synchronous and asynchronous middleware functions', async () => {
+  it('should handle mixed synchronous and asynchronous middleware functions', async () => {
     const initialValue = 'initial';
 
     const middlewares = [
@@ -55,7 +55,7 @@ describe('asynchronous middleware', () => {
     expect(errorHandler).not.toHaveBeenCalled();
   });
 
-  test('should handle promise rejection with retry mechanism', async () => {
+  it('should handle promise rejection with retry mechanism', async () => {
     const asyncError = new Error('Async middleware error');
     let attemptCount = 0;
 

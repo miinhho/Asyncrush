@@ -26,7 +26,7 @@ describe('fromEmitter', () => {
     });
   });
 
-  test('should create a stream from emitter events', () => {
+  it('should create a stream from emitter events', () => {
     const eventName = 'data';
 
     fromEmitter(mockEmitter, eventName);
@@ -50,7 +50,7 @@ describe('fromEmitter', () => {
     expect(mockEmitter.off).toHaveBeenCalledWith('end', expect.any(Function));
   });
 
-  test('should handle error events and complete when continueOnError is false', () => {
+  it('should handle error events and complete when continueOnError is false', () => {
     const eventName = 'data';
     const error = new Error('Test error');
 
@@ -64,7 +64,7 @@ describe('fromEmitter', () => {
     expect(observer.complete).toHaveBeenCalled();
   });
 
-  test('should handle error events and not complete when continueOnError is true', () => {
+  it('should handle error events and not complete when continueOnError is true', () => {
     const eventName = 'data';
     const error = new Error('Test error');
     const options = { continueOnError: true };
@@ -78,7 +78,7 @@ describe('fromEmitter', () => {
     expect(observer.complete).not.toHaveBeenCalled();
   });
 
-  test('should handle end events', () => {
+  it('should handle end events', () => {
     const eventName = 'data';
 
     fromEmitter(mockEmitter, eventName);
@@ -89,7 +89,7 @@ describe('fromEmitter', () => {
     expect(observer.complete).toHaveBeenCalled();
   });
 
-  test('should include emitter in eventTargets option', () => {
+  it('should include emitter in eventTargets option', () => {
     const eventName = 'data';
     const existingTarget = new EventTarget();
     const options = { eventTargets: [existingTarget] };

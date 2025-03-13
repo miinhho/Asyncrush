@@ -7,7 +7,7 @@ describe('cleanup', () => {
     jest.clearAllTimers();
   });
 
-  test("should complete subscriber", () => {
+  it("should complete subscriber", () => {
     const completeSpy = jest.fn();
     const sub = new RushSubscriber();
 
@@ -17,7 +17,7 @@ describe('cleanup', () => {
     expect(completeSpy).toHaveBeenCalled();
   });
 
-  test("should destroy subscriber", () => {
+  it("should destroy subscriber", () => {
     const nextSpy = jest.fn();
     const sub = new RushSubscriber();
 
@@ -28,7 +28,7 @@ describe('cleanup', () => {
     expect(nextSpy).not.toHaveBeenCalled();
   });
 
-  test('should not process events when inactive', () => {
+  it('should not process events when inactive', () => {
     const subscriber = new RushSubscriber<number>();
     const nextSpy = jest.fn();
 
@@ -41,7 +41,7 @@ describe('cleanup', () => {
     expect(nextSpy).not.toHaveBeenCalled();
   });
 
-  test('should not add handlers when inactive', () => {
+  it('should not add handlers when inactive', () => {
     const subscriber = new RushSubscriber<number>();
     const nextSpy = jest.fn();
     const completeSpy = jest.fn();
@@ -62,7 +62,7 @@ describe('cleanup', () => {
     expect(errorSpy).not.toHaveBeenCalled();
   });
 
-  test('should not subscribe to stream when inactive', () => {
+  it('should not subscribe to stream when inactive', () => {
     const subscriber = new RushSubscriber<number>();
     const stream = new RushStream<number>(() => {});
 
@@ -72,7 +72,7 @@ describe('cleanup', () => {
     expect(stream.subscribers.has(subscriber)).toBe(false);
   });
 
-  test('should not apply middleware when inactive', () => {
+  it('should not apply middleware when inactive', () => {
     const subscriber = new RushSubscriber<number>();
     const middlewareSpy = jest.fn();
 
@@ -83,7 +83,7 @@ describe('cleanup', () => {
     expect(middlewareSpy).not.toHaveBeenCalled();
   });
 
-  test('should not apply time control when inactive', () => {
+  it('should not apply time control when inactive', () => {
     const subscriber = new RushSubscriber<number>();
     const nextSpy = jest.fn();
 

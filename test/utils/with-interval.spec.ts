@@ -25,7 +25,7 @@ describe('withInterval', () => {
     });
   });
 
-  test('should emit a static value at the specified interval', () => {
+  it('should emit a static value at the specified interval', () => {
     const intervalMs = 10;
     const staticValue = 'test value';
 
@@ -39,7 +39,7 @@ describe('withInterval', () => {
     expect(mockObserver.next).toHaveBeenCalledWith(staticValue);
   });
 
-  test('should use a generator function to create dynamic values', () => {
+  it('should use a generator function to create dynamic values', () => {
     const intervalMs = 1;
     const generator = (count: number) => `value-${count}`;
 
@@ -57,7 +57,7 @@ describe('withInterval', () => {
     expect(mockObserver.next).toHaveBeenCalledWith('value-2');
   });
 
-  test('should complete after specified count of emissions', () => {
+  it('should complete after specified count of emissions', () => {
     const intervalMs = 1;
     const value = 'test';
     const count = 3;
@@ -70,7 +70,7 @@ describe('withInterval', () => {
     expect(mockObserver.complete).toHaveBeenCalled();
   });
 
-  test('should handle errors in generator function', () => {
+  it('should handle errors in generator function', () => {
     const intervalMs = 1;
     const errorMessage = 'Generator error';
     const generator = (count: number) => {
@@ -92,7 +92,7 @@ describe('withInterval', () => {
     expect(mockObserver.error).toHaveBeenCalledWith(expect.any(Error));
   });
 
-  test('should pass stream options to createStream', () => {
+  it('should pass stream options to createStream', () => {
     const options = {
       continueOnError: true,
     };
@@ -101,7 +101,7 @@ describe('withInterval', () => {
     expect(createStream).toHaveBeenCalledWith(expect.any(Function), options);
   });
 
-  test('should exclude count from options passed to createStream', () => {
+  it('should exclude count from options passed to createStream', () => {
     const options = {
       name: 'countLimitedInterval',
       debugEnabled: true,

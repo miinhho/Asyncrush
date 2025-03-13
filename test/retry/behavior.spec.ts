@@ -7,7 +7,7 @@ describe('retry behavior', () => {
     jest.clearAllTimers();
   });
 
-  test('should retry failed middleware execution', async () => {
+  it('should retry failed middleware execution', async () => {
     let attempts = 0;
     const testError = new Error('Temporary error');
 
@@ -47,7 +47,7 @@ describe('retry behavior', () => {
     expect(errorHandler).not.toHaveBeenCalled();
   });
 
-  test('should give up after max retries and call error handler', async () => {
+  it('should give up after max retries and call error handler', async () => {
     const testError = new Error('Persistent error');
     const middleware = jest.fn().mockImplementation(() => {
       throw testError;
@@ -77,7 +77,7 @@ describe('retry behavior', () => {
     expect(errorHandler).toHaveBeenCalledWith(testError);
   });
 
-  test('should apply exponential backoff with jitter', async () => {
+  it('should apply exponential backoff with jitter', async () => {
     let lastDelay = 0;
     const now = jest.fn().mockImplementation(() => lastDelay);
     jest.spyOn(global.Date, 'now').mockImplementation(now);

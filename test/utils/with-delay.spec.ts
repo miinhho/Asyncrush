@@ -40,7 +40,7 @@ describe('withDelay', () => {
     });
   });
 
-  test('should delay emitting values by the specified time', () => {
+  it('should delay emitting values by the specified time', () => {
     withDelay(mockSource, 10);
     const factory = (createStream as jest.Mock).mock.calls[0][0];
     factory(mockObserver);
@@ -55,7 +55,7 @@ describe('withDelay', () => {
     expect(mockObserver.next).toHaveBeenCalledWith('test value');
   });
 
-  test('should delay completion by the specified time', () => {
+  it('should delay completion by the specified time', () => {
     withDelay(mockSource, 10);
     const factory = (createStream as jest.Mock).mock.calls[0][0];
     factory(mockObserver);
@@ -70,7 +70,7 @@ describe('withDelay', () => {
     expect(mockObserver.complete).toHaveBeenCalled();
   });
 
-  test('should propagate errors immediately without delay', () => {
+  it('should propagate errors immediately without delay', () => {
     withDelay(mockSource, 10);
     const factory = (createStream as jest.Mock).mock.calls[0][0];
     factory(mockObserver);
@@ -81,7 +81,7 @@ describe('withDelay', () => {
     expect(mockObserver.error).toHaveBeenCalledWith(error);
   });
 
-  test('should clean up subscription on unsubscribe', () => {
+  it('should clean up subscription on unsubscribe', () => {
     withDelay(mockSource, 10);
     const factory = (createStream as jest.Mock).mock.calls[0][0];
     const cleanup = factory(mockObserver);
@@ -91,7 +91,7 @@ describe('withDelay', () => {
     expect(mockUnlisten).toHaveBeenCalled();
   });
 
-  test('should pass options to the createStream function', () => {
+  it('should pass options to the createStream function', () => {
     const options = {
       continueOnError: true,
     };
@@ -100,7 +100,7 @@ describe('withDelay', () => {
     expect(createStream).toHaveBeenCalledWith(expect.any(Function), options);
   });
 
-  test('should use empty options object if none provided', () => {
+  it('should use empty options object if none provided', () => {
     withDelay(mockSource, 10);
 
     expect(createStream).toHaveBeenCalledWith(expect.any(Function), {});

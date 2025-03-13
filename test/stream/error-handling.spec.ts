@@ -1,7 +1,7 @@
 import { RushObserver, RushStream } from "../../lib";
 
 describe('error handling', () => {
-  test('should stop processing events after error when continueOnError is false', () => {
+  it('should stop processing events after error when continueOnError is false', () => {
     const nextSpy = jest.fn();
     const errorSpy = jest.fn();
     const testError = new Error('Test error');
@@ -26,7 +26,7 @@ describe('error handling', () => {
     expect(nextSpy).toHaveBeenCalledTimes(1);
   });
 
-  test('should continue processing events after error when continueOnError is true', () => {
+  it('should continue processing events after error when continueOnError is true', () => {
     const nextSpy = jest.fn();
     const errorSpy = jest.fn();
     const testError = new Error('Test error');

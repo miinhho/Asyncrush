@@ -1,7 +1,7 @@
 import { createRetryWrapper } from '../../lib/core/retry';
 
 describe('synchronous middleware', () => {
-  test('should apply middleware chain to value', async () => {
+  it('should apply middleware chain to value', async () => {
     const middlewares = [
       (val: number) => val + 1,
       (val: number) => val * 2,
@@ -15,14 +15,14 @@ describe('synchronous middleware', () => {
     expect(result).toBe(9);
   });
 
-  test('should handle empty middleware chain', async () => {
+  it('should handle empty middleware chain', async () => {
     const { applyMiddleware } = createRetryWrapper([], {}, jest.fn());
 
     const result = applyMiddleware('test');
     expect(result).toBe('test');
   });
 
-  test('should call error handler on middleware failure', async () => {
+  it('should call error handler on middleware failure', async () => {
     const testError = new Error('Middleware error');
     const middlewares = [
       () => { throw testError; }

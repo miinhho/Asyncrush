@@ -1,5 +1,5 @@
 import { RushSubscriber } from '../core';
-import { BackpressureMode } from '../manager';
+import { DEFAULT_BACKPRESSURE_OPTIONS } from '../manager';
 import { RushOptions } from '../types';
 
 /**
@@ -12,9 +12,7 @@ export function createSubscriber<T>(
 ): RushSubscriber<T> {
   const enhancedOptions: RushOptions<T> = {
     ...(options.backpressure !== null && {
-      backpressure: {
-        mode: options.backpressure?.mode ?? BackpressureMode.WAIT,
-      },
+      backpressure: DEFAULT_BACKPRESSURE_OPTIONS,
     }),
 
     continueOnError: options.continueOnError,

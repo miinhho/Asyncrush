@@ -1,7 +1,7 @@
 import { BackpressureMode, RushSubscriber } from "../../lib";
 
 describe('backpressure', () => {
-  test('should call onPause callback when buffer fills', () => {
+  it('should call onPause callback when buffer fills', () => {
     const onPauseSpy = jest.fn();
 
     const debugHook = {
@@ -31,7 +31,7 @@ describe('backpressure', () => {
     expect(debugHook.onEmit).toHaveBeenCalledWith({ type: 'backpressure:pause' });
   });
 
-  test('should call onResume callback when buffer drains', () => {
+  it('should call onResume callback when buffer drains', () => {
     const onPauseSpy = jest.fn();
     const onResumeSpy = jest.fn();
     const debugHook = {
@@ -66,7 +66,7 @@ describe('backpressure', () => {
     expect(debugHook.onEmit).toHaveBeenCalledWith({ type: 'backpressure:resume' });
   });
 
-  test('should call onDrop callback in DROP mode', () => {
+  it('should call onDrop callback in DROP mode', () => {
     const onDropSpy = jest.fn();
     const debugHook = {
       onEmit: jest.fn()
@@ -96,7 +96,7 @@ describe('backpressure', () => {
     expect(debugHook.onEmit).toHaveBeenCalledWith({ type: 'backpressure:drop', value: 3 });
   });
 
-  test('should apply backpressure in NOTIFY mode', () => {
+  it('should apply backpressure in NOTIFY mode', () => {
     const subscriber = new RushSubscriber<number>({
       backpressure: {
         highWatermark: 2,
@@ -125,7 +125,7 @@ describe('backpressure', () => {
     expect(backpressureController!.isPaused).toBe(false);
   });
 
-  test('should set backpressure mode', () => {
+  it('should set backpressure mode', () => {
     const subscriber = new RushSubscriber<number>({
       backpressure: {
         highWatermark: 2,
@@ -141,7 +141,7 @@ describe('backpressure', () => {
     expect(controller).toBeDefined();
   });
 
-  test('should drop events in DROP mode when buffer is full', () => {
+  it('should drop events in DROP mode when buffer is full', () => {
     const subscriber = new RushSubscriber<number>({
       backpressure: {
         highWatermark: 2,
@@ -163,7 +163,7 @@ describe('backpressure', () => {
     expect(nextSpy).toHaveBeenCalledTimes(2);
   });
 
-  test('should buffer events in WAIT mode', () => {
+  it('should buffer events in WAIT mode', () => {
     const subscriber = new RushSubscriber<number>({
       backpressure: {
         highWatermark: 2,

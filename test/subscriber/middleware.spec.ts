@@ -7,7 +7,7 @@ describe('middleware processing', () => {
     jest.clearAllTimers();
   });
 
-  test('should apply middleware transformations', () => {
+  it('should apply middleware transformations', () => {
     const subscriber = new RushSubscriber<number>();
     const nextSpy = jest.fn();
 
@@ -22,7 +22,7 @@ describe('middleware processing', () => {
     expect(nextSpy).toHaveBeenCalledWith(11);
   });
 
-  test('should handle errors in middleware', () => {
+  it('should handle errors in middleware', () => {
     const subscriber = new RushSubscriber<number>();
     const nextSpy = jest.fn();
     const errorSpy = jest.fn();
@@ -41,7 +41,7 @@ describe('middleware processing', () => {
     expect(errorSpy).toHaveBeenCalledWith(testError);
   });
 
-  test('should support retry options for middleware', async () => {
+  it('should support retry options for middleware', async () => {
     let attempts = 0;
     const middleware = jest.fn().mockImplementation((val: number) => {
       attempts++;
@@ -78,7 +78,7 @@ describe('middleware processing', () => {
     expect(errorSpy).not.toHaveBeenCalled();
   });
 
-  test('should not apply middleware if destroyed', (done) => {
+  it('should not apply middleware if destroyed', (done) => {
     const subscriber = new RushSubscriber<number>();
     const middlewareSpy = jest.fn();
 

@@ -10,7 +10,7 @@ describe('Helper functions', () => {
     emitter = new MockEventEmitter();
   });
 
-  test('addDOMListener should use the singleton manager', () => {
+  it('addDOMListener should use the singleton manager', () => {
     const listener = jest.fn();
 
     const cleanup = addDOMListener(
@@ -25,7 +25,7 @@ describe('Helper functions', () => {
     expect(target.getListenerCount('click')).toBe(0);
   });
 
-  test('addEmitterListener should use the singleton manager', () => {
+  it('addEmitterListener should use the singleton manager', () => {
     const listener = jest.fn();
 
     const cleanup = addEmitterListener(
@@ -40,7 +40,7 @@ describe('Helper functions', () => {
     expect(emitter.getListenerCount('data')).toBe(0);
   });
 
-  test('createEventCleanup should track and cleanup multiple targets', () => {
+  it('createEventCleanup should track and cleanup multiple targets', () => {
     const target2 = new MockEventTarget();
     const emitter2 = new MockEventEmitter();
 

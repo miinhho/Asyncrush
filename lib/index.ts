@@ -1,4 +1,4 @@
-import { RushObserver, RushStream, RushSubscriber } from './core';
+import { RushObserver, RushStream, RushSubject, RushSubscriber } from './core';
 
 import type {
   BackpressureOptions,
@@ -55,6 +55,7 @@ export {
   mergeStream,
   RushObserver,
   RushStream,
+  RushSubject,
   RushSubscriber,
   setBackpressure,
   withDelay,

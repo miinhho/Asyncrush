@@ -10,7 +10,7 @@ describe('EventEmitter listeners', () => {
     emitter = new MockEventEmitter();
   });
 
-  test('should add and remove EventEmitter listeners', () => {
+  it('should add and remove EventEmitter listeners', () => {
     const listener = jest.fn();
 
     const cleanup = manager.addEmitterListener(

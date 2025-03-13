@@ -25,7 +25,7 @@ describe('fromDOMEvent', () => {
     });
   });
 
-  test('should create a stream from DOM events', () => {
+  it('should create a stream from DOM events', () => {
     const eventName = 'click';
     const options = { capture: true, passive: true };
 
@@ -52,7 +52,7 @@ describe('fromDOMEvent', () => {
     );
   });
 
-  test('should handle multiple targets', () => {
+  it('should handle multiple targets', () => {
     const mockTarget2 = {
       addEventListener: jest.fn(),
       removeEventListener: jest.fn()
@@ -79,7 +79,7 @@ describe('fromDOMEvent', () => {
     expect(mockTarget2.removeEventListener).toHaveBeenCalled();
   });
 
-  test('should include targets in eventTargets option', () => {
+  it('should include targets in eventTargets option', () => {
     const eventName = 'click';
     const existingTarget = new EventTarget();
     const options = { eventTargets: [existingTarget] };
@@ -94,7 +94,7 @@ describe('fromDOMEvent', () => {
     );
   });
 
-  test('should pass correct listener options', () => {
+  it('should pass correct listener options', () => {
     const eventName = 'click';
     const listenerOptions = {
       passive: true,

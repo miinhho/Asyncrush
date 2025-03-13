@@ -7,7 +7,7 @@ describe('flow control', () => {
     jest.clearAllTimers();
   });
 
-  test('should pause and resume', () => {
+  it('should pause and resume', () => {
     const subscriber = new RushSubscriber<string>();
     const nextSpy = jest.fn();
 
@@ -26,7 +26,7 @@ describe('flow control', () => {
     expect(nextSpy).toHaveBeenLastCalledWith('event3');
   });
 
-  test('should throttle events', () => {
+  it('should throttle events', () => {
     const subscriber = new RushSubscriber<string>();
     const nextSpy = jest.fn();
 
@@ -47,7 +47,7 @@ describe('flow control', () => {
 
   });
 
-  test('should debounce events', () => {
+  it('should debounce events', () => {
     const subscriber = new RushSubscriber<string>();
     const nextSpy = jest.fn();
 
@@ -66,7 +66,7 @@ describe('flow control', () => {
     expect(nextSpy).toHaveBeenCalledWith('event2');
   });
 
-  test('should clear previous time control when setting a new one', () => {
+  it('should clear previous time control when setting a new one', () => {
     const subscriber = new RushSubscriber<number>();
     const nextSpy = jest.fn();
 
@@ -83,7 +83,7 @@ describe('flow control', () => {
     expect(nextSpy).toHaveBeenCalledWith(2);
   });
 
-  test('should handle undefined temp value in debounce', () => {
+  it('should handle undefined temp value in debounce', () => {
     const subscriber = new RushSubscriber<number | undefined>();
     const nextSpy = jest.fn();
 
