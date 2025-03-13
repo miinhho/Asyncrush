@@ -3,8 +3,11 @@
 ### Todo
 
 - [ ] Test
+  - [ ] Backpressure test for `RushSubject`
+  - [ ] Debounce & Throttle flow test for `RushSubject`
   - [ ] Add destroy or active check test
   - [ ] Add more nested error check test
+  - [ ] Debugger test for backpressure
 
 ### In Progress
 

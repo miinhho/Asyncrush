@@ -40,6 +40,15 @@ describe('configuration changes', () => {
     expect(dropSpy).toHaveBeenCalledWith(3);
   });
 
+  it('should throw when initializing with invalid watermarks', () => {
+    expect(() => {
+      new BackpressureController<number>({
+        highWatermark: 5,
+        lowWatermark: 10
+      });
+    }).toThrow('[Asyncrush] lowWatermark must be less than highWatermark');
+  });
+
   it('should throw when updating with invalid watermarks', () => {
     const controller = new BackpressureController<number>({
       highWatermark: 10,

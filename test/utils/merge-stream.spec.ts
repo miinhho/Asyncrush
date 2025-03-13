@@ -39,6 +39,19 @@ describe("mergeStream", () => {
     expect(completeSpy).toHaveBeenCalled();
   });
 
+  it("should complete when merged stream completed", () => {
+    const completeSpy = jest.fn();
+
+    const mergedStream = mergeStream([stream1, stream2])
+      .listen({
+        next: () => { },
+        complete: completeSpy
+      });
+
+    mergedStream.unlisten('complete');
+    expect(completeSpy).toHaveBeenCalled();
+  });
+
   it("should complete when every stream completed", () => {
     const completeSpy = jest.fn();
 
